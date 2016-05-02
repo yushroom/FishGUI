@@ -1,2 +1,7 @@
 /src/3rdparty
 
+/VS2015/.vs/
+/VS2015/Debug/
+*.vc.db
+*.opendb
+*.user
