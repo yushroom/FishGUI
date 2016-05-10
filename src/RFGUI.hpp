@@ -1,4 +1,8 @@
+#ifndef RFGUI_hpp
+#define RFGUI_hpp
+
 #include <glfw3.h>
+#include <string>
 
 namespace RFGUI {
     struct Position {
@@ -24,6 +28,16 @@ namespace RFGUI {
         SBP_TOP,
         SBP_BOTTOM,
         SBP_FLOATING,
+    };
+    
+    enum GUIAlignment {
+        GUIAlignmentHoriontallyLeft     = 1 << 0,
+        GUIAlignmentHoriontallyCenter   = 1 << 1,
+        GUIAlignmentHoriontallyRight    = 1 << 2,
+        GUIAlignmentVerticallyTop       = 1 << 3,
+        GUIAlignmentVerticallyCenter    = 1 << 4,
+        GUIAlignmentVerticallyBottom    = 1 << 5,
+        GUIAlignmentCenter = GUIAlignmentHoriontallyCenter | GUIAlignmentVerticallyCenter
     };
     
     struct SideBarState {
@@ -83,4 +97,10 @@ namespace RFGUI {
     void SideBar(int width = 160);
     
     bool Button(const char* text);
+    
+    void Label(const std::string& text, GUIAlignment alignment = GUIAlignmentCenter);
+    
+    void DrawText(const std::string& text, int x, int y, int w, int h, GUIAlignment alignment = GUIAlignmentCenter);
 }
+
+#endif // RFGUI_hpp

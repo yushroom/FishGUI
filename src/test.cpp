@@ -1,11 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include "RFGUI.hpp"
-#include "RFFont.hpp"
-#include "Bitmap.hpp"
 
 //#include <stdio.h>
 //#include <string.h>
@@ -177,6 +169,14 @@
 //    return 0;
 //}
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "RFGUI.hpp"
+#include "RFFont.hpp"
+#include "Bitmap.hpp"
 
 static void error_callback(int error, const char* description)
 {
@@ -210,10 +210,14 @@ int main(void)
 	ratio = width / (float)height;
 	glViewport(0, 0, width, height);
 
-	auto bmp = RFFont::get_instance()->get_bitmap_for_char('B', 512);
-	bmp->save("./fonts.bmp");
+	// auto bmp = RFFont::get_instance()->get_bitmap_for_char('g', 512);
+	// bmp->save("./fonts.bmp");
+    
+    GLuint font_texture;
+    glGenTextures(1, &font_texture);
+    //gltex
 
-	/*while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
@@ -223,6 +227,8 @@ int main(void)
 		RFGUI::Begin();
 		RFGUI::SideBar();
 
+        RFGUI::Label("AaBbCcDdEeFfGg");
+        
 		if (RFGUI::Button("button 1")) {
 			printf("button 1 clicked\n");
 		}
@@ -235,7 +241,7 @@ int main(void)
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-	}*/
+	}
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BF3695ED1CD60E0200C21544 /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF3695EC1CD60E0200C21544 /* test.cpp */; };
 		BF3696501CD611C800C21544 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF36964F1CD611C800C21544 /* OpenGL.framework */; };
 		BF3696521CD611CF00C21544 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF3696511CD611CF00C21544 /* Cocoa.framework */; };
 		BF3696541CD611D800C21544 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF3696531CD611D800C21544 /* IOKit.framework */; };
 		BF3696561CD611E300C21544 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF3696551CD611E300C21544 /* CoreVideo.framework */; };
-		BFF1BC421CD65C8B009BBF1F /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BFF1BC411CD65C8B009BBF1F /* libfreetype.a */; };
+		BFF1BC511CD745B4009BBF1F /* libglfw3.3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BFF1BC501CD745B4009BBF1F /* libglfw3.3.1.dylib */; };
+		BFF1BC671CD7AAA0009BBF1F /* Bitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF1BC601CD7AAA0009BBF1F /* Bitmap.cpp */; };
+		BFF1BC681CD7AAA0009BBF1F /* RFFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF1BC621CD7AAA0009BBF1F /* RFFont.cpp */; };
+		BFF1BC691CD7AAA0009BBF1F /* RFGUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF1BC641CD7AAA0009BBF1F /* RFGUI.cpp */; };
+		BFF1BC6A1CD7AAA0009BBF1F /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF1BC661CD7AAA0009BBF1F /* test.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,13 +32,20 @@
 
 /* Begin PBXFileReference section */
 		BF3695E21CD60DCB00C21544 /* RFGUI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RFGUI; sourceTree = BUILT_PRODUCTS_DIR; };
-		BF3695EC1CD60E0200C21544 /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = src/test.cpp; sourceTree = SOURCE_ROOT; };
 		BF36964F1CD611C800C21544 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		BF3696511CD611CF00C21544 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		BF3696531CD611D800C21544 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		BF3696551CD611E300C21544 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
-		BFF1BC411CD65C8B009BBF1F /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = /usr/local/Cellar/freetype/2.6.3/lib/libfreetype.a; sourceTree = "<absolute>"; };
-		BFF1BC431CD66511009BBF1F /* Bitmap.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Bitmap.hpp; path = src/Bitmap.hpp; sourceTree = SOURCE_ROOT; };
+		BFB5EBC91CD8650E005954F3 /* stb_truetype.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = src/stb_truetype.h; sourceTree = SOURCE_ROOT; };
+		BFD20B021CDC5E11005638AA /* stb_image_write.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stb_image_write.h; path = src/stb_image_write.h; sourceTree = SOURCE_ROOT; };
+		BFF1BC501CD745B4009BBF1F /* libglfw3.3.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw3.3.1.dylib; path = /usr/local/Cellar/glfw3/3.1.2/lib/libglfw3.3.1.dylib; sourceTree = "<absolute>"; };
+		BFF1BC601CD7AAA0009BBF1F /* Bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Bitmap.cpp; path = src/Bitmap.cpp; sourceTree = SOURCE_ROOT; };
+		BFF1BC611CD7AAA0009BBF1F /* Bitmap.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Bitmap.hpp; path = src/Bitmap.hpp; sourceTree = SOURCE_ROOT; };
+		BFF1BC621CD7AAA0009BBF1F /* RFFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RFFont.cpp; path = src/RFFont.cpp; sourceTree = SOURCE_ROOT; };
+		BFF1BC631CD7AAA0009BBF1F /* RFFont.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RFFont.hpp; path = src/RFFont.hpp; sourceTree = SOURCE_ROOT; };
+		BFF1BC641CD7AAA0009BBF1F /* RFGUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RFGUI.cpp; path = src/RFGUI.cpp; sourceTree = SOURCE_ROOT; };
+		BFF1BC651CD7AAA0009BBF1F /* RFGUI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RFGUI.hpp; path = src/RFGUI.hpp; sourceTree = SOURCE_ROOT; };
+		BFF1BC661CD7AAA0009BBF1F /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test.cpp; path = src/test.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,11 +53,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BFF1BC511CD745B4009BBF1F /* libglfw3.3.1.dylib in Frameworks */,
 				BF3696561CD611E300C21544 /* CoreVideo.framework in Frameworks */,
 				BF3696541CD611D800C21544 /* IOKit.framework in Frameworks */,
 				BF3696521CD611CF00C21544 /* Cocoa.framework in Frameworks */,
 				BF3696501CD611C800C21544 /* OpenGL.framework in Frameworks */,
-				BFF1BC421CD65C8B009BBF1F /* libfreetype.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,8 +84,15 @@
 		BF3695E41CD60DCB00C21544 /* RFGUI */ = {
 			isa = PBXGroup;
 			children = (
-				BFF1BC431CD66511009BBF1F /* Bitmap.hpp */,
-				BF3695EC1CD60E0200C21544 /* test.cpp */,
+				BFD20B021CDC5E11005638AA /* stb_image_write.h */,
+				BFB5EBC91CD8650E005954F3 /* stb_truetype.h */,
+				BFF1BC601CD7AAA0009BBF1F /* Bitmap.cpp */,
+				BFF1BC611CD7AAA0009BBF1F /* Bitmap.hpp */,
+				BFF1BC621CD7AAA0009BBF1F /* RFFont.cpp */,
+				BFF1BC631CD7AAA0009BBF1F /* RFFont.hpp */,
+				BFF1BC641CD7AAA0009BBF1F /* RFGUI.cpp */,
+				BFF1BC651CD7AAA0009BBF1F /* RFGUI.hpp */,
+				BFF1BC661CD7AAA0009BBF1F /* test.cpp */,
 			);
 			path = RFGUI;
 			sourceTree = "<group>";
@@ -83,7 +100,7 @@
 		BF3696571CD611F700C21544 /* framework */ = {
 			isa = PBXGroup;
 			children = (
-				BFF1BC411CD65C8B009BBF1F /* libfreetype.a */,
+				BFF1BC501CD745B4009BBF1F /* libglfw3.3.1.dylib */,
 				BF3696551CD611E300C21544 /* CoreVideo.framework */,
 				BF3696531CD611D800C21544 /* IOKit.framework */,
 				BF3696511CD611CF00C21544 /* Cocoa.framework */,
@@ -148,7 +165,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BF3695ED1CD60E0200C21544 /* test.cpp in Sources */,
+				BFF1BC681CD7AAA0009BBF1F /* RFFont.cpp in Sources */,
+				BFF1BC691CD7AAA0009BBF1F /* RFGUI.cpp in Sources */,
+				BFF1BC671CD7AAA0009BBF1F /* Bitmap.cpp in Sources */,
+				BFF1BC6A1CD7AAA0009BBF1F /* test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,10 +259,14 @@
 		BF3695EA1CD60DCB00C21544 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include/freetype2/;
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					/usr/local/include/freetype2/,
+					/usr/local/include/GLFW/,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib,
+					/usr/local/Cellar/glfw3/3.1.2/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -251,10 +275,14 @@
 		BF3695EB1CD60DCB00C21544 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include/freetype2/;
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					/usr/local/include/freetype2/,
+					/usr/local/include/GLFW/,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib,
+					/usr/local/Cellar/glfw3/3.1.2/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -1,4 +1,5 @@
 #include "RFGUI.hpp"
+#include "RFFont.hpp"
 
 namespace RFGUI {
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -102,6 +103,22 @@ namespace RFGUI {
         
         g_side_bar_state.add_cell(h);
         return clicked;
+    }
+    
+    void Label(const std::string& text, GUIAlignment alignment) {
+        int x, y, w, h;
+        g_side_bar_state.get_origin(&x, &y);
+        w = g_side_bar_state.get_avaliable_width();
+        h = g_side_bar_state.y_cell_height;
+        //const int id = g_side_bar_state.get_current_cell_id();
+        DrawText(text, x, y, w, h, alignment);
+        g_side_bar_state.add_cell(h);
+    }
+    
+    void DrawText(const std::string& text, int x, int y, int w, int h, GUIAlignment alignment)
+    {
+        auto bmp = RFFont::GetInstance()->GetBitmapForString(text, w, h);
+        //bmp->save("fonts.bmp");
     }
 
 }

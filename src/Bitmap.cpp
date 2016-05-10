@@ -3,6 +3,9 @@
 #include <cassert>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 using namespace std;
 
 typedef uint8_t BYTE;
@@ -86,38 +89,71 @@ void write_bmp(
 	info_header.planes = 1;
 	info_header.bitcount = 24;
 
-	const LONG width_with_padding = (LONG)ceilf(width / 4.0f) * 4;
-	info_header.sizeImage = (DWORD)bytes;
+	//const LONG width_with_padding = (LONG)ceilf(width / 4.0f) * 4;
+	const int row_length = width * 3;
+	const int row_length_padding = (LONG)ceil(row_length/4.0f) * 4;
+	bool has_padding = (row_length != row_length_padding);
+	info_header.sizeImage = DWORD(row_length_padding * height);
 	fout.write((const char*)&info_header, 40);
-	//    vector<BYTE> p(bytes);
-	//    int i = 0;
-	//    for (int y = (int)height - 1; y >= 0; --y)
-	//        for (int x = 0; x < (int)width; ++x) {
-	//            auto& c = pixels[y*width+x];
-	//            p[i++] = tobyte(c.z);
-	//            p[i++] = tobyte(c.y);
-	//            p[i++] = tobyte(c.x);
-	//            //fout << tobyte(c.z) << tobyte(c.y) << tobyte(c.x);
-	//        }
-	if (width == width_with_padding)
+
+	if (!has_padding)
 		fout.write((const char*)&pixels[0], bytes);
 	else {
-		//abort();
-		const LONG bytes_with_padding = width_with_padding * info_header.height * 3;
-		info_header.sizeImage = (DWORD)bytes_with_padding;
-		vector<uint8_t> p(bytes_with_padding, 0);
-		for (int y = (int)height - 1; y >= 0; --y) {
-			for (int x = 0; x < (int)width; ++x) {
-				int idx2 = y * width_with_padding + x;
-				int idx1 = y * width + x;
-				p[idx2] = pixels[idx1];
-			}
+		vector<uint8_t> p(row_length_padding * height, 0);
+		for (int i = 0; i < height; ++i) {
+			const int start1 = row_length*i;
+			const int start2 = row_length_padding*i;
+			std::copy(pixels.begin()+start1, pixels.begin()+start1+row_length, p.begin()+start2);
 		}
-		fout.write((const char*)&p[0], bytes_with_padding);
+		fout.write((const char*)&p[0], row_length_padding * height);
 	}
 	fout.close();
 }
 
+void write_bmp(
+               const std::string& path,
+               const size_t width,
+               const size_t height,
+               const int channels,
+               const std::vector<uint8_t>& pixels)
+{
+    stbi_write_bmp(path.c_str(), width, height, channels, (void*)&pixels[0]);
+}
+
+void write_bmp(
+	const std::string& path,
+	const size_t width,
+	const size_t height,
+	const int channels,
+	uint8_t* pixels)
+{
+	stbi_write_bmp(path.c_str(), width, height, channels, (void*)pixels);
+}
+
+// void write_png(
+// 	const std::string& path,
+// 	const size_t width,
+// 	const size_t height,
+// 	const int channels,
+// 	uint8_t* pixels)
+// {
+// 	stbi_write_png
+// }
+
 void Bitmap::save(const std::string& path) const {
-	write_bmp(path, width, height, pixels);
+	//write_bmp(path, width, height, pixels);
+    
+    if (m_channels == 3)
+        stbi_write_bmp(path.c_str(), width, height, m_channels, (void*)pixels.data());
+    else if (m_channels == 1){
+        vector<uint8_t> p;
+        p.reserve(width * height * 3);
+        for (auto pp : pixels) {
+            for (int i = 0; i < 3; ++i)
+                p.push_back(pp);
+        }
+        stbi_write_bmp(path.c_str(), width, height, 3, (void*)p.data());
+    } else {
+        assert(false);
+    }
 }
