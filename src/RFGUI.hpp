@@ -1,8 +1,11 @@
 #ifndef RFGUI_hpp
 #define RFGUI_hpp
 
+#define GLEW_STATIC
+#include "gl/glew.h"
 #include <glfw3.h>
 #include <string>
+
 
 namespace RFGUI {
     struct Position {

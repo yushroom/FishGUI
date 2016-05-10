@@ -1,9 +1,20 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "RFFont.hpp"
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #include <vector>
 
 using namespace std;
+
+RFFont::RFFont(const char* font_path) {
+	FILE* fp = fopen(font_path, "rb");
+	//        if (!fp) {
+	//            std::perror("File opening failed");
+	//        }
+	assert(fp);
+	fread(m_buffer, 1, 10000000, fp);
+	stbtt_InitFont(&m_font, m_buffer, 0);
+}
 
 std::shared_ptr<Bitmap> RFFont::GetBitmapForString(const std::string& text, const int w, const int h) {
     float scale = stbtt_ScaleForPixelHeight(&m_font, h);
@@ -31,6 +42,6 @@ std::shared_ptr<Bitmap> RFFont::GetBitmapForString(const std::string& text, cons
             xpos += scale*stbtt_GetCodepointKernAdvance(&m_font, ch,text[i+1]);
         width = (int)xpos + x0;
     }
-    printf("width = %d\n", width);
+    //printf("width = %d\n", width);
     return bmp;
 }

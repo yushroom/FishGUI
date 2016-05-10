@@ -2,6 +2,9 @@
 
 /VS2015/.vs/
 /VS2015/Debug/
+/VS2015/Release/
 *.vc.db
 *.opendb
 *.user
+
+/src/3rdparty/

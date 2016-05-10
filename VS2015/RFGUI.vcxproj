@@ -18,6 +18,22 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Bitmap.cpp" />
+    <ClCompile Include="..\src\glew.c" />
+    <ClCompile Include="..\src\RFFont.cpp" />
+    <ClCompile Include="..\src\RFGUI.cpp" />
+    <ClCompile Include="..\src\Shader.cpp" />
+    <ClCompile Include="..\src\test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Bitmap.hpp" />
+    <ClInclude Include="..\src\RFFont.hpp" />
+    <ClInclude Include="..\src\RFGUI.hpp" />
+    <ClInclude Include="..\src\Shader.hpp" />
+    <ClInclude Include="..\src\stb_image_write.h" />
+    <ClInclude Include="..\src\stb_truetype.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{78317F36-5A29-4B4B-B204-7E1E1D413438}</ProjectGuid>
     <RootNamespace>RFGUI</RootNamespace>
@@ -69,11 +85,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\program\library\ft263\freetype-2.6.3\include;D:\program\library\glfw-3.1.2\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>D:\program\library\ft263\freetype-2.6.3\include;D:\program\library\glfw-3.1.2\include\GLFW;D:\program\RFGUI\src\3rdparty\glew-1.13.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\program\library\ft263\freetype-2.6.3\build\Debug;D:\program\library\glfw-3.1.2\build\src\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\program\library\ft263\freetype-2.6.3\include;D:\program\library\glfw-3.1.2\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>D:\program\library\ft263\freetype-2.6.3\include;D:\program\library\glfw-3.1.2\include\GLFW;D:\program\RFGUI\src\3rdparty\glew-1.13.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\program\library\ft263\freetype-2.6.3\build\Release;D:\program\library\glfw-3.1.2\build\src\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -81,6 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -100,6 +117,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -120,17 +138,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\Bitmap.cpp" />
-    <ClCompile Include="..\src\RFFont.cpp" />
-    <ClCompile Include="..\src\RFGUI.cpp" />
-    <ClCompile Include="..\src\test.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\Bitmap.hpp" />
-    <ClInclude Include="..\src\RFFont.hpp" />
-    <ClInclude Include="..\src\RFGUI.hpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

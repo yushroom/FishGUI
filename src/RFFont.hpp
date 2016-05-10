@@ -1,6 +1,8 @@
 #ifndef RFFont_hpp
 #define RFFont_hpp
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -12,22 +14,15 @@
 
 class RFFont {
 public:
-	RFFont(const char* font_path) {
-        FILE* fp = fopen(font_path, "rb");
-//        if (!fp) {
-//            std::perror("File opening failed");
-//        }
-        assert(fp);
-        fread(m_buffer, 1, 10000000, fp);
-        stbtt_InitFont(&m_font, m_buffer, 0);
-	}
+	RFFont(const char* font_path);
 
 	~RFFont() {
 	}
 
 	static std::shared_ptr<RFFont> GetInstance()
     {
-        static auto instance = std::make_shared<RFFont>("/Users/yushroom/program/graphics/RFGUI/src/MSYH.TTF");
+        //static auto instance = std::make_shared<RFFont>("/Users/yushroom/program/graphics/RFGUI/src/MSYH.TTF");
+		static auto instance = std::make_shared<RFFont>("c:/windows/fonts/MSYH.TTF");
         return instance;
 	}
 
