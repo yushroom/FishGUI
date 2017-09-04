@@ -26,21 +26,9 @@ Shader::Shader(const std::string& vs_path, const std::string ps_path)
 	GLint success;
 	GLchar infoLog[1024];
 
-
-	// ps
-	ps = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(ps, 1, &ps_str, &success);
-	glCompileShader(ps);
-	glGetShaderiv(ps, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(ps, 1024, NULL, infoLog);
-		std::cout << infoLog << endl;
-		abort();
-	}
-
 	// vs
 	vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vs_str, &success);
+	glShaderSource(vs, 1, &vs_str, NULL);
 	glCompileShader(vs);
 	glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -48,6 +36,17 @@ Shader::Shader(const std::string& vs_path, const std::string ps_path)
 		std::cout << infoLog << endl;
 		abort();
 	}
+    
+    // ps
+    ps = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(ps, 1, &ps_str, NULL);
+    glCompileShader(ps);
+    glGetShaderiv(ps, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(ps, 1024, NULL, infoLog);
+        std::cout << infoLog << endl;
+        abort();
+    }
 
 	m_program = glCreateProgram();
 	glAttachShader(m_program, vs);
