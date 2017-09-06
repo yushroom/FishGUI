@@ -1,7 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <iostream>
+
 #include "RFGUI.hpp"
 
 static void error_callback(int error, const char* description)
@@ -44,42 +46,51 @@ int main(void)
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
 
-
-	while (!glfwWindowShouldClose(window))
-	{
-		RFGUI::Begin();
-		
-		RFGUI::BeginTab(nullptr, 60, RFGUI::TabPosition::Top);
-		RFGUI::EndTab();
-		
-		RFGUI::BeginTab("Right", 280, RFGUI::TabPosition::Right);
+//	RFGUI::TabPosition pos1 = RFGUI::TabPosition::Top;
+//	RFGUI::TabPosition pos2 = RFGUI::TabPosition::Right;
+//	RFGUI::TabPosition pos3 = RFGUI::TabPosition::Bottom;
+//	RFGUI::TabPosition pos4 = RFGUI::TabPosition::Left;
+	
+	std::string email = "mail@example.com";
+	
+	auto f1 = [&email]() {
 		RFGUI::CheckBox("CheckBox", nullptr);
 		RFGUI::Label("Login");
-		std::string email = "mai@example.com";
+		
 		RFGUI::InputText("Email", email);
 		float value = 0.4f;
 		RFGUI::Slider("Diameter", &value, 0.0f, 1.0f);
-		RFGUI::EndTab();
-		
-		RFGUI::BeginTab("bottom", 200, RFGUI::TabPosition::Bottom);
-		RFGUI::EndTab();
-		
-		RFGUI::BeginTab("Left", 160, RFGUI::TabPosition::Left);
+		if (RFGUI::Button("button 2")) {
+			printf("button 2 clicked\n");
+		}
+	};
+	
+	auto f2 = [&email]() {
+		RFGUI::InputText("Email", email);
 		RFGUI::Label("AaBbCcDdEeFfGg");
 		if (RFGUI::Button("button 1")) {
 			printf("button 1 clicked\n");
-			auto w = glfwCreateWindow(640, 480, "2", NULL, window);
-//			glfwMakeContextCurrent(w);
-			RFGUI::MakeCurrent(w);
+//			pos4 = RFGUI::TabPosition::Floating;
 		}
 		if (RFGUI::Button("button 2")) {
 			printf("button 2 clicked\n");
 		}
-		RFGUI::EndTab();
-		
+	};
+	
+	RFGUI::Tab* top    = RFGUI::CreateTab("Top", RFGUI::TabPosition::Top, 60);
+	RFGUI::Tab* right  = RFGUI::CreateTab("Right", RFGUI::TabPosition::Floating, 280);
+	RFGUI::Tab* bottom = RFGUI::CreateTab("Bottom", RFGUI::TabPosition::Bottom, 200);
+	RFGUI::Tab* left   = RFGUI::CreateTab("Left", RFGUI::TabPosition::Left, 160);
+	
+	right->m_renderFunction = f1;
+	bottom->m_renderFunction = f1;
+	left->m_renderFunction = f2;
+	
+	while (!glfwWindowShouldClose(window))
+	{
+		RFGUI::Begin();
+		RFGUI::RenderTabs();
 		RFGUI::End();
-		
-//		glfwPollEvents();
 	}
 
 	glfwDestroyWindow(window);

@@ -9,6 +9,9 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
+#include <functional>
+#include <list>
+
 
 namespace RFGUI {
     struct Vector2 {
@@ -40,21 +43,42 @@ namespace RFGUI {
 		CursorCount
 	};
     
-    struct RenderContext {
+    struct RenderContext
+	{
         GLFWwindow* window = nullptr;
         int width;
         int height;
+		
+		// stop all rendering if isAllWindowInvisiable == true
+		bool isAllWindowInvisiable = false;
     };
 	
     static RenderContext g_renderContext;
 	
-    enum class TabPosition {
+    enum class TabPosition
+	{
         Left,
         Right,
         Top,
         Bottom,
         Floating,
     };
+	
+	struct Tab
+	{
+		std::string		m_title;
+		TabPosition		m_position;
+//		GLFWwindow*		m_window = nullptr;
+		int				m_size = 1;
+		int				m_minimalSize = 128;
+		bool			m_resizing = false;
+		std::function<void(void)> m_renderFunction;
+		
+		Tab(const std::string& title, TabPosition pos)
+			: m_title(title), m_position(pos) {
+			
+		}
+	};
     
 	enum class GUIAlignment {
         HoriontallyLeft     = 1 << 0,
@@ -69,10 +93,15 @@ namespace RFGUI {
     void Init(GLFWwindow * window);
 	
 	void MakeCurrent(GLFWwindow * window);
+	
+	Tab* CreateTab(const char* title, TabPosition tabPosition, int widthOrHeight);
     
     void Begin();
     void End();
-	void BeginTab(const char* title, int widthOrHeight, TabPosition tabPosition);
+	
+	void RenderTabs();
+	
+	void BeginTab(Tab * tab);
 	void EndTab();
     bool Button(const char* text);
 	void Label(const char* text, GUIAlignment alignment = GUIAlignment::Center);
