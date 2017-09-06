@@ -64,14 +64,18 @@ namespace RFGUI {
         Floating,
     };
 	
+	struct Window;
+	
 	struct Tab
 	{
 		std::string		m_title;
 		TabPosition		m_position;
 //		GLFWwindow*		m_window = nullptr;
+		Window*			m_window;
 		int				m_size = 1;
 		int				m_minimalSize = 128;
 		bool			m_resizing = false;
+		bool			m_moving = false;
 		std::function<void(void)> m_renderFunction;
 		
 		Tab(const std::string& title, TabPosition pos)
@@ -99,7 +103,7 @@ namespace RFGUI {
     void Begin();
     void End();
 	
-	void RenderTabs();
+	void RenderWindows();
 	
 	void BeginTab(Tab * tab);
 	void EndTab();

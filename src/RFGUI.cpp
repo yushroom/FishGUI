@@ -409,6 +409,7 @@ namespace RFGUI {
 		
 		static void Update()
 		{
+			m_leftMouseButtonDoubleClicked = false;
 			for (auto& s : m_mouseButtonStates) {
 				if (s == MouseButtonState::Down)
 					s = MouseButtonState::Held;
@@ -438,18 +439,28 @@ namespace RFGUI {
 			return m_mouseButtonStates[static_cast<int>(button)] == MouseButtonState::Up;
 		}
 		
+		static MouseButtonState GetMouseButtonState(MouseButtonCode button)
+		{
+			return m_mouseButtonStates[static_cast<int>(button)];
+		}
+		
 		//	private:
 		static MouseButtonState m_mouseButtonStates[3];
+		static double m_lastMouseButtonClickTime[3];	// time record for double-click check
 		static Vector2 m_mousePosition;	// normalized in range [0, 1]
 		static bool m_inputMode;
 		static std::string m_stringBuffer;
 //		static std::map<GLFWwindow*, Input> s_windowToInput;
+		
+		static bool m_leftMouseButtonDoubleClicked;
 	};
 	
 	MouseButtonState	Input::m_mouseButtonStates[3];
 	Vector2				Input::m_mousePosition = {0, 0};
 	bool				Input::m_inputMode = false;
 	std::string			Input::m_stringBuffer;
+	double				Input::m_lastMouseButtonClickTime[3] = {0, 0, 0};
+	bool				Input::m_leftMouseButtonDoubleClicked = false;
 	
 	constexpr NVGcolor Color(int intensity, int alpha)
 	{
@@ -698,7 +709,7 @@ namespace RFGUI {
 		return nullptr;
 	}
 	
-    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GL_TRUE);
@@ -711,7 +722,7 @@ namespace RFGUI {
 //        //printf("mouse position: (%lf, %lf)\n", xpos, ypos);
 //    }
 	
-	void glfw_char_callback(GLFWwindow *window, unsigned int codepoint) {
+	void glfwCharCallback(GLFWwindow *window, unsigned int codepoint) {
 		std::cout << codepoint << std::endl;
 		static std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
 		std::string u8str = converter.to_bytes(codepoint);
@@ -720,7 +731,7 @@ namespace RFGUI {
 		Input::m_stringBuffer += u8str;
 	}
 	
-	void glfw_window_resize_callback(GLFWwindow *window, int width, int height)
+	void windowResizeCallback(GLFWwindow *window, int width, int height)
 	{
 		if (window == WindowManager::Instance().mainWindow()) {
 			g_renderContext.width = width;
@@ -737,9 +748,9 @@ namespace RFGUI {
 		glViewport(0, 0, width, height);
 	}
 	
-	void glfw_window_focus_callback(GLFWwindow* window, int focused)
+	void windowFocusCallback(GLFWwindow* window, int focused)
 	{
-//		std::cout << "glfw_window_focus_callback" << std::endl;
+//		std::cout << "windowFocusCallback" << std::endl;
 		auto w = findWindow(window);
 		w->m_focused = focused;
 	}
@@ -756,21 +767,43 @@ namespace RFGUI {
 		}
 	}
 	
-    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
 		MouseButtonState state = MouseButtonState::None;
-		if (action == GLFW_PRESS)
+		if (action == GLFW_PRESS) {
 			state = MouseButtonState::Down;
+			double lastTime = Input::m_lastMouseButtonClickTime[button];
+			double now = glfwGetTime();
+//			printf("now: %le\n", now);
+			if (now - lastTime < 0.3) {
+				Input::m_leftMouseButtonDoubleClicked = true;
+				Input::m_lastMouseButtonClickTime[button] = 0;
+			}
+			else {
+				Input::m_lastMouseButtonClickTime[button] = now;
+			}
+		}
 		else if (action == GLFW_RELEASE)
 			state = MouseButtonState::Up;
 		
 		Input::m_mouseButtonStates[button] = state;
     }
+	
+	inline bool pointInRect(int px, int py, int x, int y, int w, int h)
+	{
+		return (px > x && px < x+w && py > y && py < y+h);
+	}
+	
+	inline bool pointInRect(int px, int py, Rect const & rect)
+	{
+		return pointInRect(px, py, rect.x, rect.y, rect.width, rect.height);
+	}
     
     inline bool mouseInRegion(int x, int y, int w, int h) {
 		auto mx = Input::m_mousePosition.x;
         auto my = Input::m_mousePosition.y;
-        return (mx > x && mx < x+w && my > y && my < y+h);
+//        return (mx > x && mx < x+w && my > y && my < y+h);
+		return pointInRect(mx, my, x, y, w, h);
     }
 	
 	NVGcontext* vg = NULL;
@@ -782,9 +815,9 @@ namespace RFGUI {
 		WindowManager::Instance().m_mainWindow = window;
 		g_mainWindow.m_window = window;
 //		glfwSetWindowSizeCallback(window, RFGUI::window_size_callback);
-//		glfwSetKeyCallback(window, RFGUI::key_callback);
-//		glfwSetMouseButtonCallback(window, RFGUI::mouse_button_callback);
-//		glfwSetCharCallback(window, RFGUI::glfw_char_callback);
+//		glfwSetKeyCallback(window, RFGUI::glfwKeyCallback);
+//		glfwSetMouseButtonCallback(window, RFGUI::mouseButtonCallback);
+//		glfwSetCharCallback(window, RFGUI::glfwCharCallback);
 //		glfwSetWindowSizeCallback(window, glfw_window_resize);
 //		int width = 0;
 //		int height = 0;
@@ -809,11 +842,11 @@ namespace RFGUI {
 	GLFWwindow * CreateGLFWwindow()
 	{
 		auto window = glfwCreateWindow(256, 512, "dialog", nullptr, g_mainWindow.m_window);
-		glfwSetKeyCallback(window, key_callback);
-		glfwSetMouseButtonCallback(window, mouse_button_callback);
-		glfwSetCharCallback(window, glfw_char_callback);
-		glfwSetWindowSizeCallback(window, glfw_window_resize_callback);
-		glfwSetWindowFocusCallback(window, glfw_window_focus_callback);
+		glfwSetKeyCallback(window, glfwKeyCallback);
+		glfwSetMouseButtonCallback(window, mouseButtonCallback);
+		glfwSetCharCallback(window, glfwCharCallback);
+		glfwSetWindowSizeCallback(window, windowResizeCallback);
+		glfwSetWindowFocusCallback(window, windowFocusCallback);
 		WindowManager::Instance().PushWindow(window);
 		WindowManager::Instance().m_windows.push_back(window);
 		return window;
@@ -829,6 +862,7 @@ namespace RFGUI {
 			window->m_window = w;
 			g_floatingWindows.push_back(window);
 			window->m_tabs.push_back(tab);
+			tab->m_window = window;
 		}
 		else
 		{
@@ -839,6 +873,7 @@ namespace RFGUI {
 			} else {
 				tab->m_minimalSize = 56;
 			}
+			tab->m_window = &g_mainWindow;
 		}
 //		tab->m_position = tabPosition;
 		tab->m_size = widthOrHeight;
@@ -859,16 +894,16 @@ namespace RFGUI {
 		glfwMakeContextCurrent(window);
 		
 //		glfwSetWindowSizeCallback(window, RFGUI::window_size_callback);
-		glfwSetKeyCallback(window, RFGUI::key_callback);
-		glfwSetMouseButtonCallback(window, RFGUI::mouse_button_callback);
-		glfwSetCharCallback(window, RFGUI::glfw_char_callback);
-		glfwSetWindowSizeCallback(window, glfw_window_resize_callback);
-		glfwSetWindowFocusCallback(window, glfw_window_focus_callback);
+		glfwSetKeyCallback(window, glfwKeyCallback);
+		glfwSetMouseButtonCallback(window, mouseButtonCallback);
+		glfwSetCharCallback(window, glfwCharCallback);
+		glfwSetWindowSizeCallback(window, windowResizeCallback);
+		glfwSetWindowFocusCallback(window, windowFocusCallback);
 //		glfwSetWindowIconifyCallback(window, glfw_window_iconify_callback);
 		int width = 0;
 		int height = 0;
 		glfwGetWindowSize(window, &width, &height);
-		glfw_window_resize_callback(window, width, height);
+		windowResizeCallback(window, width, height);
 		g_renderContext.window = window;
 	}
 	
@@ -989,7 +1024,8 @@ namespace RFGUI {
 		float ratio = float(fbWidth) / width;
 		nvgBeginFrame(vg, width, height, ratio);
 		
-		for (auto& tab : w.m_tabs)
+		auto tabs = w.m_tabs;	// make a copy of tabs, since w.m_tabs may be changed during iteration(eg. docked to mainWindow)
+		for (auto& tab : tabs)
 		{
 //			BeginTab(tab->m_title.c_str(), &tab->m_widthOrHeight, tab->m_position);
 			BeginTab(tab);
@@ -1003,39 +1039,119 @@ namespace RFGUI {
 		glfwSwapBuffers(w.m_window);
 	}
 	
-	void RenderTabs()
+	void RenderWindows()
 	{
 		if (g_renderContext.isAllWindowInvisiable)
 			return;
 		RenderWindow(g_mainWindow);
+		
+		
+		Window* emptyWindow = nullptr;	// better use a std::vector<Window*>
+		
 		for (auto& w : g_floatingWindows)
 		{
 			RenderWindow(*w);
+			
+			if (w->m_tabs.empty()) {
+				emptyWindow = w;
+			}
+		}
+		
+		if (emptyWindow != nullptr) {
+			g_floatingWindows.remove(emptyWindow);
+			glfwDestroyWindow(emptyWindow->m_window);
+			delete emptyWindow;
+			
+			glfwFocusWindow(g_mainWindow.m_window);
 		}
 	}
 	
 	void BeginTab(Tab * tab)
 	{
+		constexpr int tabTitleBarHeight = 20;
+		
 		g_currentTab.reset();
 		auto tabPosition = tab->m_position;
 		const char * title = tab->m_title.c_str();
 		
 		bool mouseHoverResizeBar = false;
 		
+		auto& r = g_currentTab.rect;
+		g_centerScreen.addTab(tabPosition, tab->m_size, &r);
+		
+		// Dock
+
+		if (tab->m_moving)
+		{
+			int x = 0;
+			int y = 0;
+			glfwGetWindowPos(tab->m_window->m_window, &x, &y);
+			int w = 0;
+			int h = 0;
+			glfwGetWindowSize(tab->m_window->m_window, &w, &h);
+			x += Input::m_mousePosition.x;
+			y += Input::m_mousePosition.y;
+			
+			glfwSetWindowPos(tab->m_window->m_window, x - w/2, y);
+			
+			// x, y is global mouse position
+			Rect mainWindowRect;
+			glfwGetWindowPos(g_mainWindow.m_window, &mainWindowRect.x, &mainWindowRect.y);
+			glfwGetWindowSize(g_mainWindow.m_window, &mainWindowRect.width, &mainWindowRect.height);
+			if (pointInRect(x, y, mainWindowRect.x + mainWindowRect.width - 40, mainWindowRect.y, 40, mainWindowRect.height))
+			{
+//				printf("to be docked\n");
+				if (Input::GetMouseButtonUp(MouseButtonCode::Left)) {
+					printf("docked\n");
+					tab->m_position = TabPosition::Right;
+					tab->m_window->m_tabs.remove(tab);
+					tab->m_window = &g_mainWindow;
+					g_mainWindow.m_tabs.push_back(tab);
+//					tab->m_moving = false;
+				}
+			}
+
+			if (Input::GetMouseButtonState(MouseButtonCode::Left) != MouseButtonState::Held)
+			{
+				printf("dock end\n");
+				tab->m_moving = false;
+			}
+		}
+		else if (tab->m_window != &g_mainWindow)	// TODO: hack
+		{
+			if (Input::GetMouseButtonDown(MouseButtonCode::Left))
+			{
+				if (mouseInRegion(r.x, r.y, r.width, tabTitleBarHeight))
+				{
+					printf("Tab Title bar Clicked\n");
+					tab->m_moving = true;
+				}
+			}
+		}
+		
+		
+		if (Input::m_leftMouseButtonDoubleClicked && mouseInRegion(r.x, r.y, r.width, tabTitleBarHeight))
+		{
+			printf("docked -> floating\n");
+			tab->m_window->m_tabs.remove(tab);
+			tab->m_position = TabPosition::Floating;
+			auto w = CreateGLFWwindow();
+			auto window = new Window;
+			window->m_window = w;
+			g_floatingWindows.push_back(window);
+			window->m_tabs.push_back(tab);
+			return;
+		}
+		
+		// Resize
+		
 		if (tabPosition == TabPosition::Floating)
 		{
-			auto& r = g_currentTab.rect;
-//			widthOrHeight = g_renderContext.width;
-			g_centerScreen.addTab(tabPosition, tab->m_size, &r);
 			drawWindow(vg, title, r.x, r.y, r.width, r.height);
 			g_currentTab.y_filled += 20;
 		}
 		else
 		{
-			auto& r = g_currentTab.rect;
-			g_centerScreen.addTab(tabPosition, tab->m_size, &r);
-//			g_currentTab.y_filled = 0;
-			
 			constexpr int margin = 5;
 			const int x = Input::m_mousePosition.x;
 			const int y = Input::m_mousePosition.y;
@@ -1117,11 +1233,6 @@ namespace RFGUI {
 				{
 					if (Input::GetMouseButton(MouseButtonCode::Left))
 					{
-//						int bottom = r.y + r.height;
-//						r.height += y - bottom;
-//						r.height = std::max(r.height, tab->m_minimalSize);
-//						tab->m_size = r.height;
-						
 						int old_bottom = r.y + r.height;
 						r.height += r.y - y;
 						r.height = std::max(r.height, tab->m_minimalSize);
@@ -1147,7 +1258,7 @@ namespace RFGUI {
 			}
 			
 			drawWindow(vg, title, r.x, r.y, r.width, r.height);
-			g_currentTab.y_filled += 20;
+			g_currentTab.y_filled += tabTitleBarHeight;
 		}
     }
 	
