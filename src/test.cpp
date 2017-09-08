@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "RFGUI.hpp"
+#include <GLFW/glfw3.h>
 
 static void error_callback(int error, const char* description)
 {
@@ -46,10 +47,6 @@ int main(void)
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
 
-//	RFGUI::TabPosition pos1 = RFGUI::TabPosition::Top;
-//	RFGUI::TabPosition pos2 = RFGUI::TabPosition::Right;
-//	RFGUI::TabPosition pos3 = RFGUI::TabPosition::Bottom;
-//	RFGUI::TabPosition pos4 = RFGUI::TabPosition::Left;
 	
 	std::string email = "mail@example.com";
 	
@@ -78,6 +75,7 @@ int main(void)
 	};
 	
 	RFGUI::Tab* top    = RFGUI::CreateTab("Top", RFGUI::TabPosition::Top, 60);
+	top->m_resizable = false;
 	RFGUI::Tab* right  = RFGUI::CreateTab("Right", RFGUI::TabPosition::Floating, 280);
 	RFGUI::Tab* bottom = RFGUI::CreateTab("Bottom", RFGUI::TabPosition::Bottom, 200);
 	RFGUI::Tab* left   = RFGUI::CreateTab("Left", RFGUI::TabPosition::Left, 160);

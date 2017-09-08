@@ -1,17 +1,11 @@
 #ifndef RFGUI_hpp
 #define RFGUI_hpp
 
-//#define GLEW_STATIC
-//#include <gl/glew.h>
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#define GLFW_INCLUDE_GLCOREARB
-#include <GLFW/glfw3.h>
 #include <string>
-
 #include <functional>
 #include <list>
 
+struct GLFWwindow;
 
 namespace RFGUI {
     struct Vector2 {
@@ -32,6 +26,16 @@ namespace RFGUI {
 		int x, y, width, height;
 	};
 	
+	struct Int2 {
+		int x = 0;
+		int y = 0;
+	};
+	
+	struct Size {
+		int width = 0;
+		int height = 0;
+	};
+	
 	enum class CursorType {
 		Arrow = 0,
 		IBeam,
@@ -42,10 +46,12 @@ namespace RFGUI {
 		// not a cursor
 		CursorCount
 	};
-    
+	
+	struct Window;
+	
     struct RenderContext
 	{
-        GLFWwindow* window = nullptr;
+        Window* window = nullptr;
         int width;
         int height;
 		
@@ -70,18 +76,14 @@ namespace RFGUI {
 	{
 		std::string		m_title;
 		TabPosition		m_position;
-//		GLFWwindow*		m_window = nullptr;
-		Window*			m_window;
+		Window*			m_window = nullptr;
+		Rect			m_rect;
 		int				m_size = 1;
 		int				m_minimalSize = 128;
+		bool			m_resizable = true;
 		bool			m_resizing = false;
 		bool			m_moving = false;
 		std::function<void(void)> m_renderFunction;
-		
-		Tab(const std::string& title, TabPosition pos)
-			: m_title(title), m_position(pos) {
-			
-		}
 	};
     
 	enum class GUIAlignment {
@@ -96,8 +98,6 @@ namespace RFGUI {
     
     void Init(GLFWwindow * window);
 	
-	void MakeCurrent(GLFWwindow * window);
-	
 	Tab* CreateTab(const char* title, TabPosition tabPosition, int widthOrHeight);
     
     void Begin();
@@ -107,6 +107,7 @@ namespace RFGUI {
 	
 	void BeginTab(Tab * tab);
 	void EndTab();
+	
     bool Button(const char* text);
 	void Label(const char* text, GUIAlignment alignment = GUIAlignment::Center);
 	bool CheckBox(const char * label, bool* v);
