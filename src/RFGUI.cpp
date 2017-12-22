@@ -1,9 +1,12 @@
 #include "RFGUI.hpp"
+#ifdef _WIN32
 //#define GLEW_STATIC
-//#include <gl/glew.h>
+#include <gl/glew.h>
+#else
 #include <OpenGL/gl3.h>
 #include <OpenGL/gl3ext.h>
 #define GLFW_INCLUDE_GLCOREARB
+#endif
 #include <GLFW/glfw3.h>
 
 #include "nanovg.h"
@@ -18,6 +21,7 @@
 #include <sstream>
 #include <locale>
 #include <codecvt>
+#include <algorithm>
 
 #include <thread>
 #include <chrono>
@@ -466,7 +470,7 @@ namespace RFGUI {
 		
 		
 		MouseButtonState	m_mouseButtonStates[3];
-		Vector2				m_mousePosition = {0, 0};
+		Int2				m_mousePosition = {0, 0};
 		bool				m_inputMode = false;
 		std::string			m_stringBuffer;
 		
@@ -810,9 +814,9 @@ namespace RFGUI {
 	static Global g;
 	
 	
-	Vector2 MousePosition()
+	Int2 MousePosition()
 	{
-		return g.renderContext.window->IsFocused() ? g.input.m_mousePosition : Vector2{0, 0};
+		return g.renderContext.window->IsFocused() ? g.input.m_mousePosition : Int2{0, 0};
 	}
 	
 	bool IsMouseButtonDown(MouseButton button)
@@ -830,9 +834,11 @@ namespace RFGUI {
 		return g.renderContext.window->IsFocused() ? g.input.GetMouseButtonUp(button) : false;
 	}
 	
-	bool IsMouseButtonDoubleClicked(MouseButton button)
+	bool IsLeftMouseButtonDoubleClicked()
 	{
-		return g.renderContext.window->IsFocused() ? g.input.GetMouseButtonDown(button) && g.input.m_leftMouseButtonDoubleClicked : false;
+		return g.renderContext.window->IsFocused() ? 
+			g.input.GetMouseButtonDown(MouseButton::Left) && g.input.m_leftMouseButtonDoubleClicked 
+			: false;
 	}
 	
 	MouseButtonState GetMouseButtonState(MouseButton button)
@@ -856,23 +862,25 @@ namespace RFGUI {
 		}
 	}
 	
-    void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-    {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GL_TRUE);
-    }
+	void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, GL_TRUE);
+	}
 	
 	void glfwCharCallback(GLFWwindow *window, unsigned int codepoint)
 	{
 		std::cout << codepoint << std::endl;
-		static std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
-		std::string u8str = converter.to_bytes(codepoint);
-		std::cout << u8str << std::endl;
-		g.input.m_stringBuffer += u8str;
+		// known bug in vs
+		// https://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
+		//static std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
+		//std::string u8str = converter.to_bytes(codepoint);
+		//std::cout << u8str << std::endl;
+		//g.input.m_stringBuffer += u8str;
 	}
 	
-    void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-    {
+	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	{
 		MouseButtonState state = MouseButtonState::None;
 		if (action == GLFW_PRESS)
 		{
@@ -895,7 +903,7 @@ namespace RFGUI {
 		}
 		
 		g.input.m_mouseButtonStates[button] = state;
-    }
+	}
 	
 	inline bool PointInRect(int px, int py, int x, int y, int w, int h)
 	{
@@ -906,13 +914,13 @@ namespace RFGUI {
 	{
 		return PointInRect(px, py, rect.x, rect.y, rect.width, rect.height);
 	}
-    
-    inline bool MouseInRect(int x, int y, int w, int h)
+	
+	inline bool MouseInRect(int x, int y, int w, int h)
 	{
 		auto mx = MousePosition().x;
-        auto my = MousePosition().y;
+		auto my = MousePosition().y;
 		return PointInRect(mx, my, x, y, w, h);
-    }
+	}
 
 
 	void glfwBindWindowCallbacks(GLFWwindow* window)
@@ -988,17 +996,17 @@ namespace RFGUI {
 		
 		g.nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 		
-		nvgCreateFont(g.nvgContext, "icons", "/Users/yushroom/program/github/nanovg/example/entypo.ttf");
-		nvgCreateFont(g.nvgContext, "sans", "/Users/yushroom/program/github/nanovg/example/Roboto-Regular.ttf");
-		nvgCreateFont(g.nvgContext, "sans-bold", "/Users/yushroom/program/github/nanovg/example/Roboto-Bold.ttf");
-		nvgCreateFont(g.nvgContext, "emoji", "/Users/yushroom/program/github/nanovg/example/NotoEmoji-Regular.ttf");
+		nvgCreateFont(g.nvgContext, "icons",		"../Binary/entypo.ttf");
+		nvgCreateFont(g.nvgContext, "sans",			"../Binary/Roboto-Regular.ttf");
+		nvgCreateFont(g.nvgContext, "sans-bold",	"../Binary/Roboto-Bold.ttf");
+		nvgCreateFont(g.nvgContext, "emoji",		"../Binary/NotoEmoji-Regular.ttf");
 		
 		for (int i = 0; i < static_cast<int>(CursorType::CursorCount); ++i) {
 			g.cursor.m_glfwCursors[i] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR + i);
 		}
 	}
 	
-    void Begin()
+	void Begin()
 	{
 		for (auto& w : g.windowManager.m_windows)
 			w->BeforeFrame();
@@ -1022,9 +1030,9 @@ namespace RFGUI {
 		} else {
 			std::this_thread::sleep_for(33.3ms);
 		}
-    }
-    
-    void End()
+	}
+	
+	void End()
 	{
 		g.input.Update();
 		
@@ -1046,7 +1054,7 @@ namespace RFGUI {
 			
 			glfwFocusWindow(g.windowManager.mainWindow()->m_glfwWindow);
 		}
-    }
+	}
 	
 	void RenderWindow(Window & w)
 	{
@@ -1060,8 +1068,8 @@ namespace RFGUI {
 		
 		double mx, my;
 		glfwGetCursorPos(w.m_glfwWindow, &mx, &my);
-		g.input.m_mousePosition.x = float(mx);
-		g.input.m_mousePosition.y = float(my);
+		g.input.m_mousePosition.x = int(mx);
+		g.input.m_mousePosition.y = int(my);
 		
 		int width = w.Width();
 		int height = w.Height();
@@ -1147,7 +1155,7 @@ namespace RFGUI {
 		
 		// Dock
 		
-//		tab->m_window->SetDecorated(!tab->m_moving);
+		tab->m_window->SetDecorated(!tab->m_moving);
 
 		if (tab->m_moving)
 		{
@@ -1194,7 +1202,7 @@ namespace RFGUI {
 		}
 		
 		
-		if (tab->m_position != TabPosition::Floating && IsMouseButtonDoubleClicked(MouseButton::Left) && MouseInRect(r.x, r.y, r.width, tabTitleBarHeight))
+		if (tab->m_position != TabPosition::Floating && IsLeftMouseButtonDoubleClicked() && MouseInRect(r.x, r.y, r.width, tabTitleBarHeight))
 		{
 			printf("docked -> floating\n");
 			
@@ -1327,22 +1335,22 @@ namespace RFGUI {
 			drawWindow(g.nvgContext, title, r.x, r.y, r.width, r.height);
 			g.currentTab.y_filled += tabTitleBarHeight;
 		}
-    }
+	}
 	
 	void EndTab()
 	{
 	}
-    
-    bool Button(const char* text)
+	
+	bool Button(const char* text)
 	{
-        int x, y, w, h;
-        g.currentTab.nextCellOrigin(&x, &y);
-        w = g.currentTab.get_avaliable_width();
-        h = g.currentTab.y_cell_height;
+		int x, y, w, h;
+		g.currentTab.nextCellOrigin(&x, &y);
+		w = g.currentTab.get_avaliable_width();
+		h = g.currentTab.y_cell_height;
 		
-        bool clicked = false;
-//        int id = g.currentTab.get_current_cell_id();
-        bool mouse_inside = MouseInRect(x, y, w, h);
+		bool clicked = false;
+//		int id = g.currentTab.get_current_cell_id();
+		bool mouse_inside = MouseInRect(x, y, w, h);
 		NVGcolor colorTop = g.theme.mButtonGradientTopUnfocused;
 		NVGcolor colorBot = g.theme.mButtonGradientBotUnfocused;
 		if (mouse_inside)
@@ -1358,20 +1366,20 @@ namespace RFGUI {
 		}
 		drawButton(g.nvgContext, 0, text, x, y, w, h, colorTop, colorBot);
 
-        g.currentTab.add_cell(h);
-        return clicked;
-    }
-    
-    void Label(const char* text, GUIAlignment alignment)
+		g.currentTab.add_cell(h);
+		return clicked;
+	}
+	
+	void Label(const char* text, GUIAlignment alignment)
 	{
-        int x, y, w, h;
-        g.currentTab.nextCellOrigin(&x, &y);
-        w = g.currentTab.get_avaliable_width();
-        h = g.currentTab.y_cell_height;
+		int x, y, w, h;
+		g.currentTab.nextCellOrigin(&x, &y);
+		w = g.currentTab.get_avaliable_width();
+		h = g.currentTab.y_cell_height;
 		drawLabel(g.nvgContext, text, x, y, w, h);
 		
-        g.currentTab.add_cell(h);
-    }
+		g.currentTab.add_cell(h);
+	}
 	
 	bool CheckBox(const char * label, bool* v)
 	{

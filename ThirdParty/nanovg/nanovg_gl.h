@@ -986,10 +986,17 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 		}
 		frag->type = NSVG_SHADER_FILLIMG;
 
+		#if NANOVG_GL_USE_UNIFORMBUFFER
 		if (tex->type == NVG_TEXTURE_RGBA)
 			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0 : 1;
 		else
 			frag->texType = 2;
+		#else
+		if (tex->type == NVG_TEXTURE_RGBA)
+			frag->texType = (tex->flags & NVG_IMAGE_PREMULTIPLIED) ? 0.0f : 1.0f;
+		else
+			frag->texType = 2.0f;
+		#endif
 //		printf("frag->texType = %d\n", frag->texType);
 	} else {
 		frag->type = NSVG_SHADER_FILLGRAD;
@@ -1025,6 +1032,7 @@ static void glnvg__setUniforms(GLNVGcontext* gl, int uniformOffset, int image)
 
 static void glnvg__renderViewport(void* uptr, int width, int height, float devicePixelRatio)
 {
+	NVG_NOTUSED(devicePixelRatio);
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
 	gl->view[0] = (float)width;
 	gl->view[1] = (float)height;

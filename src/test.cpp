@@ -5,6 +5,9 @@
 #include <iostream>
 
 #include "RFGUI.hpp"
+#ifdef _WIN32
+	#include <GL/glew.h>
+#endif
 #include <GLFW/glfw3.h>
 
 static void error_callback(int error, const char* description)
@@ -19,8 +22,8 @@ int main(void)
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
@@ -33,9 +36,7 @@ int main(void)
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 
-	RFGUI::Init(window);
-
-#if 0
+#ifdef _WIN32
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
@@ -43,10 +44,12 @@ int main(void)
 	{
 		/* Problem: glewInit failed, something is seriously wrong. */
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		exit(EXIT_FAILURE);
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
 
+	RFGUI::Init(window);
 	
 	std::string email = "mail@example.com";
 	

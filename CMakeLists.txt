@@ -28,6 +28,14 @@ include_directories(./src)
 include_directories(./ThirdParty/)
 include_directories(./ThirdParty/nanovg)
 
+# glew
+set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
+ADD_SUBDIRECTORY(./ThirdParty/glew/build/cmake)
+include_directories(./ThirdParty/glew/include)
+SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "ThirdParty")
+SET_TARGET_PROPERTIES(glew_s PROPERTIES FOLDER "ThirdParty")
+
+
 # glfw
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -47,6 +55,7 @@ FILE(GLOB_RECURSE NANO_VG_HEADERS ./ThirdParty/nanovg/*.h)
 add_executable(Demo ${SRCS} ${HEADERS} ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
 
 target_link_libraries(Demo glfw)
+target_link_libraries(Demo glew_s)
 if (MSVC)
     target_link_libraries(Demo opengl32.lib)
     target_link_libraries(Demo glew_s)
