@@ -67,7 +67,7 @@ int main(void)
 	
 	auto f2 = [&email]() {
 		RFGUI::InputText("Email", email);
-		RFGUI::Label("AaBbCcDdEeFfGg");
+		RFGUI::Label("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq");
 		if (RFGUI::Button("button 1")) {
 			printf("button 1 clicked\n");
 //			pos4 = RFGUI::TabPosition::Floating;
@@ -79,7 +79,7 @@ int main(void)
 	
 	RFGUI::Tab* top    = RFGUI::CreateTab("Top", RFGUI::TabPosition::Top, 60);
 	top->m_resizable = false;
-	RFGUI::Tab* right  = RFGUI::CreateTab("Right", RFGUI::TabPosition::Floating, 280);
+	RFGUI::Tab* right  = RFGUI::CreateTab("Right", RFGUI::TabPosition::Right, 280);
 	RFGUI::Tab* bottom = RFGUI::CreateTab("Bottom", RFGUI::TabPosition::Bottom, 200);
 	RFGUI::Tab* left   = RFGUI::CreateTab("Left", RFGUI::TabPosition::Left, 160);
 	

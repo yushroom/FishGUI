@@ -223,16 +223,23 @@ void drawDropDown(NVGcontext* vg, const char* text, float x, float y, float w, f
 	nvgText(vg, x+w-h*0.5f, y+h*0.5f, cpToUTF8(ICON_CHEVRON_RIGHT,icon), NULL);
 }
 
-void drawLabel(NVGcontext* vg, const char* text, float x, float y, float w, float h)
+void drawLabel(NVGcontext* ctx, const char* text, float x, float y, float w, float h)
 {
 	NVG_NOTUSED(w);
 	
-	nvgFontSize(vg, 18.0f);
-	nvgFontFace(vg, "sans");
-	nvgFillColor(vg, nvgRGBA(255,255,255,128));
+	nvgFontSize(ctx, 18.0f);
+	nvgFontFace(ctx, "sans");
+	nvgFillColor(ctx, nvgRGBA(255,255,255,128));
 	
-	nvgTextAlign(vg,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
-	nvgText(vg, x,y+h*0.5f,text, NULL);
+	//nvgBeginPath(ctx);
+	//nvgRect(ctx, x, y, w, h);
+	//nvgFill(ctx);
+
+	nvgTextAlign(ctx,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
+	nvgSave(ctx);
+	nvgScissor(ctx, x, y, w, h);
+	nvgText(ctx, x, y+h*0.5f, text, nullptr);
+	nvgRestore(ctx);
 }
 
 void drawEditBoxBase(NVGcontext* vg, float x, float y, float w, float h)
@@ -251,16 +258,21 @@ void drawEditBoxBase(NVGcontext* vg, float x, float y, float w, float h)
 	nvgStroke(vg);
 }
 
-void drawEditBox(NVGcontext* vg, const char* text, float x, float y, float w, float h)
+void drawEditBox(NVGcontext* ctx, const char* text, float x, float y, float w, float h)
 {
 	
-	drawEditBoxBase(vg, x,y, w,h);
+	drawEditBoxBase(ctx, x,y, w,h);
+
+	nvgSave(ctx);
+	nvgScissor(ctx, x, y, w, h);
 	
-	nvgFontSize(vg, 16.0f);
-	nvgFontFace(vg, "sans");
-	nvgFillColor(vg, nvgRGBA(255,255,255,64));
-	nvgTextAlign(vg,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
-	nvgText(vg, x+h*0.3f,y+h*0.5f,text, NULL);
+	nvgFontSize(ctx, 16.0f);
+	nvgFontFace(ctx, "sans");
+	nvgFillColor(ctx, nvgRGBA(255,255,255,64));
+	nvgTextAlign(ctx,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
+	nvgText(ctx, x+h*0.3f,y+h*0.5f,text, NULL);
+
+	nvgRestore(ctx);
 }
 
 
