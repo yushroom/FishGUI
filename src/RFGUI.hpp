@@ -7,7 +7,8 @@
 
 struct GLFWwindow;
 
-namespace RFGUI {
+namespace RFGUI
+{
     struct Vector2 {
 		float x = 0;
 		float y = 0;
@@ -22,7 +23,6 @@ namespace RFGUI {
 	};
 	
 	struct Rect {
-//		int x, y, z, w;
 		int x, y, width, height;
 	};
 	
@@ -35,31 +35,6 @@ namespace RFGUI {
 		int width = 0;
 		int height = 0;
 	};
-	
-	enum class CursorType {
-		Arrow = 0,
-		IBeam,
-		Crosshair,
-		Hand,
-		HResize,
-		VResize,
-		// not a cursor
-		CursorCount
-	};
-	
-	struct Window;
-	
-    struct RenderContext
-	{
-        Window* window = nullptr;
-        int width;
-        int height;
-		
-		// stop all rendering if isAllWindowInvisiable == true
-		bool isAllWindowInvisiable = false;
-    };
-	
-    static RenderContext g_renderContext;
 	
     enum class TabPosition
 	{

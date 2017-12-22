@@ -87,7 +87,6 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		RFGUI::Begin();
-		RFGUI::RenderWindows();
 		RFGUI::End();
 	}
 

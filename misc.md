@@ -10,4 +10,4 @@
 
    全部不可见的时候main render loop没有阻塞，全速跑的，所以cpu很高。需要在没有窗口focused的时候插一个sleep
 
-   ​
+2. resize tab
