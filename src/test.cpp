@@ -22,7 +22,7 @@ int main(void)
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
@@ -66,9 +66,9 @@ int main(void)
 	};
 	
 	auto f2 = [&email]() {
-		RFGUI::InputText("Email", email);
+		RFGUI::InputText("Email1234567", email);
 		RFGUI::Label("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq");
-		if (RFGUI::Button("button 1")) {
+		if (RFGUI::Button("button 1 1234567890111213")) {
 			printf("button 1 clicked\n");
 //			pos4 = RFGUI::TabPosition::Floating;
 		}

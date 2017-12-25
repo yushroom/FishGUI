@@ -34,6 +34,8 @@ using namespace std::chrono_literals;
 #define ICON_LOGIN 0xE740
 #define ICON_TRASH 0xE729
 
+constexpr int windowHeaderHeight = 30;
+
 
 void _checkOpenGLError(const char *file, int line)
 {
@@ -100,58 +102,61 @@ static char* cpToUTF8(int cp, char* str)
 	return str;
 }
 
-void drawWindow(NVGcontext* vg, const char* title, float x, float y, float w, float h)
+void drawWindow(NVGcontext* ctx, const char* title, float x, float y, float w, float h)
 {
 	float cornerRadius = 3.0f;
-	NVGpaint shadowPaint;
+//	NVGpaint shadowPaint;
 	NVGpaint headerPaint;
 	
-	nvgSave(vg);
+	nvgSave(ctx);
 	//	nvgClearState(vg);
 	
 	// Window
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x,y, w,h, cornerRadius);
-	nvgFillColor(vg, nvgRGBA(28,30,34,192));
-	//	nvgFillColor(vg, nvgRGBA(0,0,0,128));
-	nvgFill(vg);
+	nvgBeginPath(ctx);
+//	nvgRoundedRect(ctx, x,y, w,h, cornerRadius);
+	nvgRect(ctx, x, y, w, h);
+	nvgFillColor(ctx, nvgRGBA(28,30,34,192));
+//	nvgFillColor(vg, nvgRGBA(0,0,0,128));
+	nvgFill(ctx);
 	
-	// Drop shadow
-	shadowPaint = nvgBoxGradient(vg, x,y+2, w,h, cornerRadius*2, 10, nvgRGBA(0,0,0,128), nvgRGBA(0,0,0,0));
-	nvgBeginPath(vg);
-	nvgRect(vg, x-10,y-10, w+20,h+30);
-	nvgRoundedRect(vg, x,y, w,h, cornerRadius);
-	nvgPathWinding(vg, NVG_HOLE);
-	nvgFillPaint(vg, shadowPaint);
-	nvgFill(vg);
+//	// Drop shadow
+//	shadowPaint = nvgBoxGradient(ctx, x,y+2, w,h, cornerRadius*2, 10, nvgRGBA(0,0,0,128), nvgRGBA(0,0,0,0));
+//	nvgBeginPath(ctx);
+//	nvgRect(ctx, x-10,y-10, w+20,h+30);
+////	nvgRoundedRect(ctx, x,y, w,h, cornerRadius);
+//	nvgRect(ctx, x, y, w, h);
+//	nvgPathWinding(ctx, NVG_HOLE);
+//	nvgFillPaint(ctx, shadowPaint);
+//	nvgFill(ctx);
 	
-	if (title) {
+	if (title)
+	{
 		// Header
-		headerPaint = nvgLinearGradient(vg, x,y,x,y+15, nvgRGBA(255,255,255,8), nvgRGBA(0,0,0,16));
-		nvgBeginPath(vg);
-		nvgRoundedRect(vg, x+1,y+1, w-2,30, cornerRadius-1);
-		nvgFillPaint(vg, headerPaint);
-		nvgFill(vg);
-		nvgBeginPath(vg);
-		nvgMoveTo(vg, x+0.5f, y+0.5f+30);
-		nvgLineTo(vg, x+0.5f+w-1, y+0.5f+30);
-		nvgStrokeColor(vg, nvgRGBA(0,0,0,32));
-		nvgStroke(vg);
+		headerPaint = nvgLinearGradient(ctx, x,y,x,y+15, nvgRGBA(255,255,255,8), nvgRGBA(0,0,0,16));
+		nvgBeginPath(ctx);
+		nvgRoundedRect(ctx, x+1,y+1, w-2, windowHeaderHeight, cornerRadius-1);
+		nvgFillPaint(ctx, headerPaint);
+		nvgFill(ctx);
+		nvgBeginPath(ctx);
+		nvgMoveTo(ctx, x+0.5f, y+0.5f+30);
+		nvgLineTo(ctx, x+0.5f+w-1, y+0.5f+30);
+		nvgStrokeColor(ctx, nvgRGBA(0,0,0,32));
+		nvgStroke(ctx);
 		
-		nvgFontSize(vg, 18.0f);
-		nvgFontFace(vg, "sans-bold");
-		nvgTextAlign(vg,NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
+		nvgFontSize(ctx, 18.0f);
+		nvgFontFace(ctx, "sans-bold");
+		nvgTextAlign(ctx,NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
 		
-		nvgFontBlur(vg,2);
-		nvgFillColor(vg, nvgRGBA(0,0,0,128));
-		nvgText(vg, x+w/2,y+16+1, title, NULL);
+		nvgFontBlur(ctx,2);
+		nvgFillColor(ctx, nvgRGBA(0,0,0,128));
+		nvgText(ctx, x+w/2,y+16+1, title, NULL);
 		
-		nvgFontBlur(vg,0);
-		nvgFillColor(vg, nvgRGBA(220,220,220,160));
-		nvgText(vg, x+w/2,y+16, title, NULL);
+		nvgFontBlur(ctx,0);
+		nvgFillColor(ctx, nvgRGBA(220,220,220,160));
+		nvgText(ctx, x+w/2,y+16, title, NULL);
 	}
 	
-	nvgRestore(vg);
+	nvgRestore(ctx);
 }
 
 
@@ -573,8 +578,8 @@ namespace RFGUI {
 			auto & size = tab->m_size;
 			auto rect = & tab->m_rect;
 			if (tabPosition == TabPosition::Left) {
-//				assert(widthOrHeight <= w);
 				size = std::min(size, w);
+				size = std::max(size, tab->m_minimalSize.width);
 				rect->x = x;
 				rect->y = y;
 				rect->width = size;
@@ -582,16 +587,16 @@ namespace RFGUI {
 				x += size;
 				w -= size;
 			} else if (tabPosition == TabPosition::Right) {
-//				assert(widthOrHeight <= w);
 				size = std::min(size, w);
+				size = std::max(size, tab->m_minimalSize.width);
 				rect->x = x+w-size;
 				rect->y = y;
 				rect->width = size;
 				rect->height = h;
 				w -= size;
 			} else if (tabPosition == TabPosition::Top) {
-//				assert(widthOrHeight <= h);
 				size = std::min(size, h);
+				size = std::max(size, tab->m_minimalSize.height);
 				rect->x = x;
 				rect->y = y;
 				rect->width = w;
@@ -599,8 +604,8 @@ namespace RFGUI {
 				y += size;
 				h -= size;
 			} else if (tabPosition == TabPosition::Bottom) {
-//				assert(widthOrHeight <= h);
 				size = std::min(size, h);
+				size = std::max(size, tab->m_minimalSize.height);
 				rect->x = x;
 				rect->y = y+h-size;
 				rect->width = w;
@@ -987,12 +992,6 @@ namespace RFGUI {
 		else
 		{
 			g.windowManager.mainWindow()->m_tabs.push_back(tab);
-			if (tabPosition == TabPosition::Left || tabPosition == TabPosition::Right)
-			{
-				tab->m_minimalSize = 128;
-			} else {
-				tab->m_minimalSize = 56;
-			}
 			tab->m_window = g.windowManager.mainWindow();
 		}
 		tab->m_position = tabPosition;
@@ -1154,8 +1153,6 @@ namespace RFGUI {
 	
 	void BeginTab(Tab * tab)
 	{
-		constexpr int tabTitleBarHeight = 20;
-		
 		g.currentTab.reset();
 		auto tabPosition = tab->m_position;
 		const char * title = tab->m_title.c_str();
@@ -1174,7 +1171,7 @@ namespace RFGUI {
 			int x = tab->m_window->m_rect.x;
 			int y = tab->m_window->m_rect.y;
 			int w = tab->m_window->m_rect.width;
-			int h = tab->m_window->m_rect.height;
+//			int h = tab->m_window->m_rect.height;
 			x += g.input.m_mousePosition.x;
 			y += g.input.m_mousePosition.y;
 			
@@ -1205,7 +1202,7 @@ namespace RFGUI {
 		{
 			if (IsMouseButtonDown(MouseButton::Left))
 			{
-				if (MouseInRect(r.x, r.y, r.width, tabTitleBarHeight))
+				if (MouseInRect(r.x, r.y, r.width, windowHeaderHeight))
 				{
 					printf("Tab Title bar Clicked\n");
 					tab->m_moving = true;
@@ -1214,7 +1211,7 @@ namespace RFGUI {
 		}
 		
 		
-		if (tab->m_position != TabPosition::Floating && IsLeftMouseButtonDoubleClicked() && MouseInRect(r.x, r.y, r.width, tabTitleBarHeight))
+		if (tab->m_position != TabPosition::Floating && IsLeftMouseButtonDoubleClicked() && MouseInRect(r.x, r.y, r.width, windowHeaderHeight))
 		{
 			printf("docked -> floating\n");
 			
@@ -1229,7 +1226,6 @@ namespace RFGUI {
 		if (tabPosition == TabPosition::Floating)
 		{
 			drawWindow(g.nvgContext, title, r.x, r.y, r.width, r.height);
-			g.currentTab.y_filled += 20;
 		}
 		else
 		{
@@ -1244,7 +1240,7 @@ namespace RFGUI {
 					{
 						int right = r.x + r.width;
 						r.width += x - right;
-						r.width = std::max(r.width, tab->m_minimalSize);
+						r.width = std::max(r.width, tab->m_minimalSize.width);
 						tab->m_size = r.width;
 					}
 					else
@@ -1268,7 +1264,7 @@ namespace RFGUI {
 					{
 						int right = r.x + r.width;
 						r.width += r.x - x;
-						r.width = std::max(r.width, tab->m_minimalSize);
+						r.width = std::max(r.width, tab->m_minimalSize.width);
 						r.x = right - r.width;
 						tab->m_size = r.width;
 					}
@@ -1292,7 +1288,7 @@ namespace RFGUI {
 					{
 						int bottom = r.y + r.height;
 						r.height += y - bottom;
-						r.height = std::max(r.height, tab->m_minimalSize);
+						r.height = std::max(r.height, tab->m_minimalSize.height);
 						tab->m_size = r.height;
 					}
 					else
@@ -1322,7 +1318,7 @@ namespace RFGUI {
 //						tab->m_size = r.height;
 						
 						int height = r.height +  r.y - y;
-						height = std::max(height, tab->m_minimalSize);
+						height = std::max(height, tab->m_minimalSize.height);
 						r.y = old_bottom - height;
 						tab->m_size = height;
 					}
@@ -1345,8 +1341,8 @@ namespace RFGUI {
 			}
 			
 			drawWindow(g.nvgContext, title, r.x, r.y, r.width, r.height);
-			g.currentTab.y_filled += tabTitleBarHeight;
 		}
+		g.currentTab.y_filled += windowHeaderHeight;
 	}
 	
 	void EndTab()
