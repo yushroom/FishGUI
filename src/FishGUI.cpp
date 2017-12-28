@@ -1,10 +1,13 @@
 #ifdef _WIN32
-//#define GLEW_STATIC
-#include <gl/glew.h>
+	//#define GLEW_STATIC
+	#include <GL/glew.h>
+#elif defined(__APPLE__)
+	#include <OpenGL/gl3.h>
+	#include <OpenGL/gl3ext.h>
+	#define GLFW_INCLUDE_GLCOREARB
 #else
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#define GLFW_INCLUDE_GLCOREARB
+	//#define GLEW_STATIC
+	#include <GL/glew.h>
 #endif
 #include <GLFW/glfw3.h>
 
@@ -763,7 +766,7 @@ namespace FishGUI
 		glfwMakeContextCurrent(window->GetGLFWWindow());
 		glfwSwapInterval(1);
 		
-#ifdef _WIN32
+#if ! __APPLE__
 		// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 		glewExperimental = GL_TRUE;
 		GLenum err = glewInit();

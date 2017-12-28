@@ -1,6 +1,6 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.6.0 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0 FATAL_ERROR)
 
-PROJECT(FishGUI CXX)
+PROJECT(FishGUI)
 
 SET(FishGUI_VERSION_MAJOR 0)
 SET(FishGUI_VERSION_MINOR 1)
@@ -23,17 +23,30 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(FishGUI_SCRIPT_DIR ${CMAKE_CURRENT_LIST_DIR}/../Script)
 
+if (LINUX)
+	SET(CMAKE_BUILD_TYPE "Debug")  
+	SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+	SET(CMAKE_C_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+endif()
+
+
 
 include_directories(./src)
 include_directories(./ThirdParty/)
 include_directories(./ThirdParty/nanovg)
 
+if(UNIX AND NOT APPLE)
+	set(LINUX TRUE)
+endif()
+
+if (NOT APPLE)
 # glew
 set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
 ADD_SUBDIRECTORY(./ThirdParty/glew/build/cmake)
 include_directories(./ThirdParty/glew/include)
 SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "ThirdParty")
 SET_TARGET_PROPERTIES(glew_s PROPERTIES FOLDER "ThirdParty")
+endif()
 
 
 # glfw
@@ -55,10 +68,17 @@ FILE(GLOB_RECURSE NANO_VG_HEADERS ./ThirdParty/nanovg/*.h)
 add_executable(Demo ${SRCS} ${HEADERS} ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
 
 target_link_libraries(Demo glfw)
-target_link_libraries(Demo glew_s)
-if (MSVC)
-    target_link_libraries(Demo opengl32.lib)
-    target_link_libraries(Demo glew_s)
-else()
-    set_target_properties(Demo PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
+
+if (WIN32)
+	target_link_libraries(Demo opengl32.lib)
+	target_link_libraries(Demo glew_s)
+endif()
+if (APPLE)
+	set_target_properties(Demo PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
+endif()
+if (LINUX)
+	SET(CMAKE_BUILD_TYPE "Debug")  
+	SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+	SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+	target_link_libraries(Demo glew_s)
 endif()

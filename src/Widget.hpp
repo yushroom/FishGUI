@@ -33,6 +33,8 @@ namespace FishGUI
 
 		}
 
+		virtual ~Widget() = default;
+
 		const std::string& GetName() const { return m_name; }
 
 		int	GetWidth() const { return m_rect.width; }
