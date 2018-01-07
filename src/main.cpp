@@ -12,8 +12,9 @@ using namespace FishGUI;
 int main()
 {
 	FishGUI::Init();
+	
 	auto win = WindowManager::GetInstance().GetMainWindow();
-	auto ctx = win->context();
+	auto ctx = win->GetContext();
 
 	auto right = new TabWidget(ctx, "right");
 	right->SetWidth(160);
@@ -53,6 +54,16 @@ int main()
 	layout1->Split(layout2, right);
 	layout2->Split(layout3, bottom);
 	layout3->Split(left, center);
+	
+	{
+		auto win2 = FishGUI::NewWindow("dialog");
+		auto t = new TabWidget(ctx, "center");
+		auto d = new IMWidget(ctx, "dialog");
+		t->AddChild(d);
+		auto layout = new SimpleLayout();
+		layout->SetWidget(t);
+		win2->SetLayout(layout);
+	}
 
 	FishGUI::Run();
 	exit(EXIT_SUCCESS);

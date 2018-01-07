@@ -2,10 +2,12 @@
 #include "FishGUI.hpp"
 
 #include <cassert>
+#include <list>
+
 #include <GLFW/glfw3.h>
 #include "Widget.hpp"
 
-//struct GLFWwindow;
+struct GLFWwindow;
 struct GLNVGvertexBuffers;
 
 namespace FishGUI
@@ -18,10 +20,12 @@ namespace FishGUI
 		Window(Window&) = delete;
 		Window& operator=(Window&) = delete;
 		
+		virtual ~Window();
+		
 		float PixelRatio() const { return float(m_frameBufferSize.width) / m_size.width; }
 		
 		GLFWwindow * GetGLFWWindow() { return m_glfwWindow; }
-		FishGUIContext * context() { return m_context; }
+		FishGUIContext * GetContext() { return m_context; }
 		
 		void SetPosition(int x, int y)
 		{
@@ -57,6 +61,9 @@ namespace FishGUI
 		
 		void BeforeFrame();
 		virtual void Draw() override;
+		void AfterFrame();
+		
+		void OverlayDraw();
 		
 	protected:
 		Size				m_size;
@@ -67,6 +74,8 @@ namespace FishGUI
 		
 		// a window which is not focused may be rendered as normal, but will not receive input events
 		bool				m_isFocused = false;
+		
+		std::function<void(void)> m_overlayDrawFunction;
 	};
 
 	class MainWindow : public Window
@@ -98,8 +107,15 @@ namespace FishGUI
 		WindowManager(WindowManager&) = delete;
 		WindowManager& operator=(WindowManager&) = delete;
 		
+		std::list<Window*>& GetWindows()
+		{
+			return m_windows;
+		}
+		
 		Window* GetMainWindow()
 		{
+			if (m_windows.empty())
+				return nullptr;
 			return m_windows.front();
 		}
 		

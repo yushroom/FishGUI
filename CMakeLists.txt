@@ -65,6 +65,8 @@ FILE(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.hpp ${CMAKE_CURRENT_LI
 FILE(GLOB_RECURSE NANO_VG_SRCS ./ThirdParty/nanovg/*.c)
 FILE(GLOB_RECURSE NANO_VG_HEADERS ./ThirdParty/nanovg/*.h)
 
+source_group("nanovg" FILES ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
+
 add_executable(Demo ${SRCS} ${HEADERS} ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
 
 target_link_libraries(Demo glfw)

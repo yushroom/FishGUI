@@ -2,6 +2,7 @@
 #include "Input.hpp"
 
 #include <cassert>
+#include <iostream>
 #include <GLFW/glfw3.h>
 
 namespace FishGUI
@@ -66,7 +67,13 @@ namespace FishGUI
 		m_minSize.height = 200;
 		m_rect.width = width;
 		m_rect.height = height;
-		m_glfwWindow = glfwCreateWindow(800, 600, "Fish GUI", NULL, NULL);
+		
+		GLFWwindow* mainGLFWWindow = nullptr;
+		Window* mainWindow = WindowManager::GetInstance().GetMainWindow();
+		if (mainWindow != nullptr)
+			mainGLFWWindow = mainWindow->GetGLFWWindow();
+		
+		m_glfwWindow = glfwCreateWindow(width, height, title, nullptr, mainGLFWWindow);
 		if (!m_glfwWindow)
 		{
 			glfwTerminate();
@@ -77,10 +84,11 @@ namespace FishGUI
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
 	}
 	
-	void Window::BeforeFrame()
+	Window::~Window()
 	{
-		
+		glfwDestroyWindow(m_glfwWindow);
 	}
+	
 
 	MainWindow::MainWindow(FishGUIContext* context, const char* title, int width, int height)
 		: Window(context, title, width, height), m_toolBar(context), m_statusBar(context)

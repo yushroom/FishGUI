@@ -80,6 +80,8 @@ namespace FishGUI
 		}
 
 	protected:
+		friend class Layout;
+		friend class SimpleLayout;
 		friend class SplitLayout;
 		friend class HLayout;
 		friend class VLayout;
@@ -100,6 +102,18 @@ namespace FishGUI
 	{
 	public:
 		virtual void PerformLayout(const Rect& rect) = 0;
+		virtual ~Layout() = default;
+	};
+	
+	class SimpleLayout : public Layout
+	{
+	public:
+		virtual void PerformLayout(const Rect& rect) override;
+		void SetWidget(Widget* widget) { m_widget = widget; }
+		Widget* GetWidget() { return m_widget; }
+		
+	protected:
+		Widget* m_widget;
 	};
 
 	class Splitter : public Widget
@@ -133,7 +147,7 @@ namespace FishGUI
 		{
 		}
 
-		void PerformLayout(const Rect& rect);
+		virtual void PerformLayout(const Rect& rect) override;
 
 		static constexpr int INTERVAL = Splitter::Width;
 

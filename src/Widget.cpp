@@ -39,6 +39,14 @@ namespace FishGUI
 		m_layout = layout;
 		//m_layout->m_widget = this;
 	}
+	
+	void SimpleLayout::PerformLayout(const Rect& rect)
+	{
+		if (m_widget == nullptr)
+			return;
+		m_widget->m_rect = rect;
+		m_widget->Draw();
+	}
 
 	bool Splitter::MouseDragEvent()
 	{

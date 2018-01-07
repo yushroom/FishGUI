@@ -24,6 +24,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 using namespace std::chrono_literals;
 
@@ -601,7 +602,7 @@ namespace FishGUI
 			r.height = theme.mWindowHeaderHeight;
 			DrawTabButton(ctx, name, r.x, r.y, r.width, r.height, activeHeaderId == i);
 			auto& input = Input::GetInstance();
-			if (input.GetMouseButtonDown(MouseButton::Left) && Input::GetInstance().MouseInRect(r))
+			if (input.GetMouseButtonDown(MouseButton::Left) && input.MouseInRect(r))
 			{
 				newActivateId = i;
 			}
@@ -658,17 +659,19 @@ namespace FishGUI
 		Widget::Draw();
 	}
 	
-	void Window::Draw()
+	void Window::BeforeFrame()
 	{
+		glfwMakeContextCurrent(m_glfwWindow);
+		
 		int width = m_size.width;
 		int height = m_size.height;
-		int fbWidth = m_size.width * 2;
-		int fbHeight = m_size.height * 2;
+		int fbWidth = m_size.width;
+		int fbHeight = m_size.height;
 		glfwGetWindowSize(m_glfwWindow, &width, &height);
 		glfwGetFramebufferSize(m_glfwWindow, &fbWidth, &fbHeight);
+		
 		m_size.width = width;
 		m_size.height = height;
-
 		m_rect.width = width;
 		m_rect.height = height;
 		
@@ -678,7 +681,7 @@ namespace FishGUI
 			m_buffers = glnvg__createVertexBuffers(gl);
 		}
 		gl->buffers = m_buffers;
-		Rect remains{ 0, 0, m_size.width, m_size.height };
+//		Rect remains{ 0, 0, m_size.width, m_size.height };
 		
 		glViewport(0, 0, fbWidth, fbHeight);
 		float bck = 162 / 255.0f;
@@ -687,47 +690,35 @@ namespace FishGUI
 		
 		float ratio = float(fbWidth) / width;
 		nvgBeginFrame(m_context->m_nvgContext, width, height, ratio);
-
-		Widget::Draw();
-		
+	}
+	
+	void Window::AfterFrame()
+	{
 		nvgEndFrame(m_context->m_nvgContext);
 		glfwSwapBuffers(m_glfwWindow);
-		//std::this_thread::sleep_for(33.3ms);
+	}
+	
+	void Window::Draw()
+	{
+		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
+		if (iconified)
+			return;
+		BeforeFrame();
+		Widget::Draw();
+		AfterFrame();
 	}
 
 	void MainWindow::Draw()
 	{
-		int width = m_size.width;
-		int height = m_size.height;
-		int fbWidth = m_size.width * 2;
-		int fbHeight = m_size.height * 2;
-		glfwGetWindowSize(m_glfwWindow, &width, &height);
-		glfwGetFramebufferSize(m_glfwWindow, &fbWidth, &fbHeight);
-		m_size.width = width;
-		m_size.height = height;
+		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
+		if (iconified)
+			return;
+		
+		BeforeFrame();
 
-		m_rect.width = width;
-		m_rect.height = height;
-
-		GLNVGcontext * gl = (GLNVGcontext *)nvgInternalParams(m_context->m_nvgContext)->userPtr;
-		if (m_buffers == nullptr)
-		{
-			m_buffers = glnvg__createVertexBuffers(gl);
-		}
-		gl->buffers = m_buffers;
-		Rect remains{ 0, 0, m_size.width, m_size.height };
-
-		glViewport(0, 0, fbWidth, fbHeight);
-		float bck = 162 / 255.0f;
-		glClearColor(bck, bck, bck, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-		float ratio = float(fbWidth) / width;
-		nvgBeginFrame(m_context->m_nvgContext, width, height, ratio);
-
-		m_toolBar.SetRect(0, 0, width, m_toolBar.GetHeight());
+		m_toolBar.SetRect(0, 0, m_rect.width, m_toolBar.GetHeight());
 		m_toolBar.Draw();
-		m_statusBar.SetRect(0, height - m_statusBar.GetHeight(), width, m_statusBar.GetHeight());
+		m_statusBar.SetRect(0, m_rect.height - m_statusBar.GetHeight(), m_rect.width, m_statusBar.GetHeight());
 		m_statusBar.Draw();
 
 		m_rect.height -= m_toolBar.GetHeight() + m_statusBar.GetHeight();
@@ -736,14 +727,20 @@ namespace FishGUI
 		m_rect.height += m_toolBar.GetHeight() + m_statusBar.GetHeight();
 		m_rect.y -= m_toolBar.GetHeight();
 
-		nvgEndFrame(m_context->m_nvgContext);
-		glfwSwapBuffers(m_glfwWindow);
-		//std::this_thread::sleep_for(33.3ms);
+		AfterFrame();
 	}
 	
 	static void GlfwErrorCallback(int error, const char* description)
 	{
 		fputs(description, stderr);
+	}
+	
+	Window* NewWindow(const char* title)
+	{
+		auto context = WindowManager::GetInstance().GetMainWindow()->GetContext();
+		auto window = new Window(context, title, 400, 400);
+		WindowManager::GetInstance().m_windows.push_back(window);
+		return window;
 	}
 
 	void Init()
@@ -809,23 +806,61 @@ namespace FishGUI
 	
 	void Run()
 	{
-		auto win = WindowManager::GetInstance().GetMainWindow();
+		auto mainWindow = WindowManager::GetInstance().GetMainWindow();
 		
-		while (!glfwWindowShouldClose(win->GetGLFWWindow()))
+		double lastTime = glfwGetTime();
+		
+		while (!glfwWindowShouldClose(mainWindow->GetGLFWWindow()))
 		{
-			BeforeFrame();
+			// get mouse position
 			auto& input = Input::GetInstance();
 			double mx, my;
-			glfwGetCursorPos(win->GetGLFWWindow(), &mx, &my);
+			glfwGetCursorPos(mainWindow->GetGLFWWindow(), &mx, &my);
 			input.m_mousePosition.x = int(mx);
 			input.m_mousePosition.y = int(my);
-			win->Draw();
-			input.Update();
+			
+			BeforeFrame();
+			auto& windows = WindowManager::GetInstance().GetWindows();
+			for (auto w : windows)
+			{
+				w->Draw();
+			}
+//			win->Draw();
 			AfterFrame();
+			
+			input.Update();
 			glfwPollEvents();
+			
+			Window* remove = nullptr;
+			for (auto win : windows)
+			{
+				if (win == mainWindow)
+					continue;
+				auto w = win->GetGLFWWindow();
+				if (glfwWindowShouldClose(w))
+				{
+					remove = win;
+				}
+			}
+			if (remove != nullptr)
+			{
+				windows.remove(remove);
+				delete remove;
+			}
+			
+			double now = glfwGetTime();
+			double interval = now - lastTime;
+			constexpr int target_fps = 30;
+			constexpr double target_interval = 1.0 / target_fps;
+			if (interval < target_interval)
+			{
+//				std::cout << "time: " << interval << std::endl;
+				std::this_thread::sleep_for((target_interval-interval)*1000ms);
+			}
+			lastTime = now;
 		}
 		
-		glfwDestroyWindow(win->GetGLFWWindow());
+		glfwDestroyWindow(mainWindow->GetGLFWWindow());
 		glfwTerminate();
 	}
 }

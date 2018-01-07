@@ -1,10 +1,7 @@
 #pragma once
-//#include "FishGUI.hpp"
+
 #include <GLFW/glfw3.h>
-
 #include "Vector.hpp"
-
-//struct GLFWcursor;
 
 namespace FishGUI
 {
