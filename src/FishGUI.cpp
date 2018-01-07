@@ -606,6 +606,10 @@ namespace FishGUI
 			{
 				newActivateId = i;
 			}
+			if (input.GetMouseButton(MouseButton::Left) && input.MouseInRect(r))
+			{
+				std::cout << "tab " << name << " dragged.\n";
+			}
 		}
 		return newActivateId;
 	}
@@ -675,12 +679,12 @@ namespace FishGUI
 		m_rect.width = width;
 		m_rect.height = height;
 		
-		GLNVGcontext * gl = (GLNVGcontext *)nvgInternalParams(m_context->m_nvgContext)->userPtr;
-		if (m_buffers == nullptr)
-		{
-			m_buffers = glnvg__createVertexBuffers(gl);
-		}
-		gl->buffers = m_buffers;
+//		GLNVGcontext * gl = (GLNVGcontext *)nvgInternalParams(m_context->m_nvgContext)->userPtr;
+//		if (m_buffers == nullptr)
+//		{
+//			m_buffers = glnvg__createVertexBuffers(gl);
+//		}
+//		gl->buffers = m_buffers;
 //		Rect remains{ 0, 0, m_size.width, m_size.height };
 		
 		glViewport(0, 0, fbWidth, fbHeight);
@@ -825,7 +829,6 @@ namespace FishGUI
 			{
 				w->Draw();
 			}
-//			win->Draw();
 			AfterFrame();
 			
 			input.Update();

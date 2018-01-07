@@ -8,7 +8,7 @@
 #include "Widget.hpp"
 
 struct GLFWwindow;
-struct GLNVGvertexBuffers;
+//struct GLNVGvertexBuffers;
 
 namespace FishGUI
 {
@@ -70,7 +70,7 @@ namespace FishGUI
 		Vector2i			m_position;
 		Size 				m_frameBufferSize;
 		GLFWwindow* 		m_glfwWindow;
-		GLNVGvertexBuffers* m_buffers = nullptr;
+//		GLNVGvertexBuffers* m_buffers = nullptr;
 		
 		// a window which is not focused may be rendered as normal, but will not receive input events
 		bool				m_isFocused = false;
