@@ -1202,7 +1202,21 @@ static void glnvg__renderFlush(void* uptr)
 #if NANOVG_GL_USE_UNIFORMBUFFER
 		// Upload ubo for frag shaders
 		glBindBuffer(GL_UNIFORM_BUFFER, gl->fragBuf);
+#if defined(__APPLE__)
+		{
+			static int uniformBufferSize = 1;
+			int size = gl->nuniforms * gl->fragSize;
+			if (uniformBufferSize < size)
+			{
+				while (uniformBufferSize < size)
+					uniformBufferSize *= 2;
+				glBufferData(GL_UNIFORM_BUFFER, uniformBufferSize, nullptr, GL_STREAM_DRAW);
+			}
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, size, gl->uniforms);
+		}
+#else
 		glBufferData(GL_UNIFORM_BUFFER, gl->nuniforms * gl->fragSize, gl->uniforms, GL_STREAM_DRAW);
+#endif
 #endif
 
 		// Upload vertex data
@@ -1210,7 +1224,20 @@ static void glnvg__renderFlush(void* uptr)
 		glBindVertexArray(gl->vertArr);
 #endif
 		glBindBuffer(GL_ARRAY_BUFFER, gl->vertBuf);
+#if defined(__APPLE__)
+		static int vertexBufferSize = 1;
+		int size = gl->nverts * sizeof(NVGvertex);
+		if (vertexBufferSize < size)
+		{
+			while (vertexBufferSize < size)
+				vertexBufferSize *= 2;
+			glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, nullptr, GL_STREAM_DRAW);
+		}
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, gl->verts);
+#else
 		glBufferData(GL_ARRAY_BUFFER, gl->nverts * sizeof(NVGvertex), gl->verts, GL_STREAM_DRAW);
+#endif
+		
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(NVGvertex), (const GLvoid*)(size_t)0);
