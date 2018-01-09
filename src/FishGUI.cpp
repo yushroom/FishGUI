@@ -341,6 +341,15 @@ namespace FishGUI
 		glfwTerminate();
 	}
 	
+	float Clamp(float v, float minv, float maxv)
+	{
+		if (v < minv)
+			return minv;
+		if (v > maxv)
+			return maxv;
+		return v;
+	}
+	
 	// horizontally divide rect into 2 rects, left & right
 	void HSplitRect2(const Rect& r, Rect& r1, Rect& r2, float size1, float size2, int interval)
 	{
@@ -367,12 +376,21 @@ namespace FishGUI
 		r3.x = r2.x + w2 + interval;
 	}
 	
+	// slower than std:to_string but the result is more elegant
+	std::string ToString(float x)
+	{
+		std::ostringstream sout;
+		sout << x;
+		return sout.str();
+	}
+	
 	struct IMGUIContext
 	{
 		IMWidget* 		widget = nullptr;
 		Rect 			rect;
 		Vector2i 		pos;
-		int 			yStart = 0;
+		float 			yStart = 0;
+//		int				totalHeight = 0;
 		static constexpr int cellHeight = 16;
 		static constexpr int xmargin = 2;
 		static constexpr int ymargin = 2;
@@ -389,13 +407,21 @@ namespace FishGUI
 		{
 			rect = widget->GetRect();
 			pos.x = rect.x;
-			pos.y = rect.y;
+			pos.y = rect.y + yStart;
 			showScrollBar = needScrollBar;	// set by last frame
 			needScrollBar = false;			// clear for this frame
+//			totalHeight = 0;
 		}
 		
 		void EndFrame()
 		{
+			const int total_height = pos.y - (yStart+rect.y);
+			if (total_height > rect.y + rect.height)
+			{
+				needScrollBar = true;
+			}
+//			Label("yStart="+ToString(yStart)+" pos.y="+std::to_string(pos.y) + " rect.bottom="+std::to_string(rect.y+rect.height));
+//			Label("yStart="+ToString(yStart)+" pos.y="+std::to_string(pos.y) + " totalHeight="+std::to_string(totalHeight));
 			if (showScrollBar)
 			{
 				auto ctx = GetContext();
@@ -405,16 +431,24 @@ namespace FishGUI
 				int h = rect.height;
 				DrawRect(ctx, x, y, w, h, theme.mScrollBarBackColor);
 				
-				const int total_height = pos.y;
+				const int total_height = pos.y - (yStart+rect.y);
 				float p = float(rect.height) / total_height;
-//				int barLen = p * rect.height;
 				constexpr int pad = 1;
 				x = rect.x+rect.width-scrollBarWidth+pad;
-				y = rect.y;
+//				y = rect.y + float(rect.height)*(-yStart)/total_height;
+				y = rect.y + (-yStart)*p;
 				w = scrollBarWidth - pad*2;
 				h = p * rect.height;
 				int r = scrollBarWidth / 2 - pad;
 				DrawRoundedRect(ctx, x, y, w, h, r, theme.mScrollBarColor);
+				
+				auto& input = Input::GetInstance();
+				if (input.m_scrolling && input.MouseInRect(rect))
+				{
+					yStart += input.m_scroll.y*4;
+					printf("%lf\n", yStart);
+					yStart = Clamp(yStart, (rect.height - total_height), 0);
+				}
 			}
 		}
 		
@@ -426,10 +460,12 @@ namespace FishGUI
 			ret.width -= xmargin*2 + indent + (showScrollBar ? scrollBarWidth : 0);
 			ret.height = height;
 			pos.y += ymargin + height;
-			if (pos.y > rect.y + rect.height)
-			{
-				needScrollBar = true;
-			}
+//			const int total_height = pos.y - yStart;
+//			if (total_height > rect.y + rect.height)
+//			{
+//				needScrollBar = true;
+//			}
+//			totalHeight += ymargin+height;
 			return ret;
 		}
 		
@@ -449,6 +485,7 @@ namespace FishGUI
 		{
 			pos.y += ymargin;
 			::DrawLine(GetContext(), pos.x, pos.y, pos.x+rect.width-(showScrollBar ? scrollBarWidth : 0), pos.y);
+//			totalHeight += ymargin;
 		}
 		
 		NVGcontext* GetContext()
@@ -473,12 +510,17 @@ namespace FishGUI
 	
 	void IMWidget::Draw()
 	{
+		auto& r = m_rect;
+		auto ctx = m_context->m_nvgContext;
+//		DrawRoundedRect(ctx, r.x, r.y, r.width, r.height, 10, nvgRGBA(0, 0, 0, 255));
+		nvgIntersectScissor(ctx, r.x, r.y, r.width, r.height);
 		g_IMContext = m_imContext;
 		m_imContext->BeginFrame();
 		if (m_renderFunction != nullptr)
 			m_renderFunction();
 		m_imContext->EndFrame();
 		g_IMContext = nullptr;
+		nvgResetScissor(ctx);
 	}
 	
 	void Group(const std::string & name)
@@ -540,14 +582,6 @@ namespace FishGUI
 		DrawLabel(ctx, label.c_str(), r1.x, r1.y, r1.width, r1.height);
 		DrawSlider(ctx, pos, r2.x, r2.y, r2.width, r2.height);
 		return false;
-	}
-	
-	// slower than std:to_string but the result is more elegant
-	std::string ToString(float x)
-	{
-		std::ostringstream sout;
-		sout << x;
-		return sout.str();
 	}
 	
 	void Float3(const std::string & label, float& x, float& y, float& z)

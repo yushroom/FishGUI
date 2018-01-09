@@ -115,6 +115,8 @@ namespace FishGUI
 		
 		MouseButtonState    m_mouseButtonStates[3];
 		Vector2i            m_mousePosition = {0, 0};
+		bool				m_scrolling = false;
+		Vector2f			m_scroll = {0, 0};
 		bool                m_inputMode = false;
 		std::string         m_stringBuffer;
 		

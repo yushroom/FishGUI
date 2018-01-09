@@ -51,10 +51,20 @@ namespace FishGUI
 		input.m_mouseButtonStates[button] = state;
 	}
 	
+	void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		printf("xoffset: %le yoffset: %le\n", xoffset, yoffset);
+		auto& input = Input::GetInstance();
+		input.m_scrolling = true;
+		input.m_scroll.x = static_cast<float>(xoffset);
+		input.m_scroll.y = static_cast<float>(yoffset);
+	}
+	
 	void glfwBindWindowCallbacks(GLFWwindow* window)
 	{
 		glfwSetKeyCallback(window, glfwKeyCallback);
 		glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
+		glfwSetScrollCallback(window, glfwScrollCallback);
 		glfwSetCharCallback(window, glfwCharCallback);
 //		glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
 //		glfwSetglfwWindowFocusCallback(window, glfwWindowFocusCallback);

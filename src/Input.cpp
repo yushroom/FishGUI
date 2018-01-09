@@ -28,5 +28,10 @@ namespace FishGUI
 		{
 			m_dragWidget = nullptr;
 		}
+		
+		// scroll
+		m_scrolling = false;
+		m_scroll.x = 0;
+		m_scroll.y = 0;
 	}
 }
