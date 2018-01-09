@@ -6,6 +6,8 @@
 #include "Input.hpp"
 #include "FishGUI.hpp"
 
+#include "Draw.hpp"
+
 namespace FishGUI
 {
 	//void CalcSplitRect(
@@ -212,4 +214,35 @@ namespace FishGUI
 			m_splitter.m_pos = rect.y + size1;
 		m_splitter.m_dirty = false;
 	}
+	
+//	bool Button(const char* text)
+//	{
+//		int x, y, w, h;
+//		g.currentTab.nextCellOrigin(&x, &y);
+//		w = g.currentTab.get_avaliable_width();
+//		h = g.currentTab.y_cell_height;
+//
+//		bool clicked = false;
+//		//		int id = g.currentTab.get_current_cell_id();
+//		bool mouse_inside = MouseInRect(x, y, w, h);
+//		NVGcolor colorTop = g.theme.mButtonGradientTopUnfocused;
+//		NVGcolor colorBot = g.theme.mButtonGradientBotUnfocused;
+//		if (mouse_inside)
+//		{
+//			colorTop = g.theme.mButtonGradientTopFocused;
+//			colorBot = g.theme.mButtonGradientBotFocused;
+//			if (IsMouseButtonUp(MouseButton::Left)) {
+//				clicked = true;
+//			} else if (IsMouseButtonPressed(MouseButton::Left)) {
+//				colorTop = g.theme.mButtonGradientTopPushed;
+//				colorBot = g.theme.mButtonGradientBotPushed;
+//			}
+//		}
+//		drawButton(g.nvgContext, 0, text, x, y, w, h, colorTop, colorBot);
+//
+//		g.currentTab.add_cell(h);
+//		return clicked;
+//	}
+	
+
 }

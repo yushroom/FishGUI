@@ -8,6 +8,12 @@ namespace FishGUI
 	struct Vector2
 	{
 		T x, y;
+		
+		friend std::ostream& operator<<(std::ostream& os, const Vector2& v)
+		{
+			os << "Vector2(" << v.x << ", " << v.y << ")\n";
+			return os;
+		}
 	};
 	
 	typedef Vector2<int> Vector2i;
@@ -17,6 +23,12 @@ namespace FishGUI
 	struct Vector3
 	{
 		T x, y, z;
+		
+		friend std::ostream& operator<<(std::ostream& os, const Vector3& v)
+		{
+			os << "Vector3(" << v.x << ", " << v.y << ", " << v.z << ")\n";
+			return os;
+		}
 	};
 	
 	typedef Vector3<int> Vector3i;
@@ -25,6 +37,12 @@ namespace FishGUI
 	struct Size
 	{
 		int width, height;
+		
+		friend std::ostream& operator<<(std::ostream& os, const Size& s)
+		{
+			os << "Size(" << s.width << ", " << s.height << ")\n";
+			return os;
+		}
 	};
 	
 	struct Rect

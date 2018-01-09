@@ -37,6 +37,8 @@ namespace FishGUI
 
 		const std::string& GetName() const { return m_name; }
 
+		FishGUIContext* GetContext() const { return m_context; }
+		
 		int	GetWidth() const { return m_rect.width; }
 		int	GetHeight() const { return m_rect.height; }
 		void SetWidth(int w) { m_rect.width = w; }
@@ -47,6 +49,10 @@ namespace FishGUI
 		Layout* GetLayout() { return m_layout; }
 		void SetLayout(Layout* layout);
 
+		const Rect & GetRect() const
+		{
+			return m_rect;
+		}
 		void SetRect(int x, int y, int w, int h)
 		{
 			m_rect.x = x;
@@ -276,13 +282,26 @@ namespace FishGUI
 	protected:
 		std::vector<Widget*> m_children;
 	};
+	
+	struct IMGUIContext;
 
 	class IMWidget : public Widget
 	{
 	public:
-		IMWidget(FishGUIContext* context, const char* name) : Widget(context, name)
+		IMWidget(FishGUIContext* context, const char* name);
+		virtual ~IMWidget();
+		
+		virtual void Draw() override;
+		
+		typedef std::function<void(void)> RenderFunction;
+		
+		void SetRenderFunction(RenderFunction func)
 		{
+			m_renderFunction = func;
 		}
+		
+	protected:
+		std::function<void(void)> m_renderFunction;
+		IMGUIContext*	m_imContext;
 	};
-
 }

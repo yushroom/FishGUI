@@ -1,24 +1,25 @@
 #ifdef _WIN32
-	//#define GLEW_STATIC
-	#include <GL/glew.h>
+//#define GLEW_STATIC
+#include <GL/glew.h>
 #elif defined(__APPLE__)
-	#include <OpenGL/gl3.h>
-	#include <OpenGL/gl3ext.h>
-	#define GLFW_INCLUDE_GLCOREARB
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl3ext.h>
+#define GLFW_INCLUDE_GLCOREARB
 #else
-	//#define GLEW_STATIC
-	#include <GL/glew.h>
+//#define GLEW_STATIC
+#include <GL/glew.h>
 #endif
 #include <GLFW/glfw3.h>
 
-#include "nanovg.h"
-#define NANOVG_GL3_IMPLEMENTATION
+#include "Draw.hpp"
+#define NANOVG_GL3 1
 #include "nanovg_gl.h"
-
+#include "Theme.hpp"
 
 #include "FishGUI.hpp"
 #include "Input.hpp"
 #include "Window.hpp"
+#include "Widget.hpp"
 
 #include <sstream>
 #include <vector>
@@ -28,564 +29,33 @@
 
 using namespace std::chrono_literals;
 
-#define ICON_SEARCH 0x1F50D
-#define ICON_CIRCLED_CROSS 0x2716
-#define ICON_CHEVRON_RIGHT 0xE75E
-#define ICON_CHECK 0x2713
-#define ICON_LOGIN 0xE740
-#define ICON_TRASH 0xE729
-
-constexpr NVGcolor Color(int intensity, int alpha)
+void _checkOpenGLError(const char *file, int line)
 {
-	return NVGcolor{{{intensity/255.0f, intensity/255.0f, intensity/255.0f, alpha/255.0f}}};
-}
+	GLenum err = glGetError();
 
-struct Theme
-{
-	int mStandardFontSize                 = 16;
-	int mButtonFontSize                   = 20;
-	int mTextBoxFontSize                  = 20;
-	int mWindowCornerRadius               = 2;
-	int mWindowHeaderHeight               = 18;
-	int mWindowDropShadowSize             = 10;
-	int mButtonCornerRadius               = 2;
-	float mTabBorderWidth                 = 0.75f;
-	int mTabInnerMargin                   = 5;
-	int mTabMinButtonWidth                = 20;
-	int mTabMaxButtonWidth                = 160;
-	int mTabControlWidth                  = 20;
-	int mTabButtonHorizontalPadding       = 10;
-	int mTabButtonVerticalPadding         = 2;
-	
-	NVGcolor mDropShadow                       = Color(0, 128);
-	NVGcolor mTransparent                      = Color(0, 0);
-	NVGcolor mBorderDark                       = Color(29, 255);
-	NVGcolor mBorderLight                      = Color(133, 255);
-	NVGcolor mBorderMedium                     = Color(35, 255);
-//	NVGcolor mTextColor                        = Color(255, 160);
-	NVGcolor mTextColor = Color(0, 255);
-	NVGcolor mDisabledTextColor                = Color(255, 80);
-	NVGcolor mTextColorShadow                  = Color(0, 160);
-	NVGcolor mIconColor                        = mTextColor;
-	
-	NVGcolor mButtonGradientTopFocused         = Color(64, 255);
-	NVGcolor mButtonGradientBotFocused         = Color(48, 255);
-	NVGcolor mButtonGradientTopUnfocused       = Color(74, 255);
-	NVGcolor mButtonGradientBotUnfocused       = Color(58, 255);
-	NVGcolor mButtonGradientTopPushed          = Color(41, 255);
-	NVGcolor mButtonGradientBotPushed          = Color(29, 255);
-	
-	/* Window-related */
-	NVGcolor mWindowBackgroundColor = Color(162, 255);
-//	NVGcolor mWindowFocusedHeaderColor = Color(230, 255);
-	NVGcolor mTabContentBackgroundColor = Color(194, 255);
-	
-	float mTabHeaderFontSize = 16.0f;
-	int mTabHeaderCellWidth = 80;
-	NVGcolor mTabHeaderActiveColor = mTabContentBackgroundColor;
-	
-	NVGcolor mWindowFillUnfocused              = Color(43, 230);
-	NVGcolor mWindowFillFocused                = Color(45, 230);
-	NVGcolor mWindowTitleUnfocused             = Color(220, 160);
-	NVGcolor mWindowTitleFocused               = Color(255, 190);
-	
-	NVGcolor mWindowHeaderGradientTop          = mButtonGradientTopUnfocused;
-	NVGcolor mWindowHeaderGradientBot          = mButtonGradientBotUnfocused;
-	NVGcolor mWindowHeaderSepTop               = mBorderLight;
-	NVGcolor mWindowHeaderSepBot               = mBorderDark;
-	
-	NVGcolor mWindowPopup                      = Color(50, 255);
-	NVGcolor mWindowPopupTransparent           = Color(50, 0);
-};
-
-static Theme theme;
-
-static char* cpToUTF8(int cp, char* str)
-{
-	int n = 0;
-	if (cp < 0x80) n = 1;
-	else if (cp < 0x800) n = 2;
-	else if (cp < 0x10000) n = 3;
-	else if (cp < 0x200000) n = 4;
-	else if (cp < 0x4000000) n = 5;
-	else if (cp <= 0x7fffffff) n = 6;
-	str[n] = '\0';
-	switch (n) {
-	case 6: str[5] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x4000000;
-	case 5: str[4] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x200000;
-	case 4: str[3] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x10000;
-	case 3: str[2] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0x800;
-	case 2: str[1] = 0x80 | (cp & 0x3f); cp = cp >> 6; cp |= 0xc0;
-	case 1: str[0] = cp;
-	}
-	return str;
-}
-
-void DrawTabButton(NVGcontext* ctx, const char* text, int x, int y, int w, int h, bool active)
-{
-	nvgSave(ctx);
-	nvgIntersectScissor(ctx, x, y, w, h);
-	
-	if (active)
+	while (err != GL_NO_ERROR)
 	{
-		nvgBeginPath(ctx);
-		nvgRoundedRect(ctx, x, y, w, h+theme.mButtonCornerRadius, theme.mButtonCornerRadius);
-		nvgFillColor(ctx, theme.mTabHeaderActiveColor);
-		nvgFill(ctx);
+		const char* error;
+
+		switch (err)
+		{
+			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
+			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
+			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
+			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
+			default:                        error = "UNKNOWN_ERROR";
+		}
+
+		//		LogError(Format("GL_%1% - %2%:%3%", error, file, line));
+		printf("[%d] GL_%s\n", line, error);
+		err = glGetError();
 	}
-	nvgResetScissor(ctx);
-	nvgRestore(ctx);
-	
-	// Draw the text with some padding
-	int textX = x + theme.mTabButtonHorizontalPadding;
-	int textY = y + theme.mTabButtonVerticalPadding;
-	NVGcolor textColor = theme.mTextColor;
-	nvgBeginPath(ctx);
-	nvgFillColor(ctx, textColor);
-	nvgFontSize(ctx, theme.mTabHeaderFontSize);
-	nvgFontFace(ctx, "sans");
-	nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-	nvgText(ctx, textX, textY, text, nullptr);
 }
 
+#define glCheckError() _checkOpenGLError(__FILE__,__LINE__)
 
-
-//void DrawDock(NVGcontext* ctx, float x, float y, float w, float h)
-//{
-//	float cornerRadius = 3.0f;
-////	NVGpaint shadowPaint;
-//	NVGpaint headerPaint;
-//
-//	nvgSave(ctx);
-////	nvgClearState(vg);
-//
-//	nvgBeginPath(ctx);
-//	nvgRect(ctx, x, y, w, h);
-//	nvgFillColor(ctx, theme.mWindowBackgroundColor);
-//	nvgFill(ctx);
-//	
-//	nvgBeginPath(ctx);
-//	nvgFillColor(ctx, theme.mWindowBackgroundColor);
-//	nvgRect(ctx, x, y, w, theme.mWindowHeaderHeight);
-//	nvgFill(ctx);
-//
-//	nvgRestore(ctx);
-//}
-
-
-void drawSearchBox(NVGcontext* vg, const char* text, float x, float y, float w, float h)
-{
-	NVGpaint bg;
-	char icon[8];
-	float cornerRadius = h / 2 - 1;
-
-	// Edit
-	bg = nvgBoxGradient(vg, x, y + 1.5f, w, h, h / 2, 5, nvgRGBA(0, 0, 0, 16), nvgRGBA(0, 0, 0, 92));
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, y, w, h, cornerRadius);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
-
-	/*	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x+0.5f,y+0.5f, w-1,h-1, cornerRadius-0.5f);
-	nvgStrokeColor(vg, nvgRGBA(0,0,0,48));
-	nvgStroke(vg);*/
-
-	nvgFontSize(vg, h*1.3f);
-	nvgFontFace(vg, "icons");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 64));
-	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + h * 0.55f, y + h * 0.55f, cpToUTF8(ICON_SEARCH, icon), NULL);
-
-	nvgFontSize(vg, 20.0f);
-	nvgFontFace(vg, "sans");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 32));
-
-	nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + h * 1.05f, y + h * 0.5f, text, NULL);
-
-	nvgFontSize(vg, h*1.3f);
-	nvgFontFace(vg, "icons");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 32));
-	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + w - h * 0.55f, y + h * 0.55f, cpToUTF8(ICON_CIRCLED_CROSS, icon), NULL);
-}
-
-void drawDropDown(NVGcontext* vg, const char* text, float x, float y, float w, float h)
-{
-	NVGpaint bg;
-	char icon[8];
-	float cornerRadius = 4.0f;
-
-	bg = nvgLinearGradient(vg, x, y, x, y + h, nvgRGBA(255, 255, 255, 16), nvgRGBA(0, 0, 0, 16));
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
-
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
-	nvgStrokeColor(vg, nvgRGBA(0, 0, 0, 48));
-	nvgStroke(vg);
-
-	nvgFontSize(vg, 20.0f);
-	nvgFontFace(vg, "sans");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 160));
-	nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + h * 0.3f, y + h * 0.5f, text, NULL);
-
-	nvgFontSize(vg, h*1.3f);
-	nvgFontFace(vg, "icons");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 64));
-	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + w - h * 0.5f, y + h * 0.5f, cpToUTF8(ICON_CHEVRON_RIGHT, icon), NULL);
-}
-
-void drawLabel(NVGcontext* ctx, const char* text, float x, float y, float w, float h)
-{
-	NVG_NOTUSED(w);
-
-	nvgFontSize(ctx, 18.0f);
-	nvgFontFace(ctx, "sans");
-	nvgFillColor(ctx, nvgRGBA(255, 255, 255, 128));
-
-	//nvgBeginPath(ctx);
-	//nvgRect(ctx, x, y, w, h);
-	//nvgFill(ctx);
-
-	nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgSave(ctx);
-	nvgIntersectScissor(ctx, x, y, w, h);
-	nvgText(ctx, x, y + h * 0.5f, text, nullptr);
-	nvgRestore(ctx);
-}
-
-void drawEditBoxBase(NVGcontext* vg, float x, float y, float w, float h)
-{
-	NVGpaint bg;
-	// Edit
-	bg = nvgBoxGradient(vg, x + 1, y + 1 + 1.5f, w - 2, h - 2, 3, 4, nvgRGBA(255, 255, 255, 32), nvgRGBA(32, 32, 32, 32));
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x + 1, y + 1, w - 2, h - 2, 4 - 1);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
-
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x + 0.5f, y + 0.5f, w - 1, h - 1, 4 - 0.5f);
-	nvgStrokeColor(vg, nvgRGBA(0, 0, 0, 48));
-	nvgStroke(vg);
-}
-
-void drawEditBox(NVGcontext* ctx, const char* text, float x, float y, float w, float h)
-{
-
-	drawEditBoxBase(ctx, x, y, w, h);
-
-	nvgSave(ctx);
-	nvgIntersectScissor(ctx, x, y, w, h);
-
-	nvgFontSize(ctx, 16.0f);
-	nvgFontFace(ctx, "sans");
-	nvgFillColor(ctx, nvgRGBA(255, 255, 255, 64));
-	nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgText(ctx, x + h * 0.3f, y + h * 0.5f, text, NULL);
-
-	nvgRestore(ctx);
-}
-
-void drawCheckBox(NVGcontext* vg, const char* text, float x, float y, float w, float h)
-{
-	NVGpaint bg;
-	char icon[8];
-	NVG_NOTUSED(w);
-
-	nvgFontSize(vg, 18.0f);
-	nvgFontFace(vg, "sans");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 160));
-
-	nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + 28, y + h * 0.5f, text, NULL);
-
-	bg = nvgBoxGradient(vg, x + 1, y + (int)(h*0.5f) - 9 + 1, 18, 18, 3, 3, nvgRGBA(0, 0, 0, 32), nvgRGBA(0, 0, 0, 92));
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x + 1, y + (int)(h*0.5f) - 9, 18, 18, 3);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
-
-	nvgFontSize(vg, 40);
-	nvgFontFace(vg, "icons");
-	nvgFillColor(vg, nvgRGBA(255, 255, 255, 128));
-	nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-	nvgText(vg, x + 9 + 2, y + h * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
-}
-
-void drawButton(NVGcontext* ctx, int preicon, const char* text, float x, float y, float w, float h, NVGcolor colTop, NVGcolor colBot)
-{
-	NVGpaint bg;
-	char icon[8];
-	float cornerRadius = 4.0f;
-	float tw = 0, iw = 0;
-
-	//	bg = nvgLinearGradient(vg, x,y,x,y+h, nvgRGBA(255,255,255,isBlack(col)?16:32), nvgRGBA(0,0,0,isBlack(col)?16:32));
-	bg = nvgLinearGradient(ctx, x, y, x, y + h, colTop, colBot);
-	nvgBeginPath(ctx);
-	nvgRoundedRect(ctx, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
-	//	if (!isBlack(col)) {
-	//		nvgFillColor(vg, col);
-	//		nvgFill(vg);
-	//	}
-	nvgFillPaint(ctx, bg);
-	nvgFill(ctx);
-
-	nvgBeginPath(ctx);
-	nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
-	nvgStrokeColor(ctx, nvgRGBA(0, 0, 0, 48));
-	nvgStroke(ctx);
-
-	nvgFontSize(ctx, 20.0f);
-	nvgFontFace(ctx, "sans-bold");
-	tw = nvgTextBounds(ctx, 0, 0, text, NULL, NULL);
-	if (preicon != 0) {
-		nvgFontSize(ctx, h*1.3f);
-		nvgFontFace(ctx, "icons");
-		iw = nvgTextBounds(ctx, 0, 0, cpToUTF8(preicon, icon), NULL, NULL);
-		iw += h * 0.15f;
-	}
-
-	if (preicon != 0) {
-		nvgFontSize(ctx, h*1.3f);
-		nvgFontFace(ctx, "icons");
-		nvgFillColor(ctx, nvgRGBA(255, 255, 255, 96));
-		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-		nvgText(ctx, x + w * 0.5f - tw * 0.5f - iw * 0.75f, y + h * 0.5f, cpToUTF8(preicon, icon), NULL);
-	}
-
-	nvgSave(ctx);
-	nvgIntersectScissor(ctx, x, y, w, h);
-
-	nvgFontSize(ctx, 20.0f);
-	nvgFontFace(ctx, "sans-bold");
-	nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-	nvgFillColor(ctx, nvgRGBA(0, 0, 0, 160));
-	nvgText(ctx, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f - 1, text, NULL);
-	nvgFillColor(ctx, nvgRGBA(255, 255, 255, 160));
-	nvgText(ctx, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f, text, NULL);
-
-	nvgRestore(ctx);
-}
-
-void drawSlider(NVGcontext* vg, float pos, float x, float y, float w, float h)
-{
-	NVGpaint bg, knob;
-	float cy = y + (int)(h*0.5f);
-	float kr = (int)(h*0.25f);
-
-	nvgSave(vg);
-	//	nvgClearState(vg);
-
-	// Slot
-	bg = nvgBoxGradient(vg, x, cy - 2 + 1, w, 4, 2, 2, nvgRGBA(0, 0, 0, 32), nvgRGBA(0, 0, 0, 128));
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, x, cy - 2, w, 4, 2);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
-
-	// Knob Shadow
-	bg = nvgRadialGradient(vg, x + (int)(pos*w), cy + 1, kr - 3, kr + 3, nvgRGBA(0, 0, 0, 64), nvgRGBA(0, 0, 0, 0));
-	nvgBeginPath(vg);
-	nvgRect(vg, x + (int)(pos*w) - kr - 5, cy - kr - 5, kr * 2 + 5 + 5, kr * 2 + 5 + 5 + 3);
-	nvgCircle(vg, x + (int)(pos*w), cy, kr);
-	nvgPathWinding(vg, NVG_HOLE);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
-
-	// Knob
-	knob = nvgLinearGradient(vg, x, cy - kr, x, cy + kr, nvgRGBA(255, 255, 255, 16), nvgRGBA(0, 0, 0, 16));
-	nvgBeginPath(vg);
-	nvgCircle(vg, x + (int)(pos*w), cy, kr - 1);
-	nvgFillColor(vg, nvgRGBA(40, 43, 48, 255));
-	nvgFill(vg);
-	nvgFillPaint(vg, knob);
-	nvgFill(vg);
-
-	nvgBeginPath(vg);
-	nvgCircle(vg, x + (int)(pos*w), cy, kr - 0.5f);
-	nvgStrokeColor(vg, nvgRGBA(0, 0, 0, 92));
-	nvgStroke(vg);
-
-	nvgRestore(vg);
-}
-
-//namespace FishGUI
-//{
-//	constexpr int WIDTH = 60;
-//	constexpr int HEIGHT = 20;
-//
-//	enum class WidgetType
-//	{
-//		ELabel,
-//		EButton,
-//		ECheckBox,
-//		ETextEdit,
-//		EDropDown,
-//		ESlider,
-//	};
-//
-//	template<WidgetType T>
-//	Size PreferredSize()
-//	{
-//		constexpr int width = 60;
-//		constexpr int height = 30;
-//		return Size{ width, height };
-//	}
-//
-//	template<WidgetType T>
-//	Size MinSize()
-//	{
-//		constexpr int width = 40;
-//		constexpr int height = 20;
-//		return Size{ width, height };
-//	}
-//
-//	template<WidgetType T>
-//	Rect GetRenderRect(Alignment v_alignment, Alignment h_alignment, const Rect& rect)
-//	{
-//		Rect r = rect;
-//		Size pSize = PreferredSize<T>();
-//		Size minSize = MinSize<T>();
-//
-//		// horizontally alignment
-//		if (h_alignment == Alignment::Minimum)
-//		{
-//			r.width = minSize.width;
-//		}
-//		else if (h_alignment == Alignment::Middle)
-//		{
-//			r.width = pSize.width;
-//			if (r.width < rect.width)
-//			{
-//				r.width = rect.width;
-//			}
-//			else
-//			{
-//				r.x += std::floorf((rect.width - r.width) / 2.0f);
-//			}
-//		}
-//		else if (h_alignment == Alignment::Maximum)
-//		{
-//			// r.width = rect.width;
-//		}
-//		else if (h_alignment == Alignment::Fill)
-//		{
-//			r.width = size.width;
-//			if (r.width < rect.width)
-//			{
-//				r.width = rect.width;
-//			}
-//		}
-//
-//		// vertically alignment
-//		if (v_alignment == Alignment::Minimum)
-//		{
-//			r.height = minSize.height;
-//		}
-//		else if (v_alignment == Alignment::Middle)
-//		{
-//			r.height = pSize.height;
-//			if (r.height < rect.height)
-//			{
-//				r.height = rect.height;
-//			}
-//			else
-//			{
-//				r.y += std::floorf((rect.height - r.height) / 2.0f);
-//			}
-//		}
-//		else if (v_alignment == Alignment::Maximum)
-//		{
-//			// r.height = rect.height;
-//		}
-//		else if (v_alignment == Alignment::Fill)
-//		{
-//			r.height = size.height;
-//			if (r.height < rect.height)
-//			{
-//				r.height = rect.height;
-//			}
-//		}
-//		//widget.Draw(r);
-//		return r;
-//	}
-//
-//	class Context
-//	{
-//	public:
-//		std::stack<Alignment> m_hAlignments;
-//		std::stack<Alignment> m_vAlignments;
-//		std::stack<Orientation> m_orientations;
-//
-//		Vector2 m_topLeft = Vector2{ 0, 0 };
-//		Vector2 m_anchor = Vector2{ 0, 0 };
-//		Size m_sizeOfCurrentCell;
-//
-//		Vector2 PosInScreen(const Vector2& localPos)
-//		{
-//			return localPos + m_topLeft;
-//		}
-//
-//		Orientation orientation() { return m_orientations.top(); }
-//
-//		void NewCell()
-//		{
-//			if (orientation() == Orientation::Vertical)
-//			{
-//				if (m_anchor.x != 0)
-//				{
-//					m_anchor.x = 0;
-//					m_anchor.y += m_sizeOfCurrentCell.height;
-//				}
-//			}
-//			else
-//			{
-//				if (m_anchor.y != 0)
-//				{
-//					m_anchor.y = 0;
-//					m_anchor.x += m_sizeOfCurrentCell.width;
-//				}
-//			}
-//
-//		}
-//	};
-//
-//	Rect GetRect()
-//	{
-//		return { 0, 0, 100, 20 };
-//	}
-//
-//	bool Button(Context& ctx, const char* text)
-//	{
-//		Rect r = GetRect();
-//		r = GetRenderRect<WidgetType::EButton>(Alignment::Fill, Alignment::Fill, r);
-//		bool clicked = false;
-//		//		int id = g.currentTab.get_current_cell_id();
-//		bool mouse_inside = MouseInRect(r);
-//		NVGcolor colorTop = g.theme.mButtonGradientTopUnfocused;
-//		NVGcolor colorBot = g.theme.mButtonGradientBotUnfocused;
-//		if (mouse_inside)
-//		{
-//			colorTop = g.theme.mButtonGradientTopFocused;
-//			colorBot = g.theme.mButtonGradientBotFocused;
-//			if (IsMouseButtonUp(MouseButton::Left)) {
-//				clicked = true;
-//			}
-//			else if (IsMouseButtonPressed(MouseButton::Left)) {
-//				colorTop = g.theme.mButtonGradientTopPushed;
-//				colorBot = g.theme.mButtonGradientBotPushed;
-//			}
-//		}
-//		drawButton(g.nvgContext, 0, text, r.x, r.y, r.width, r.height, colorTop, colorBot);
-//	}
-//}
+extern Theme theme;
 
 namespace FishGUI
 {
@@ -658,9 +128,12 @@ namespace FishGUI
 		nvgRect(ctx, r.x, r.y, r.width, r.height);
 		nvgFill(ctx);
 
+//		Widget::Draw();
+		auto content = m_children[m_activeTabId];
+		content->SetRect(r.x, r.y, r.width, r.height);
+		content->Draw();
+		
 		nvgRestore(ctx);
-
-		Widget::Draw();
 	}
 	
 	void Window::BeforeFrame()
@@ -760,7 +233,7 @@ namespace FishGUI
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+//		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 		
 		auto window = new MainWindow(&context, "Fish GUI", 800, 600);
 		WindowManager::GetInstance().m_windows.push_back(window);
@@ -861,9 +334,247 @@ namespace FishGUI
 				std::this_thread::sleep_for((target_interval-interval)*1000ms);
 			}
 			lastTime = now;
+			glCheckError();
 		}
 		
 		glfwDestroyWindow(mainWindow->GetGLFWWindow());
 		glfwTerminate();
+	}
+	
+	// horizontally divide rect into 2 rects, left & right
+	void HSplitRect2(const Rect& r, Rect& r1, Rect& r2, float size1, float size2, int interval)
+	{
+		r1 = r2 = r;
+		int w1 = static_cast<int>((r.width - interval) / (size1+size2) * size1);
+		int w2 = r.width - interval - w1;
+		r1.width = w1;
+		r2.width = w2;
+		r2.x = r1.x + w1 + interval;
+	}
+	
+	// horizontally divide rect into 3 rects
+	void HSplitRect3(const Rect& r, Rect& r1, Rect& r2, Rect& r3, float size1, float size2, float size3, int interval)
+	{
+		r1 = r2 = r3 = r;
+		float s = (r.width - interval*2) / (size1+size2+size3);
+		int w1 = static_cast<int>(s * size1);
+		int w2 = static_cast<int>(s * size2);
+		int w3 = r.width - interval*2 - w1 - w2;
+		r1.width = w1;
+		r2.width = w2;
+		r3.width = w3;
+		r2.x = r1.x + w1 + interval;
+		r3.x = r2.x + w2 + interval;
+	}
+	
+	struct IMGUIContext
+	{
+		IMWidget* 		widget = nullptr;
+		Rect 			rect;
+		Vector2i 		pos;
+		int 			yStart = 0;
+		static constexpr int cellHeight = 16;
+		static constexpr int xmargin = 2;
+		static constexpr int ymargin = 2;
+		static constexpr int Indent = 10;
+		
+		// scroll bar status depends on last farme status
+		bool showScrollBar = false;
+		bool needScrollBar = false;
+		static constexpr int scrollBarWidth = 10;
+		
+		int indent = 0;
+		
+		void BeginFrame()
+		{
+			rect = widget->GetRect();
+			pos.x = rect.x;
+			pos.y = rect.y;
+			showScrollBar = needScrollBar;	// set by last frame
+			needScrollBar = false;			// clear for this frame
+		}
+		
+		void EndFrame()
+		{
+			if (showScrollBar)
+			{
+				auto ctx = GetContext();
+				int x = rect.x+rect.width-scrollBarWidth;
+				int y = rect.y;
+				int w = scrollBarWidth;
+				int h = rect.height;
+				DrawRect(ctx, x, y, w, h, theme.mScrollBarBackColor);
+				
+				const int total_height = pos.y;
+				float p = float(rect.height) / total_height;
+//				int barLen = p * rect.height;
+				constexpr int pad = 1;
+				x = rect.x+rect.width-scrollBarWidth+pad;
+				y = rect.y;
+				w = scrollBarWidth - pad*2;
+				h = p * rect.height;
+				int r = scrollBarWidth / 2 - pad;
+				DrawRoundedRect(ctx, x, y, w, h, r, theme.mScrollBarColor);
+			}
+		}
+		
+		Rect NextCell(int height = cellHeight)
+		{
+			auto ret = rect;
+			ret.x = pos.x + xmargin + indent;
+			ret.y = pos.y + ymargin;
+			ret.width -= xmargin*2 + indent + (showScrollBar ? scrollBarWidth : 0);
+			ret.height = height;
+			pos.y += ymargin + height;
+			if (pos.y > rect.y + rect.height)
+			{
+				needScrollBar = true;
+			}
+			return ret;
+		}
+		
+		// label + ...
+		void NextCell2(Rect& left, Rect& right, float leftLen = 1, float rightLen = 1, int height = cellHeight)
+		{
+			auto r = NextCell(cellHeight);
+			HSplitRect2(r, left, right, leftLen, rightLen, xmargin);
+		}
+		
+		void AddIndent(int indent = Indent)
+		{
+			this->indent += indent;
+		}
+		
+		void DrawLine()
+		{
+			pos.y += ymargin;
+			::DrawLine(GetContext(), pos.x, pos.y, pos.x+rect.width-(showScrollBar ? scrollBarWidth : 0), pos.y);
+		}
+		
+		NVGcontext* GetContext()
+		{
+			return widget->GetContext()->m_nvgContext;
+		}
+	};
+	
+	static IMGUIContext* g_IMContext = nullptr;
+	
+	IMWidget::IMWidget(FishGUIContext* context, const char* name)
+		: Widget(context, name)
+	{
+		m_imContext = new IMGUIContext;
+		m_imContext->widget = this;
+	}
+	
+	IMWidget::~IMWidget()
+	{
+		delete m_imContext;
+	}
+	
+	void IMWidget::Draw()
+	{
+		g_IMContext = m_imContext;
+		m_imContext->BeginFrame();
+		if (m_renderFunction != nullptr)
+			m_renderFunction();
+		m_imContext->EndFrame();
+		g_IMContext = nullptr;
+	}
+	
+	void Group(const std::string & name)
+	{
+		Label(name);
+		g_IMContext->AddIndent(IMGUIContext::Indent);
+	}
+	
+	void EndGroup()
+	{
+		g_IMContext->AddIndent(-IMGUIContext::Indent);
+		g_IMContext->DrawLine();
+	}
+	
+	bool Button(const std::string & text)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = g_IMContext->widget->GetContext()->m_nvgContext;
+		auto r = g_IMContext->NextCell(20);
+		DrawButton(ctx, 0, text.c_str(), r.x, r.y, r.width, r.height);
+		return false;
+	}
+	
+	void Label(const std::string & text)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = g_IMContext->GetContext();
+		auto r = g_IMContext->NextCell();
+		DrawLabel(ctx, text.c_str(), r.x, r.y, r.width, r.height);
+	}
+
+	void CheckBox(const std::string & label, bool& inoutValue)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = g_IMContext->GetContext();
+		Rect r1, r2;
+		g_IMContext->NextCell2(r1, r2);
+		DrawLabel(ctx, label.c_str(), r1.x, r1.y, r1.width, r1.height);
+		DrawCheckBox(ctx, r2.x, r2.y, r2.width, r2.height);
+	}
+	
+	void InputText(const std::string & label, std::string& inoutValue)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = g_IMContext->GetContext();
+		Rect r1, r2;
+		g_IMContext->NextCell2(r1, r2);
+		DrawLabel(ctx, label.c_str(), r1.x, r1.y, r1.width, r1.height);
+		DrawEditBox(ctx, inoutValue.c_str(), r2.x, r2.y, r2.width, r2.height);
+	}
+	
+	bool Slider(const std::string & label, float& inoutValue, float minValue, float maxValue)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = g_IMContext->GetContext();
+		Rect r1, r2;
+		g_IMContext->NextCell2(r1, r2);
+		float pos = (inoutValue - minValue) / (maxValue - minValue);
+		DrawLabel(ctx, label.c_str(), r1.x, r1.y, r1.width, r1.height);
+		DrawSlider(ctx, pos, r2.x, r2.y, r2.width, r2.height);
+		return false;
+	}
+	
+	// slower than std:to_string but the result is more elegant
+	std::string ToString(float x)
+	{
+		std::ostringstream sout;
+		sout << x;
+		return sout.str();
+	}
+	
+	void Float3(const std::string & label, float& x, float& y, float& z)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = g_IMContext->GetContext();
+		Rect r1, r2;
+		g_IMContext->NextCell2(r1, r2, 1, 3);
+		
+		DrawLabel(ctx, label.c_str(), r1.x, r1.y, r1.width, r1.height);
+		
+		auto x_str = ToString(x);
+		auto y_str = ToString(y);
+		auto z_str = ToString(z);
+		Rect r21, r22, r23;
+		constexpr int pad = 2;
+		HSplitRect3(r2, r21, r22, r23, 1, 1, 1, pad);
+		constexpr int label_len = 11;
+		constexpr int align = NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE;
+		DrawLabel(ctx, "X", r21.x+pad, r21.y, label_len, r21.height, align);
+		r21.x += label_len;
+		DrawEditBox(ctx, x_str.c_str(), r21.x, r21.y, r21.width-label_len, r21.height);
+		DrawLabel(ctx, "Y", r22.x+pad, r22.y, label_len, r22.height, align);
+		r22.x += label_len;
+		DrawEditBox(ctx, y_str.c_str(), r22.x, r22.y, r22.width-label_len, r22.height);
+		DrawLabel(ctx, "Z", r23.x+pad, r23.y, label_len, r23.height, align);
+		r23.x += label_len;
+		DrawEditBox(ctx, z_str.c_str(), r23.x, r23.y, r23.width-label_len, r22.height);
 	}
 }
