@@ -27,7 +27,7 @@ namespace FishGUI
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		MouseButtonState state = MouseButtonState::None;
-		auto& input = Input::GetInstance();
+		auto& input = WindowManager::GetInstance().FindWindow(window)->GetInput();
 		if (action == GLFW_PRESS)
 		{
 			state = MouseButtonState::Down;
@@ -53,8 +53,8 @@ namespace FishGUI
 	
 	void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
-		printf("xoffset: %le yoffset: %le\n", xoffset, yoffset);
-		auto& input = Input::GetInstance();
+//		printf("xoffset: %le yoffset: %le\n", xoffset, yoffset);
+		auto& input = WindowManager::GetInstance().FindWindow(window)->GetInput();
 		input.m_scrolling = true;
 		input.m_scroll.x = static_cast<float>(xoffset);
 		input.m_scroll.y = static_cast<float>(yoffset);
@@ -70,8 +70,8 @@ namespace FishGUI
 //		glfwSetglfwWindowFocusCallback(window, glfwWindowFocusCallback);
 	}
 	
-	Window::Window(FishGUIContext* context, const char* title,  int width, int height) 
-		: Widget(context, title), m_size{ width, height }
+	Window::Window(FishGUIContext* context, const char* title,  int width, int height)
+		: Widget(title), m_size{ width, height }, m_context(context)
 	{
 		m_minSize.width = 200;
 		m_minSize.height = 200;
@@ -101,10 +101,41 @@ namespace FishGUI
 	
 
 	MainWindow::MainWindow(FishGUIContext* context, const char* title, int width, int height)
-		: Window(context, title, width, height), m_toolBar(context), m_statusBar(context)
+		: Window(context, title, width, height)
 	{
-		m_minSize.width = 600;
-		m_minSize.height = 400;
+		m_minSize.width = 950;
+		m_minSize.height = 600;
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
+	}
+	
+	void Window::SetPosition(int x, int y)
+	{
+		assert(m_glfwWindow != nullptr);
+		glfwSetWindowPos(m_glfwWindow, x, y);
+		m_position.x = x;
+		m_position.y = y;
+	}
+	
+	void Window::SetSize(int width, int height)
+	{
+		assert(m_glfwWindow != nullptr);
+		glfwSetWindowSize(m_glfwWindow, width, height);
+		m_size.width = width;
+		m_size.height = height;
+	}
+	
+	void Window::SetTitle(const char* title)
+	{
+		assert(m_glfwWindow != nullptr);
+		m_name = title;
+		glfwSetWindowTitle(m_glfwWindow, title);
+	}
+	
+	
+	void Window::SetDecorated(bool decorated)
+	{
+		assert(m_glfwWindow != nullptr);
+		int v = decorated ? GLFW_TRUE : GLFW_FALSE;
+		glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
 	}
 }

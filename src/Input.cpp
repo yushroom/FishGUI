@@ -1,10 +1,15 @@
 #include "Input.hpp"
+
 #include <iostream>
+
+#include <GLFW/glfw3.h>
 
 #include "Widget.hpp"
 
 namespace FishGUI
 {
+	Input* 	Input::s_current = nullptr;
+	
 	void Input::Update()
 	{
 		m_leftMouseButtonDoubleClicked = false;
@@ -21,7 +26,7 @@ namespace FishGUI
 		{
 			if (m_dragWidget != nullptr)
 			{
-				m_dragWidget->MouseDragEvent();
+				m_dragWidget->MouseDragEvent(m_mousePosition);
 			}
 		}
 		else
@@ -33,5 +38,12 @@ namespace FishGUI
 		m_scrolling = false;
 		m_scroll.x = 0;
 		m_scroll.y = 0;
+	}
+	
+	void Cursor::Init()
+	{
+		for (int i = 0; i < static_cast<int>(CursorType::CursorCount); ++i) {
+			m_glfwCursors[i] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR + i);
+		}
 	}
 }

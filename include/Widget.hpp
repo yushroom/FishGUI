@@ -1,14 +1,14 @@
 #pragma once
 #include <string>
-#include <Vector.hpp>
-
 #include <vector>
-
 #include <cassert>
+
+#include "Vector.hpp"
 
 namespace FishGUI
 {
 	struct FishGUIContext;
+	struct Theme;
 	class Layout;
 
 	enum class Alignment : uint8_t
@@ -28,16 +28,17 @@ namespace FishGUI
 	class Widget
 	{
 	public:
-		Widget(FishGUIContext* context, const char* name = "") : m_context(context), m_name(name)
+		Widget(const char* name = "") : m_name(name)
 		{
-
 		}
 
 		virtual ~Widget() = default;
 
 		const std::string& GetName() const { return m_name; }
 
-		FishGUIContext* GetContext() const { return m_context; }
+//		FishGUIContext* GetContext() const { return m_context; }
+		Theme* GetTheme() { return m_theme; }
+		void SetTheme(Theme* theme) { m_theme = theme; }
 		
 		int	GetWidth() const { return m_rect.width; }
 		int	GetHeight() const { return m_rect.height; }
@@ -80,10 +81,12 @@ namespace FishGUI
 		}
 
 		// virtual bool MouseDragEvent(const Vector2i & p, const Vector2i & rel, int button, int modifiers)
-		virtual bool MouseDragEvent()
+		virtual bool MouseDragEvent(const Vector2i & mousePos)
 		{
 			return false;
 		}
+		
+		void Draw2();
 
 	protected:
 		friend class Layout;
@@ -92,7 +95,8 @@ namespace FishGUI
 		friend class HLayout;
 		friend class VLayout;
 
-		FishGUIContext* 	m_context = nullptr;
+//		FishGUIContext* 	m_context = nullptr;
+		Theme* 				m_theme = nullptr;
 		//Widget*				m_parent = nullptr;
 		Layout * 			m_layout = nullptr;
 		std::string 		m_name;
@@ -104,12 +108,14 @@ namespace FishGUI
 		//std::vector<Widget *> m_children;
 	};
 
+	
 	class Layout
 	{
 	public:
 		virtual void PerformLayout(const Rect& rect) = 0;
 		virtual ~Layout() = default;
 	};
+	
 	
 	class SimpleLayout : public Layout
 	{
@@ -122,18 +128,18 @@ namespace FishGUI
 		Widget* m_widget;
 	};
 
+	
 	class Splitter : public Widget
 	{
 	public:
 		static constexpr int Width = 3;
 
-		Splitter(FishGUIContext* context, Orientation orientation)
-			: Widget(context), m_orientation(orientation)
+		Splitter(Orientation orientation)
+			: Widget("Splitter"), m_orientation(orientation)
 		{
-
 		}
 
-		virtual bool MouseDragEvent() override;
+		virtual bool MouseDragEvent(const Vector2i & mousePos) override;
 
 	private:
 		friend class Layout;
@@ -141,26 +147,19 @@ namespace FishGUI
 		Orientation m_orientation;
 		bool m_dirty = false;
 		int m_pos = 0;
-		//int m_min = 100;
-		//int m_max = 700;
 	};
 
 	class SplitLayout : public Layout
 	{
 	public:
-		SplitLayout(FishGUIContext* context, Orientation orientation)
-			: m_orientation(orientation), m_splitter(context, orientation)
+		SplitLayout(Orientation orientation)
+			: m_orientation(orientation), m_splitter(orientation)
 		{
 		}
 
 		virtual void PerformLayout(const Rect& rect) override;
 
 		static constexpr int INTERVAL = Splitter::Width;
-
-		//void AddWidget(Widget * widget)
-		//{
-		//	m_widget->AddChild(widget);
-		//}
 
 		enum class PartType
 		{
@@ -176,8 +175,6 @@ namespace FishGUI
 				SplitLayout * l;
 			};
 			PartType type;
-			//int minSize = 1;
-			//int maxSize = 4096;
 
 			Size GetMinSize()
 			{
@@ -239,25 +236,34 @@ namespace FishGUI
 		Part part1;
 		Part part2;
 	};
+	
+	typedef std::function<void(void)> RenderFunction;
 
+	
+	// abstract supter class for tool bar
 	class ToolBar : public Widget
 	{
 	public:
-		ToolBar(FishGUIContext * context) : Widget(context, "ToolBar")
+		ToolBar() : Widget("ToolBar")
 		{
 			m_rect.height = 32;
 		}
-
-		virtual void Draw() override;
+		
+		ToolBar(ToolBar&) = delete;
+		ToolBar& operator=(ToolBar&) = delete;
 	};
 
+	
 	class StatusBar : public Widget
 	{
 	public:
-		StatusBar(FishGUIContext * context) : Widget(context, "StatusBar")
+		StatusBar() : Widget("StatusBar")
 		{
 			m_rect.height = 20;
 		}
+		
+		StatusBar(StatusBar&) = delete;
+		StatusBar& operator=(StatusBar&) = delete;
 
 		virtual void Draw() override;
 	};
@@ -268,9 +274,13 @@ namespace FishGUI
 	public:
 		int m_activeTabId = 0;
 
-		TabWidget(FishGUIContext* context, const char* name) : Widget(context, name)
+		TabWidget(const char* name) : Widget(name)
 		{
 		}
+		
+		TabWidget(TabWidget&) = delete;
+		TabWidget& operator=(TabWidget&) = delete;
+
 		
 		void AddChild(Widget* w)
 		{
@@ -283,25 +293,24 @@ namespace FishGUI
 		std::vector<Widget*> m_children;
 	};
 	
+	
 	struct IMGUIContext;
 
+	// IMGUI widget with auto layout
 	class IMWidget : public Widget
 	{
 	public:
-		IMWidget(FishGUIContext* context, const char* name);
+		IMWidget(const char* name);
 		virtual ~IMWidget();
+		
+		IMWidget(IMWidget&) = delete;
+		IMWidget& operator=(IMWidget&) = delete;
 		
 		virtual void Draw() override;
 		
-		typedef std::function<void(void)> RenderFunction;
-		
-		void SetRenderFunction(RenderFunction func)
-		{
-			m_renderFunction = func;
-		}
+		virtual void DrawImpl() = 0;
 		
 	protected:
-		std::function<void(void)> m_renderFunction;
 		IMGUIContext*	m_imContext;
 	};
 }

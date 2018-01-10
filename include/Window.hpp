@@ -3,12 +3,13 @@
 
 #include <cassert>
 #include <list>
+#include <map>
+#include <functional>
 
-#include <GLFW/glfw3.h>
 #include "Widget.hpp"
+#include "Input.hpp"
 
 struct GLFWwindow;
-//struct GLNVGvertexBuffers;
 
 namespace FishGUI
 {
@@ -25,39 +26,15 @@ namespace FishGUI
 		float PixelRatio() const { return float(m_frameBufferSize.width) / m_size.width; }
 		
 		GLFWwindow * GetGLFWWindow() { return m_glfwWindow; }
-		FishGUIContext * GetContext() { return m_context; }
-		
-		void SetPosition(int x, int y)
-		{
-			assert(m_glfwWindow != nullptr);
-			glfwSetWindowPos(m_glfwWindow, x, y);
-			m_position.x = x;
-			m_position.y = y;
-		}
-		
-		void SetSize(int width, int height)
-		{
-			assert(m_glfwWindow != nullptr);
-			glfwSetWindowSize(m_glfwWindow, width, height);
-			m_size.width = width;
-			m_size.height = height;
-		}
-		
-		void SetTitle(const char* title)
-		{
-			assert(m_glfwWindow != nullptr);
-			m_name = title;
-			glfwSetWindowTitle(m_glfwWindow, title);
-		}
+		FishGUIContext* GetContext() { return m_context; }
+		NVGcontext * GetNVGContext() { return m_context->m_nvgContext; }
 		
 		bool IsFocused() const { return m_isFocused; }
 		
-		void SetDecorated(bool decorated)
-		{
-			assert(m_glfwWindow != nullptr);
-			int v = decorated ? GLFW_TRUE : GLFW_FALSE;
-			glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
-		}
+		void SetPosition(int x, int y);
+		void SetSize(int width, int height);
+		void SetTitle(const char* title);
+		void SetDecorated(bool decorated);
 		
 		void BeforeFrame();
 		virtual void Draw() override;
@@ -65,12 +42,19 @@ namespace FishGUI
 		
 		void OverlayDraw();
 		
+		Input& GetInput()
+		{
+			return m_input;
+		}
+		
 	protected:
 		Size				m_size;
 		Vector2i			m_position;
 		Size 				m_frameBufferSize;
 		GLFWwindow* 		m_glfwWindow;
-//		GLNVGvertexBuffers* m_buffers = nullptr;
+		Input				m_input;
+		FishGUIContext*		m_context;
+//		NVGcontext*			m_nvgContext;
 		
 		// a window which is not focused may be rendered as normal, but will not receive input events
 		bool				m_isFocused = false;
@@ -87,10 +71,30 @@ namespace FishGUI
 		MainWindow& operator=(MainWindow&) = delete;
 
 		virtual void Draw() override;
+		
+		void SetToolBar(ToolBar* toolBar)
+		{
+			m_toolBar = toolBar;
+		}
+		
+		void SetStatusBar(StatusBar* statusBar)
+		{
+			m_statusBar = statusBar;
+		}
+		
+		ToolBar* GetToolBar()
+		{
+			return m_toolBar;
+		}
+		
+		StatusBar* GetStatusBar()
+		{
+			return m_statusBar;
+		}
 
 	protected:
-		ToolBar m_toolBar;
-		StatusBar m_statusBar;
+		ToolBar* 	m_toolBar 	= nullptr;
+		StatusBar* 	m_statusBar = nullptr;
 	};
 
 	

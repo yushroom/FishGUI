@@ -50,13 +50,13 @@ namespace FishGUI
 		m_widget->Draw();
 	}
 
-	bool Splitter::MouseDragEvent()
+	bool Splitter::MouseDragEvent(const Vector2i & mousePos)
 	{
-		auto& input = Input::GetInstance();
+//		auto input = Input::GetCurrent();
 		if (m_orientation == Orientation::Horizontal)
-			m_pos = input.m_mousePosition.x;
+			m_pos = mousePos.x;
 		else
-			m_pos = input.m_mousePosition.y;
+			m_pos = mousePos.y;
 		m_dirty = true;
 		return true;
 	}
@@ -167,7 +167,7 @@ namespace FishGUI
 		if (part1.type == PartType::EWidget)
 		{
 			part1.w->m_rect = r1;
-			part1.w->Draw();
+			part1.w->Draw2();
 		}
 		else
 		{
@@ -177,14 +177,14 @@ namespace FishGUI
 		if (part2.type == PartType::EWidget)
 		{
 			part2.w->m_rect = r2;
-			part2.w->Draw();
+			part2.w->Draw2();
 		}
 		else
 		{
 			part2.l->PerformLayout(r2);
 		}
 
-		auto& input = Input::GetInstance();
+		auto input = Input::GetCurrent();
 		//Rect& splitterRect = m_splitter.m_rect;
 		//splitterRect = rect;
 		Rect splitterRect = rect;
@@ -199,13 +199,13 @@ namespace FishGUI
 			splitterRect.y += size1 - padding;
 			splitterRect.height = INTERVAL + padding * 2;
 		}
-		if (input.MouseInRect(splitterRect))
+		if (input->MouseInRect(splitterRect))
 		{
 			auto type = m_orientation == Orientation::Horizontal ? CursorType::HResize : CursorType::VResize;
 			Cursor::GetInstance().SetCursorType(type);
-			if (input.GetMouseButtonDown(MouseButton::Left))
+			if (input->GetMouseButtonDown(MouseButton::Left))
 			{
-				input.m_dragWidget = &m_splitter;
+				input->m_dragWidget = &m_splitter;
 			}
 		}
 		if (m_orientation == Orientation::Horizontal)
@@ -214,35 +214,4 @@ namespace FishGUI
 			m_splitter.m_pos = rect.y + size1;
 		m_splitter.m_dirty = false;
 	}
-	
-//	bool Button(const char* text)
-//	{
-//		int x, y, w, h;
-//		g.currentTab.nextCellOrigin(&x, &y);
-//		w = g.currentTab.get_avaliable_width();
-//		h = g.currentTab.y_cell_height;
-//
-//		bool clicked = false;
-//		//		int id = g.currentTab.get_current_cell_id();
-//		bool mouse_inside = MouseInRect(x, y, w, h);
-//		NVGcolor colorTop = g.theme.mButtonGradientTopUnfocused;
-//		NVGcolor colorBot = g.theme.mButtonGradientBotUnfocused;
-//		if (mouse_inside)
-//		{
-//			colorTop = g.theme.mButtonGradientTopFocused;
-//			colorBot = g.theme.mButtonGradientBotFocused;
-//			if (IsMouseButtonUp(MouseButton::Left)) {
-//				clicked = true;
-//			} else if (IsMouseButtonPressed(MouseButton::Left)) {
-//				colorTop = g.theme.mButtonGradientTopPushed;
-//				colorBot = g.theme.mButtonGradientBotPushed;
-//			}
-//		}
-//		drawButton(g.nvgContext, 0, text, x, y, w, h, colorTop, colorBot);
-//
-//		g.currentTab.add_cell(h);
-//		return clicked;
-//	}
-	
-
 }

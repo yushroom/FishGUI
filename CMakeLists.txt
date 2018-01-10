@@ -59,15 +59,19 @@ ADD_SUBDIRECTORY(./ThirdParty/glfw/)
 include_directories(./ThirdParty/glfw/include)
 SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "ThirdParty")
 
+include_directories(./ThirdParty/stb)
+include_directories(./include)
 aux_source_directory( ${CMAKE_CURRENT_LIST_DIR}/src SRCS )
-FILE(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.hpp ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
+FILE(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.hpp ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
 
 FILE(GLOB_RECURSE NANO_VG_SRCS ./ThirdParty/nanovg/*.c)
 FILE(GLOB_RECURSE NANO_VG_HEADERS ./ThirdParty/nanovg/*.h)
 
 source_group("nanovg" FILES ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
 
-add_executable(Demo ${SRCS} ${HEADERS} ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
+FILE(GLOB_RECURSE DEMO_SRC ./examples/demo1/*)
+add_executable(Demo MACOSX_BUNDLE ${SRCS} ${HEADERS} ${DEMO_SRC} ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
+set_target_properties(Demo PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_LIST_DIR}/cmake/MacOSXBundleInfo.plist.in)
 
 target_link_libraries(Demo glfw)
 

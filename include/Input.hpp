@@ -1,7 +1,8 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include "Vector.hpp"
+
+struct GLFWcursor;
 
 namespace FishGUI
 {
@@ -33,10 +34,22 @@ namespace FishGUI
 	class Input
 	{
 	public:
-		static Input& GetInstance()
+		Input()
 		{
-			static Input input;
-			return input;
+			Clear();
+		}
+		
+		Input(Input&) = delete;
+		Input& operator=(Input&) = delete;
+		
+		static Input* GetCurrent()
+		{
+			return s_current;
+		}
+		
+		static void SetCurrent(Input* input)
+		{
+			s_current = input;
 		}
 		
 		void Clear()
@@ -102,15 +115,6 @@ namespace FishGUI
 			return MouseInRect(rect.x, rect.y, rect.width, rect.height);
 		}
 
-	private:
-		Input()
-		{
-			Clear();
-		}
-
-		Input(Input&) = delete;
-		Input& operator=(Input&) = delete;
-
 	public:
 		
 		MouseButtonState    m_mouseButtonStates[3];
@@ -127,7 +131,12 @@ namespace FishGUI
 		bool                m_leftMouseButtonDoubleClicked = false;
 
 		Widget * m_dragWidget = nullptr;
+		
+	protected:
+		static Input* 	s_current;
 	};
+	
+	
 	
 	enum class CursorType
 	{
@@ -151,12 +160,7 @@ namespace FishGUI
 			return cursor;
 		}
 
-		void Init()
-		{
-			for (int i = 0; i < static_cast<int>(CursorType::CursorCount); ++i) {
-				m_glfwCursors[i] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR + i);
-			}
-		}
+		void Init();
 
 		void SetCursorType(CursorType type)
 		{
