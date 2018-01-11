@@ -71,12 +71,12 @@ namespace FishGUI
 	}
 	
 	Window::Window(FishGUIContext* context, const char* title,  int width, int height)
-		: Widget(title), m_size{ width, height }, m_context(context)
+		: m_name(title), m_size{ width, height }, m_context(context)
 	{
 		m_minSize.width = 200;
 		m_minSize.height = 200;
-		m_rect.width = width;
-		m_rect.height = height;
+//		m_rect.width = width;
+//		m_rect.height = height;
 		
 		GLFWwindow* mainGLFWWindow = nullptr;
 		Window* mainWindow = WindowManager::GetInstance().GetMainWindow();

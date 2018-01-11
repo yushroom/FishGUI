@@ -47,7 +47,7 @@ namespace FishGUI
 		if (m_widget == nullptr)
 			return;
 		m_widget->m_rect = rect;
-		m_widget->Draw();
+		m_widget->Draw2();
 	}
 
 	bool Splitter::MouseDragEvent(const Vector2i & mousePos)

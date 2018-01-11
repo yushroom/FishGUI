@@ -186,8 +186,8 @@ namespace FishGUI
 		
 		m_size.width = width;
 		m_size.height = height;
-		m_rect.width = width;
-		m_rect.height = height;
+//		m_rect.width = width;
+//		m_rect.height = height;
 		
 		glViewport(0, 0, fbWidth, fbHeight);
 		float bck = 162 / 255.0f;
@@ -213,7 +213,13 @@ namespace FishGUI
 		if (iconified)
 			return;
 		BeforeFrame();
-		Widget::Draw();
+//		Widget::Draw();
+		if (m_layout != nullptr)
+		{
+			Rect rect = {0, 0, m_size.width, m_size.height};
+			m_layout->PerformLayout(rect);
+		}
+			
 		AfterFrame();
 	}
 
@@ -224,38 +230,44 @@ namespace FishGUI
 			return;
 		
 		BeforeFrame();
+		
+		Rect rect = {0, 0, m_size.width, m_size.height};
 
 		if (m_toolBar != nullptr)
 		{
-			m_toolBar->SetRect(0, 0, m_rect.width, m_toolBar->GetHeight());
+			m_toolBar->SetRect(0, 0, rect.width, m_toolBar->GetHeight());
 			m_toolBar->Draw2();
 		}
 		
 		if (m_statusBar != nullptr)
 		{
-			m_statusBar->SetRect(0, m_rect.height - m_statusBar->GetHeight(), m_rect.width, m_statusBar->GetHeight());
+			m_statusBar->SetRect(0, rect.height - m_statusBar->GetHeight(), rect.width, m_statusBar->GetHeight());
 			m_statusBar->Draw2();
 		}
 		if (m_toolBar != nullptr)
 		{
-			m_rect.height -= m_toolBar->GetHeight();
-			m_rect.y += m_toolBar->GetHeight();
+			rect.height -= m_toolBar->GetHeight();
+			rect.y += m_toolBar->GetHeight();
 		}
 		if (m_statusBar != nullptr)
 		{
-			m_rect.height -= m_statusBar->GetHeight();
+			rect.height -= m_statusBar->GetHeight();
 		}
 		
-		Widget::Draw();
+//		Widget::Draw();
+		if (m_layout != nullptr)
+		{
+			m_layout->PerformLayout(rect);
+		}
 		
 		if (m_toolBar != nullptr)
 		{
-			m_rect.height += m_toolBar->GetHeight();
-			m_rect.y -= m_toolBar->GetHeight();
+			rect.height += m_toolBar->GetHeight();
+			rect.y -= m_toolBar->GetHeight();
 		}
 		if (m_statusBar != nullptr)
 		{
-			m_rect.height += m_statusBar->GetHeight();
+			rect.height += m_statusBar->GetHeight();
 		}
 
 		AfterFrame();

@@ -258,16 +258,16 @@ int main()
 	game->SetRenderFunction(f1);
 	
 
-//	{
-//		auto win2 = FishGUI::NewWindow("dialog");
-//		auto t = new TabWidget(ctx, "center");
-//		auto d = new IMWidget2(ctx, "dialog");
-//		t->AddChild(d);
-//		auto layout = new SimpleLayout();
-//		layout->SetWidget(t);
-//		win2->SetLayout(layout);
-//		d->SetRenderFunction(f1);
-//	}
+	{
+		auto win2 = FishGUI::NewWindow("dialog");
+		auto t = new TabWidget("center");
+		auto d = new IMWidget2("dialog");
+		t->AddChild(d);
+		auto layout = new SimpleLayout();
+		layout->SetWidget(t);
+		win2->SetLayout(layout);
+		d->SetRenderFunction(f1);
+	}
 
 	FishGUI::Run();
 	exit(EXIT_SUCCESS);

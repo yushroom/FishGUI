@@ -13,7 +13,7 @@ struct GLFWwindow;
 
 namespace FishGUI
 {
-	class Window : public Widget
+	class Window
 	{
 	public:
 		Window(FishGUIContext* context, const char* title, int width, int height);
@@ -37,7 +37,7 @@ namespace FishGUI
 		void SetDecorated(bool decorated);
 		
 		void BeforeFrame();
-		virtual void Draw() override;
+		virtual void Draw();
 		void AfterFrame();
 		
 		void OverlayDraw();
@@ -47,16 +47,25 @@ namespace FishGUI
 			return m_input;
 		}
 		
+		void SetLayout(Layout* layout)
+		{
+			m_layout = layout;
+		}
+		
 	protected:
+		std::string			m_name;
 		Size				m_size;
+		Size				m_minSize = {16, 16};
+		Size				m_maxSize = {4096, 4096};
 		Vector2i			m_position;
 		Size 				m_frameBufferSize;
 		GLFWwindow* 		m_glfwWindow;
 		Input				m_input;
 		FishGUIContext*		m_context;
+		Layout*				m_layout = nullptr;
 //		NVGcontext*			m_nvgContext;
 		
-		// a window which is not focused may be rendered as normal, but will not receive input events
+		// a unfocused window may be rendered as normal, but will not receive input events(except for scroll event)
 		bool				m_isFocused = false;
 		
 		std::function<void(void)> m_overlayDrawFunction;
