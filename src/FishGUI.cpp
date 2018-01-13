@@ -11,15 +11,15 @@
 #endif
 #include <GLFW/glfw3.h>
 
-#include "Draw.hpp"
+#include <FishGUI/Draw.hpp>
 #define NANOVG_GL3 1
 #include "nanovg_gl.h"
-#include "Theme.hpp"
+#include <FishGUI/Theme.hpp>
 
-#include "FishGUI.hpp"
-#include "Input.hpp"
-#include "Window.hpp"
-#include "Widget.hpp"
+#include <FishGUI/FishGUI.hpp>
+#include <FishGUI/Input.hpp>
+#include <FishGUI/Window.hpp>
+#include <FishGUI/Widget.hpp>
 
 #include <sstream>
 #include <vector>
@@ -27,7 +27,12 @@
 #include <chrono>
 #include <iostream>
 
+//#include <boost/filesystem/path.hpp>
+//#include <boost/filesystem/operations.hpp>
+#include <FishGUI/Utils.hpp>
+
 using namespace std::chrono_literals;
+//namespace fs = boost::filesystem;
 
 void _checkOpenGLError(const char *file, int line)
 {
@@ -57,29 +62,39 @@ void _checkOpenGLError(const char *file, int line)
 
 namespace FishGUI
 {
-	struct Context
+	Context::Context()
 	{
-		DrawContext drawContext;
-		Input*		input = nullptr;
-		
-		static Context& GetInstance()
-		{
-			static Context instance;
-			return instance;
-		}
-		
-	private:
-		Context() = default;
-	};
-	
-	static NVGcontext* GetNVGContext()
-	{
-		return Context::GetInstance().drawContext.vg;
+		m_drawContext = new DrawContext();
 	}
 	
-	static DrawContext* GetDrawContext()
+	Context::~Context()
 	{
-		return &Context::GetInstance().drawContext;
+		delete m_drawContext;
+	}
+	
+	inline Context* CurrentContext()
+	{
+		return &Context::GetInstance();
+	}
+	
+	inline Input* CurrentInput()
+	{
+		return Context::GetInstance().m_input;
+	}
+	
+	inline Theme* CurrentTheme()
+	{
+		return Context::GetInstance().m_drawContext->theme;
+	}
+	
+	inline NVGcontext* GetNVGContext()
+	{
+		return Context::GetInstance().m_drawContext->vg;
+	}
+	
+	inline DrawContext* GetDrawContext()
+	{
+		return Context::GetInstance().m_drawContext;
 	}
 	
 	
@@ -90,10 +105,10 @@ namespace FishGUI
 		{
 			auto name = tabNames[i].c_str();
 			Rect r;
-			r.x = x + context->theme->mTabHeaderCellWidth*i;
+			r.x = x + context->theme->tabHeaderCellWidth*i;
 			r.y = y;
-			r.width = context->theme->mTabHeaderCellWidth;
-			r.height = context->theme->mWindowHeaderHeight;
+			r.width = context->theme->tabHeaderCellWidth;
+			r.height = context->theme->windowHeaderHeight;
 			DrawTabButton(context, name, r.x, r.y, r.width, r.height, activeHeaderId == i);
 			auto input = Input::GetCurrent();
 			if (input->GetMouseButtonDown(MouseButton::Left) && input->MouseInRect(r))
@@ -114,6 +129,7 @@ namespace FishGUI
 			GetDrawContext()->theme = m_theme;
 		else
 			GetDrawContext()->theme = Theme::GetDefaultTheme();
+//		auto dc = GetDrawContext();
 		Draw();
 		GetDrawContext()->theme = nullptr;
 	}
@@ -128,7 +144,7 @@ namespace FishGUI
 //		nvgFontSize(ctx, 16.0f);
 //		nvgFontFace(ctx, "sans");
 //		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
-//		nvgFillColor(ctx, theme.mTextColor);
+//		nvgFillColor(ctx, theme.textColor);
 //		nvgText(ctx, m_rect.x + 5, m_rect.y + m_rect.height, sout.str().c_str(), nullptr);
 		auto r = m_rect;
 		r.x += 5;
@@ -137,10 +153,8 @@ namespace FishGUI
 
 	void TabWidget::Draw()
 	{
-//		auto ctx = m_context->m_nvgContext;
-		auto ctx = &Context::GetInstance().drawContext;
-		auto vg = Context::GetInstance().drawContext.vg;
-		auto theme = *Context::GetInstance().drawContext.theme;
+		auto vg = GetNVGContext();
+		auto theme = CurrentTheme();
 		auto r = m_rect;
 
 		nvgSave(vg);
@@ -153,15 +167,20 @@ namespace FishGUI
 			{
 				tabNames[i] = m_children[i]->GetName();
 			}
-			m_activeTabId = DrawTabHeader(ctx, r.x, r.y, r.width, r.height, tabNames, m_activeTabId);
-			r.y += theme.mWindowHeaderHeight;
-			r.height -= theme.mWindowHeaderHeight;
+			m_activeTabId = DrawTabHeader(GetDrawContext(), r.x, r.y, r.width, r.height, tabNames, m_activeTabId);
+			r.y += theme->windowHeaderHeight;
+			r.height -= theme->windowHeaderHeight;
 		}
 
 		// content background
-		nvgFillColor(vg, theme.mTabContentBackgroundColor);
+		nvgFillColor(vg, theme->tabContentBackgroundColor);
 		nvgRect(vg, r.x, r.y, r.width, r.height);
 		nvgFill(vg);
+		
+//		nvgBeginPath(vg);
+//		nvgRect(vg, r.x + 0.5f, r.y + 0.5f, r.width - 1, r.height - 1);
+//		nvgStrokeColor(vg, nvgRGB(0, 0, 0));
+//		nvgStroke(vg);
 
 //		Widget::Draw();
 		auto content = m_children[m_activeTabId];
@@ -169,6 +188,14 @@ namespace FishGUI
 		content->Draw2();
 		
 		nvgRestore(vg);
+	}
+	
+	
+	void Splitter::Draw3() const
+	{
+		auto ctx = GetDrawContext();
+		DrawRect(ctx, m_rect, Theme::GetDefaultTheme()->windowBackgroundColor);
+//		DrawRect(ctx, m_rect, nvgRGB(0, 255, 0));
 	}
 	
 	void Window::BeforeFrame()
@@ -194,8 +221,8 @@ namespace FishGUI
 		glClearColor(bck, bck, bck, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
-		Context::GetInstance().drawContext.vg = GetNVGContext();
-		Context::GetInstance().input = &m_input;
+		GetDrawContext()->vg = this->GetNVGContext();
+		CurrentContext()->m_input = &m_input;
 		
 		float ratio = float(fbWidth) / width;
 		nvgBeginFrame(GetNVGContext(), width, height, ratio);
@@ -321,13 +348,18 @@ namespace FishGUI
 
 		context.m_nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 
-		nvgCreateFont(context.m_nvgContext, "icons", "../entypo.ttf");
-		nvgCreateFont(context.m_nvgContext, "sans", "../Roboto-Regular.ttf");
-		nvgCreateFont(context.m_nvgContext, "sans-bold", "../Roboto-Bold.ttf");
-		nvgCreateFont(context.m_nvgContext, "emoji", "../NotoEmoji-Regular.ttf");
-		assert( -1 != nvgCreateFont(context.m_nvgContext, "ui", "../icon_ui.ttf") );
+//		auto full_path = fs::current_path();
+		auto resourcesRoot = ApplicationFilePath();
+		auto fontsRoot = resourcesRoot + "/fonts/";
+		nvgCreateFont(context.m_nvgContext, "icons", 	(fontsRoot+"entypo.ttf").c_str());
+		nvgCreateFont(context.m_nvgContext, "sans", 	(fontsRoot+"ArialUnicode.ttf").c_str());
+		nvgCreateFont(context.m_nvgContext, "sans-bold", (fontsRoot+"Roboto-Bold.ttf").c_str());
+		nvgCreateFont(context.m_nvgContext, "emoji", 	(fontsRoot+"NotoEmoji-Regular.ttf").c_str());
+		nvgCreateFont(context.m_nvgContext, "ui", (fontsRoot+"icomoon.ttf").c_str());
 
 		Cursor::GetInstance().Init();
+		
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
 	void Cursor::Draw()
@@ -422,6 +454,7 @@ namespace FishGUI
 	
 	float Clamp(float v, float minv, float maxv)
 	{
+		assert(minv <= maxv);
 		if (v < minv)
 			return minv;
 		if (v > maxv)
@@ -482,117 +515,82 @@ namespace FishGUI
 		return sout.str();
 	}
 	
-	struct IMGUIContext
+		
+	void IMGUIContext::EndFrame()
 	{
-		IMWidget* 		widget = nullptr;
-		Rect 			rect = {0, 0, 1, 1};
-		Vector2i 		pos;			// start position of the next cell
-		float 			yStart = 0;
-//		int				totalHeight = 0;
-		static constexpr int cellHeight = 16;
-		static constexpr int xmargin = 2;
-		static constexpr int ymargin = 2;
-		static constexpr int Indent = 10;
-		
-		// scroll bar status depends on last farme status
-		bool showScrollBar = false;
-		bool needScrollBar = false;
-		static constexpr int scrollBarWidth = 10;
-		
-		int indent = 0;
-		
-		void Reset()
+		totalHeight = pos.y - (yStart+rect.y);
+		if (totalHeight > rect.height)
 		{
-			yStart = 0;
-			pos.x = rect.x;
-			pos.y = rect.y;
-			indent = 0;
+			needScrollBar = true;
 		}
-		
-		void BeginFrame()
-		{
-//			const int total_height = pos.y - (yStart+rect.y);
-//			yStart = Clamp(yStart, (rect.height - total_height), 0);
-			
-			indent = 0;
-			rect = widget->GetRect();
-			pos.x = rect.x;
-			pos.y = rect.y + yStart;
-			showScrollBar = needScrollBar;	// set by last frame
-			needScrollBar = false;			// clear for this frame
-//			totalHeight = 0;
-		}
-		
-		void EndFrame()
-		{
-			const int total_height = pos.y - (yStart+rect.y);
-			if (total_height > rect.height)
-			{
-				needScrollBar = true;
-			}
 //			Label("yStart="+ToString(yStart)+" pos.y="+std::to_string(pos.y) + " rect.bottom="+std::to_string(rect.y+rect.height));
 //			Label("yStart="+ToString(yStart)+" pos.y="+std::to_string(pos.y) + " totalHeight="+std::to_string(totalHeight));
-			auto ctx = GetDrawContext();
-			auto theme = Context::GetInstance().drawContext.theme;
-			if (showScrollBar)
-			{
-				int x = rect.x+rect.width-scrollBarWidth;
-				int y = rect.y;
-				int w = scrollBarWidth;
-				int h = rect.height;
-				DrawRect(ctx, x, y, w, h, theme->mScrollBarBackColor);
-				
-				const int total_height = pos.y - (yStart+rect.y);
-				float p = float(rect.height) / total_height;
-				constexpr int pad = 1;
-				x = rect.x+rect.width-scrollBarWidth+pad;
+		auto ctx = GetDrawContext();
+		auto theme = CurrentTheme();
+		if (showScrollBar)
+		{
+			int x = rect.x+rect.width-scrollBarWidth;
+			int y = rect.y;
+			int w = scrollBarWidth;
+			int h = rect.height;
+			DrawRect(ctx, x, y, w, h, theme->scrollBarBackColor);
+			
+//				const int total_height = pos.y - (yStart+rect.y);
+			float p = float(rect.height) / totalHeight;
+			constexpr int pad = 1;
+			x = rect.x+rect.width-scrollBarWidth+pad;
 //				y = rect.y + float(rect.height)*(-yStart)/total_height;
-				y = rect.y + (-yStart)*p;
-				w = scrollBarWidth - pad*2;
-				h = p * rect.height;
-				int r = scrollBarWidth / 2 - pad;
-				DrawRoundedRect(ctx, x, y, w, h, r, theme->mScrollBarColor);
-				
-				auto input = Input::GetCurrent();
-				if (input->m_scrolling && input->MouseInRect(rect))
-				{
-					yStart += input->m_scroll.y*4;
+			y = rect.y + (-yStart)*p;
+			w = scrollBarWidth - pad*2;
+			h = p * rect.height;
+			int r = scrollBarWidth / 2 - pad;
+			DrawRoundedRect(ctx, x, y, w, h, r, theme->scrollBarColor);
+			
+			auto input = Input::GetCurrent();
+			if (input->m_scrolling && input->MouseInRect(rect))
+			{
+				yStart += input->m_scroll.y*4;
 //					printf("%lf\n", yStart);
-					yStart = Clamp(yStart, (rect.height - total_height), 0);
-				}
+				yStart = Clamp(yStart, (rect.height - totalHeight), 0);
 			}
 		}
+	}
 		
-		Rect NextCell(int height = cellHeight)
-		{
-			auto ret = rect;
-			ret.x = pos.x + xmargin + indent;
-			ret.y = pos.y + ymargin;
-			ret.width -= xmargin*2 + indent + (showScrollBar ? scrollBarWidth : 0);
-			ret.height = height;
-			pos.y += ymargin + height;
-			return ret;
-		}
+	Rect IMGUIContext::NextCell(int height, bool& outOfRange)
+	{
+		auto ret = rect;
+		ret.x = pos.x + xmargin + indent;
+		ret.y = pos.y + ymargin;
+		ret.width -= xmargin*2 + indent + (showScrollBar ? scrollBarWidth : 0);
+		ret.height = height;
+		pos.y += ymargin + height;
+		outOfRange =
+			ret.top() >= rect.bottom() ||
+			ret.bottom() <= rect.top() ||
+			ret.left() >= rect.right() ||
+			ret.right() <= rect.left();
+		
+		return ret;
+	}
 		
 		// label + ...
-		void NextCell2(Rect& left, Rect& right, float leftLen = 1, float rightLen = 1, int height = cellHeight)
-		{
-			auto r = NextCell(cellHeight);
-			HSplitRect2(r, left, right, leftLen, rightLen, xmargin);
-		}
+	void IMGUIContext::NextCell2(Rect& left, Rect& right, bool& outOfRange, float leftLen, float rightLen, int height)
+	{
+		auto r = NextCell(cellHeight, outOfRange);
+		HSplitRect2(r, left, right, leftLen, rightLen, xmargin);
+	}
 		
-		void AddIndent(int indent = Indent)
-		{
-			this->indent += indent;
-		}
+	void IMGUIContext::AddIndent(int indent)
+	{
+		this->indent += indent;
+	}
 		
-		void HLine()
-		{
-			pos.y += ymargin;
-			DrawLine(GetDrawContext(), pos.x, pos.y, pos.x+rect.width-(showScrollBar ? scrollBarWidth : 0), pos.y);
+	void IMGUIContext::HLine()
+	{
+		pos.y += ymargin;
+		DrawLine(GetDrawContext(), pos.x, pos.y, pos.x+rect.width-(showScrollBar ? scrollBarWidth : 0), pos.y, nvgRGB(0, 0, 0));
 //			totalHeight += ymargin;
-		}
-	};
+	}
 
 	
 	static IMGUIContext* g_IMContext = nullptr;
@@ -627,7 +625,8 @@ namespace FishGUI
 	
 	Rect NewLine(int height)
 	{
-		return g_IMContext->NextCell(height);
+		bool outOfRange;
+		return g_IMContext->NextCell(height, outOfRange);
 	}
 	
 	void Indent(int indent_w)
@@ -654,18 +653,37 @@ namespace FishGUI
 	
 	bool Button(const std::string & text)
 	{
-		assert(g_IMContext->widget != nullptr);
-		auto ctx = GetDrawContext();
-		auto r = g_IMContext->NextCell(20);
-		DrawButton(ctx, 0, text.c_str(), r);
-		return false;
+		assert(g_IMContext != nullptr);
+		bool outOfRange;
+		auto r = g_IMContext->NextCell(20, outOfRange);
+		if (outOfRange)
+			return false;
+		return Button(text, r);
 	}
 	
 	bool Button(const std::string & text, const Rect& rect)
 	{
 		auto ctx = GetDrawContext();
-		DrawButton(ctx, 0, text.c_str(), rect);
-		return false;
+		DrawButton(ctx, text.c_str(), rect);
+		NVGcolor color1 = CurrentTheme()->buttonGradientTopUnfocused;
+		NVGcolor color2 = CurrentTheme()->buttonGradientBotUnfocused;
+		bool ret = false;
+		if (CurrentInput()->MouseInRect(rect))
+		{
+			auto state = CurrentInput()->GetMouseButtonState(MouseButton::Left);
+			bool pressed = (state != MouseButtonState::None);
+			if (pressed)
+			{
+				color1 = CurrentTheme()->buttonGradientTopPushed;
+				color2 = CurrentTheme()->buttonGradientBotPushed;
+//				color1 = CurrentTheme()->buttonGradientTopFocused;
+//				color2 = CurrentTheme()->buttonGradientBotFocused;
+			}
+			
+			ret = (state == MouseButtonState::Up);
+		}
+		DrawButton(ctx, text.c_str(), rect, color1, color2);
+		return ret;
 	}
 	
 	
@@ -673,7 +691,10 @@ namespace FishGUI
 	{
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
-		auto r = g_IMContext->NextCell();
+		bool outOfRange;
+		auto r = g_IMContext->NextCell(IMGUIContext::cellHeight, outOfRange);
+		if (outOfRange)
+			return;
 		DrawLabel(ctx, text.c_str(), r);
 	}
 	
@@ -683,14 +704,32 @@ namespace FishGUI
 		DrawLabel(ctx, text.c_str(), rect);
 	}
 
-	void CheckBox(const std::string & label, bool& inoutValue)
+	bool CheckBox(const std::string & label, bool& inoutValue)
 	{
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
 		Rect r1, r2;
-		g_IMContext->NextCell2(r1, r2);
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange);
+		if (outOfRange)
+			return false;
 		DrawLabel(ctx, label.c_str(), r1);
-		DrawCheckBox(ctx, r2);
+		bool ret = false;
+		if (CurrentInput()->MouseInRect(r2))
+		{
+			if (CurrentInput()->GetMouseButton(MouseButton::Left))
+			{
+//				color1 = CurrentTheme()->buttonGradientTopPushed;
+//				color2 = CurrentTheme()->buttonGradientBotPushed;
+			}
+			else if (CurrentInput()->GetMouseButtonUp(MouseButton::Left))
+			{
+				ret = true;
+				inoutValue = !inoutValue;
+			}
+		}
+		DrawCheckBox(ctx, r2, inoutValue);
+		return ret;
 	}
 	
 	void InputText(const std::string & label, std::string& inoutValue)
@@ -698,7 +737,10 @@ namespace FishGUI
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
 		Rect r1, r2;
-		g_IMContext->NextCell2(r1, r2);
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange);
+		if (outOfRange)
+			return;
 		DrawLabel(ctx, label.c_str(), r1);
 		DrawEditBox(ctx, inoutValue.c_str(), r2);
 	}
@@ -708,7 +750,11 @@ namespace FishGUI
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
 		Rect r1, r2;
-		g_IMContext->NextCell2(r1, r2);
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange);
+		if (outOfRange)
+			return false;
+		
 		DrawLabel(ctx, label.c_str(), r1);
 		
 		float pos = (inoutValue - minValue) / (maxValue - minValue);
@@ -727,7 +773,11 @@ namespace FishGUI
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
 		Rect r1, r2;
-		g_IMContext->NextCell2(r1, r2);
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange);
+		if (outOfRange)
+			return;
+		
 		DrawLabel(ctx, label.c_str(), r1);
 		
 		DrawDropDown(ctx, inoutValue.c_str(), r2);
@@ -738,11 +788,15 @@ namespace FishGUI
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
 		Rect r1, r2;
-		g_IMContext->NextCell2(r1, r2, 1, 3);
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange, 1, 3);
+		if (outOfRange)
+			return;
+		
 		DrawLabel(ctx, label.c_str(), r1);
 		
 		constexpr int pad = 2;
-		constexpr int label_len = 11;
+		constexpr int label_len = 8;
 		
 		auto x_str = ToString(x);
 		auto y_str = ToString(y);
@@ -766,9 +820,87 @@ namespace FishGUI
 		DrawEditBox(ctx, z_str.c_str(), r);
 	}
 	
-	void SegmentedButtons(int count, const char* labels[], int icons[], const Rect& rect)
+	/*
+	void DrawSegmentedButtons(DrawContext* context, int count, SegmentedButton buttons[], float x, float y, float w, float h)
+	{
+		constexpr float cornerRadius = 4.0f;
+		int width = w / count;
+		auto theme = CurrentTheme();
+		auto ctx = GetNVGContext();
+		NVGcolor colorTop = theme->buttonGradientTopUnfocused;
+		NVGcolor colorBot = theme->buttonGradientBotUnfocused;
+		NVGpaint bg = nvgLinearGradient(ctx, x, y, x, y + h, colorTop, colorBot);
+		nvgBeginPath(ctx);
+		nvgRoundedRect(ctx, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
+		nvgFillPaint(ctx, bg);
+		nvgFill(ctx);
+		
+		auto input = CurrentInput();
+		Rect r;
+		r.x = x;
+		r.y = y;
+		r.width = width;
+		r.height = h;
+		
+		// background
+		for (int i = 0; i < count; ++i)
+		{
+			bool inside = input->MouseInRect(r);
+			bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
+			bool pushed = clicked || (inside && (input->GetMouseButton(MouseButton::Left)));
+			buttons[i].outClicked = clicked;
+			if (clicked)
+				buttons[i].active = !buttons[i].active;
+			r.x += width;
+			
+			if (!buttons[i].active)
+				continue;
+			nvgScissor(ctx, x+width*i, y, width, h);
+			colorTop = theme->buttonGradientTopFocused;
+			colorBot = theme->buttonGradientBotFocused;
+			if (pushed)
+			{
+				colorTop = theme->buttonGradientTopPushed;
+				colorBot = theme->buttonGradientBotPushed;
+			}
+			bg = nvgLinearGradient(ctx, x, y, x, y + h, colorTop, colorBot);
+			// nvgBeginPath(ctx);
+			nvgFillPaint(ctx, bg);
+			nvgFill(ctx);
+			nvgResetScissor(ctx);
+		}
+		
+		auto black = nvgRGB(0, 0, 0);
+		nvgBeginPath(ctx);
+		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
+		nvgStrokeColor(ctx, black);
+		nvgStroke(ctx);
+		
+		for (int i = 1; i < count; ++i)
+		{
+			int xx = x + width*i;
+			DrawLine(context, xx, y, xx, y+h, black);
+		}
+		
+//		nvgFontSize(ctx, theme->standardFontSize);
+//		nvgFontFace(ctx, "ui");
+//		nvgFillColor(ctx, theme->textColor);
+		nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+		y += h*0.5f;
+		x += width/2;
+		for (int i = 0; i < count; ++i)
+		{
+			nvgFillColor(ctx, buttons[i].fontColor);
+			nvgText(ctx, x, y, buttons[i].text, NULL);
+			x += width;
+			r.x += width;
+		}
+	}
+	
+	void SegmentedButtons(int count, SegmentedButton buttons[], const Rect& r)
 	{
 		auto ctx = GetDrawContext();
-		DrawSegmentedButtons(ctx, count, labels, icons, rect);
+		DrawSegmentedButtons(ctx, count, buttons, r.x, r.y, r.width, r.height);
 	}
+	 */
 }

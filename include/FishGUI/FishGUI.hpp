@@ -3,6 +3,8 @@
 #include <string>
 #include "Vector.hpp"
 
+//#include "nanovg.h"
+
 struct NVGcontext;
 
 namespace FishGUI
@@ -23,6 +25,28 @@ namespace FishGUI
 		NVGcontext *	m_nvgContext = nullptr;
 	};
 	
+	struct DrawContext;
+	class Input;
+	
+	struct Context
+	{
+		DrawContext*	m_drawContext = nullptr;
+		Input*			m_input = nullptr;
+		
+		static Context& GetInstance()
+		{
+			static Context instance;
+			return instance;
+		}
+		
+	private:
+		Context();
+		~Context();
+		
+		Context(Context&) = delete;
+		Context& operator=(Context&) = delete;
+	};
+	
 	Window* NewWindow(const char* title);
 
 	void Init();
@@ -40,7 +64,7 @@ namespace FishGUI
 	// auto layout version, can only be used in a IMWidget::Draw
 	bool Button(const std::string & text);
 	void Label(const std::string & text);
-	void CheckBox(const std::string & label, bool& inoutValue);
+	bool CheckBox(const std::string & label, bool& inoutValue);
 	void InputText(const std::string & label, std::string& inoutValue);
 	bool Slider(const std::string & label, float& inoutValue, float minValue, float maxValue);
 	void Combox(const std::string & label, const std::string& inoutValue);
@@ -53,5 +77,14 @@ namespace FishGUI
 	// useful widgets
 	void Float3(const std::string & label, float& x, float& y, float& z);
 	
-	void SegmentedButtons(int count, const char* labels[], int icons[], const Rect& rect);
+	
+//	struct SegmentedButton
+//	{
+//		const char* text;
+//		const NVGcolor& fontColor;
+//		bool active;
+//		bool& outClicked;
+//	};
+//
+//	void SegmentedButtons(int count, SegmentedButton buttons[], const Rect& rect);
 }

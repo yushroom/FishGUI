@@ -140,6 +140,8 @@ namespace FishGUI
 		}
 
 		virtual bool MouseDragEvent(const Vector2i & mousePos) override;
+		
+		void Draw3() const;
 
 	private:
 		friend class Layout;
@@ -312,5 +314,63 @@ namespace FishGUI
 		
 	protected:
 		IMGUIContext*	m_imContext;
+	};
+	
+	struct IMGUIContext
+	{
+		IMWidget* 		widget = nullptr;
+		Rect 			rect = {0, 0, 1, 1};
+		Vector2i 		pos;			// start position of the next cell
+		float 			yStart = 0;
+		int				totalHeight = 0;	// total height of last frame
+		static constexpr int cellHeight = 16;
+		static constexpr int xmargin = 2;
+		int ymargin = 2;
+		static constexpr int Indent = 10;
+		
+		// scroll bar status depends on last farme status
+		bool showScrollBar = false;
+		bool needScrollBar = false;
+		static constexpr int scrollBarWidth = 10;
+		
+		int indent = 0;
+		
+		void Reset()
+		{
+			yStart = 0;
+			pos.x = rect.x;
+			pos.y = rect.y;
+			indent = 0;
+		}
+		
+		void BeginFrame()
+		{
+			if (rect.height - totalHeight > 0)
+			{
+				yStart = 0;
+			}
+			
+			indent = 0;
+			rect = widget->GetRect();
+			pos.x = rect.x;
+			pos.y = rect.y + yStart;
+			showScrollBar = needScrollBar;	// set by last frame
+			needScrollBar = false;			// clear for this frame
+		}
+		
+		int Right()
+		{
+			int r = rect.x + rect.width;
+			if (showScrollBar)
+				r -= scrollBarWidth;
+			return r;
+		}
+		
+		void EndFrame();
+		Rect NextCell(int height, bool& outOfRange);
+		// label + ...
+		void NextCell2(Rect& left, Rect& right, bool& outOfRange, float leftLen = 1, float rightLen = 1, int height = cellHeight);
+		void AddIndent(int indent = Indent);
+		void HLine();
 	};
 }

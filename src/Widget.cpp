@@ -1,12 +1,11 @@
-#include "Widget.hpp"
+#include <FishGUI/Widget.hpp>
 
 #include <iostream>
 #include <algorithm>
 
-#include "Input.hpp"
-#include "FishGUI.hpp"
-
-#include "Draw.hpp"
+#include <FishGUI/Input.hpp>
+#include <FishGUI/FishGUI.hpp>
+#include <FishGUI/Draw.hpp>
 
 namespace FishGUI
 {
@@ -183,6 +182,19 @@ namespace FishGUI
 		{
 			part2.l->PerformLayout(r2);
 		}
+		
+		m_splitter.m_rect = rect;
+		if (m_orientation == Orientation::Horizontal)
+		{
+			m_splitter.m_rect.x += size1;
+			m_splitter.m_rect.width = INTERVAL;
+		}
+		else
+		{
+			m_splitter.m_rect.y += size1;
+			m_splitter.m_rect.height = INTERVAL;
+		}
+		m_splitter.Draw3();
 
 		auto input = Input::GetCurrent();
 		//Rect& splitterRect = m_splitter.m_rect;

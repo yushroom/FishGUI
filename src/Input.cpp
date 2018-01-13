@@ -1,10 +1,10 @@
-#include "Input.hpp"
+#include <FishGUI/Input.hpp>
 
 #include <iostream>
 
 #include <GLFW/glfw3.h>
 
-#include "Widget.hpp"
+#include <FishGUI/Widget.hpp>
 
 namespace FishGUI
 {

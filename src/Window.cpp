@@ -1,5 +1,5 @@
-#include "Window.hpp"
-#include "Input.hpp"
+#include <FishGUI/Window.hpp>
+#include <FishGUI/Input.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -26,10 +26,12 @@ namespace FishGUI
 	
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
+//		printf("mods: %d\n", mods);
 		MouseButtonState state = MouseButtonState::None;
 		auto& input = WindowManager::GetInstance().FindWindow(window)->GetInput();
 		if (action == GLFW_PRESS)
 		{
+//			printf("GLFW_PRESS\n");
 			state = MouseButtonState::Down;
 			double lastTime = input.m_lastMouseButtonClickTime[button];
 			double now = glfwGetTime();
@@ -45,10 +47,12 @@ namespace FishGUI
 		}
 		else if (action == GLFW_RELEASE)
 		{
+//			printf("GLFW_RELEASE\n");
 			state = MouseButtonState::Up;
 		}
 		
 		input.m_mouseButtonStates[button] = state;
+		input.m_mouseEventModifiers[button] = mods;
 	}
 	
 	void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)

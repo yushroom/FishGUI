@@ -4,124 +4,17 @@
 #include <cassert>
 #include <iostream>
 
-#include "FishGUI.hpp"
-#include "Window.hpp"
+#include <FishGUI/FishGUI.hpp>
+#include <FishGUI/Window.hpp>
+
+#include "../common/UnityToolBar.hpp"
+#include "../common/HierarchyWidget.hpp"
+#include "../common/DirTreeWidget.hpp"
+#include "../common/FileListWidget.hpp"
 
 using namespace FishGUI;
 
-class UnityToolBar : public ToolBar
-{
-public:
-	UnityToolBar() : ToolBar()
-	{
-	}
-	
-	UnityToolBar(UnityToolBar&) = delete;
-	UnityToolBar& operator=(UnityToolBar&) = delete;
-	
-	virtual void Draw() override
-	{
-		// left
-		constexpr int x_margin = 10;
-		constexpr int y_margin = 4;
-		//		constexpr int x_padding = 2;
-		constexpr int leftButtonWidth = 32;
-		auto rect = m_rect;
-		auto r = rect;
-		r.x += x_margin;
-		r.y += y_margin;
-		r.height -= y_margin*2;
-		
-//		const char* tools[] = {"H", "T", "R", "S"};
-		int icons[] = {0xe900, 0xe902, 0xe984, 0xe989};
-		r.width = leftButtonWidth * 4;
-		SegmentedButtons(4, nullptr, icons, r);
-		const int anchor = r.x+r.width;
-		
-		// middle
-		{
-			const int mid = (rect.x + rect.width)/2;
-			constexpr int buttonWidth = 32;
-			r.width = buttonWidth * 3;
-			r.x = mid - buttonWidth*3/2;
-//			const char* labels[] = {"Start", "Pause", "Next"};
-			int icons[] = {0xe903, 0xe904, 0xe906};
-			SegmentedButtons(3, nullptr, icons, r);
-		}
-		
-		//
-		{
-			constexpr int buttonWidth = 64;
-			r.x = anchor + 20;
-			r.y += 2;
-			r.height -= 2*2;
-			r.width = buttonWidth * 2;
-			const char* labels[] = {"Pivot", "Global"};
-			int icons[] = {0xea1c, 0xea1d};
-			SegmentedButtons(2, labels, icons, r);
-		}
-		
-		// right
-		{
-			constexpr int buttonWidth = 78;
-			r.x = rect.x + rect.width - x_margin - buttonWidth;
-			r.width = buttonWidth;
-			Button("Layout", r);
-			
-			r.x -= 12 + buttonWidth;
-			Button("Layers", r);
-		}
-	}
-};
 
-class HierarchyWidget : public IMWidget
-{
-public:
-	
-	HierarchyWidget(const char* name)
-		: IMWidget(name)
-	{
-	}
-	
-	void __Cell(const std::string& name)
-	{
-		auto rect = NewLine(16);
-		
-//		auto ctx = m_context->m_nvgContext;
-//		nvgFontSize(ctx, 30);
-//		nvgFontFace(ctx, "icons");
-//		nvgFillColor(ctx, theme.mTextColor);
-//		nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-//		int x = rect.x + 30/2 + 2;
-//		int y = rect.y + 16/2;
-//		nvgText(ctx, x, y, "▾", nullptr);
-		
-		rect.x += 20+2;
-		rect.width -= 20 + 2;
-		Label(name, rect);
-	}
-	
-	virtual void DrawImpl() override
-	{
-		Indent(10);
-		__Cell("GameObject" + std::to_string(0));
-		for (int i = 1; i < 10; ++i)
-		{
-			Indent(10);
-			__Cell("GameObject" + std::to_string(i));
-		}
-		for (int i = 1; i < 10; ++i)
-		{
-			Unindent(10);
-		}
-		
-		for (int i = 10; i < 20; ++i)
-		{
-			__Cell("GameObject" + std::to_string(i));
-		}
-		Unindent(10);
-	}
-};
 
 class IMWidget2 : public IMWidget
 {
@@ -165,10 +58,29 @@ int main()
 	auto bottom = new TabWidget("bottom");
 	bottom->SetHeight(180);
 	bottom->SetMinSize(150, 150);
-	auto project = new IMWidget2("Project");
+	auto project = new Widget("Project");
 	auto console = new IMWidget2("Console");
 	bottom->AddChild(project);
 	bottom->AddChild(console);
+	
+	auto rootNode = new FileNode("/Users/yushroom/program/FishEngine/Example/Sponza/Assets");
+//	rootNode->Find("/Users/yushroom/program/FishEngine/Example/Sponza/Assets/texture");
+	auto dirs = new DirTreeWidget("Dirs", rootNode);
+	dirs->SetWidth(150);
+	dirs->SetMinSize(100, 100);
+	auto files = new FileListWidget("Files");
+	files->SetWidth(400);
+	files->SetMinSize(200, 100);
+//	dirs->SetRoot(rootNode);
+	files->SetRoot(rootNode);
+	dirs->GetSelectionModel()->SetSelectionChangedCallback([files](FileNode* node){
+		files->SetRoot(node);
+	});
+	{
+		auto layout = new SplitLayout(Orientation::Horizontal);
+		project->SetLayout(layout);
+		layout->Split(dirs, files);
+	}
 
 	auto left = new TabWidget("left");
 	left->SetWidth(200);
@@ -205,8 +117,8 @@ int main()
 	win->SetStatusBar(new StatusBar());
 	
 	float fov = 60;
-	float near = 0.3f;
-	float far = 1000.f;
+//	float near = 0.3f;
+//	float far = 1000.f;
 	bool allowHDR = true;
 	bool allowMSAA = true;
 	bool allowDynamicResolution = false;
@@ -223,14 +135,17 @@ int main()
 		FishGUI::Combox("Culling Mask", "Everything");
 		FishGUI::Combox("Projection", "Perspective");
 		FishGUI::Slider("Field of View", fov, 1, 179);
-		FishGUI::CheckBox("Allow HDR", allowHDR);
+		if (FishGUI::CheckBox("Allow HDR", allowHDR))
+		{
+			printf("value of [Allow HDR] is changed\n");
+		}
 		FishGUI::CheckBox("Allow MSAA", allowMSAA);
 		FishGUI::CheckBox("Allow Dynamic Resolution", allowDynamicResolution);
 		FishGUI::EndGroup();
 		
-		FishGUI::InputText("Email", email);
-		float value = 0.4f;
-		FishGUI::Slider("Diameter", value, 0.0f, 1.0f);
+//		FishGUI::InputText("Email", email);
+//		float value = 0.4f;
+//		FishGUI::Slider("Diameter", value, 0.0f, 1.0f);
 		for (int i = 0; i < 20; ++i) {
 			std::string text = "button " + std::to_string(i);
 			if (FishGUI::Button(text)) {
@@ -252,22 +167,24 @@ int main()
 		}
 	};
 	
-	project->SetRenderFunction(f1);
+//	project->SetRenderFunction(f1);
+//	dirs->SetRenderFunction(f1);
+//	files->SetRenderFunction(f2);
 	inspector->SetRenderFunction(f1);
 	scene->SetRenderFunction(f2);
 	game->SetRenderFunction(f1);
 	
 
-	{
-		auto win2 = FishGUI::NewWindow("dialog");
-		auto t = new TabWidget("center");
-		auto d = new IMWidget2("dialog");
-		t->AddChild(d);
-		auto layout = new SimpleLayout();
-		layout->SetWidget(t);
-		win2->SetLayout(layout);
-		d->SetRenderFunction(f1);
-	}
+//	{
+//		auto win2 = FishGUI::NewWindow("dialog");
+//		auto t = new TabWidget("center");
+//		auto d = new IMWidget2("dialog");
+//		t->AddChild(d);
+//		auto layout = new SimpleLayout();
+//		layout->SetWidget(t);
+//		win2->SetLayout(layout);
+//		d->SetRenderFunction(f1);
+//	}
 
 	FishGUI::Run();
 	exit(EXIT_SUCCESS);

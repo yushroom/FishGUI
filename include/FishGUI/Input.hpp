@@ -29,6 +29,15 @@ namespace FishGUI
 		Middle = 2,
 	};
 	
+	enum class Modifier
+	{
+		Shift = 1,
+		Ctrl = 2,
+		Alt = 4,
+		Super = 8,
+	};
+
+	
 	class Widget;
 	
 	class Input
@@ -118,6 +127,7 @@ namespace FishGUI
 	public:
 		
 		MouseButtonState    m_mouseButtonStates[3];
+		int 				m_mouseEventModifiers[3];
 		Vector2i            m_mousePosition = {0, 0};
 		bool				m_scrolling = false;
 		Vector2f			m_scroll = {0, 0};
