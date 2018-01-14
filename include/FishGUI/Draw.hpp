@@ -1,10 +1,11 @@
 #pragma once
 
 #include "nanovg.h"
-#include "Vector.hpp"
+#include "Math.hpp"
 #include "FishGUI.hpp"
 
 //struct NVGcontext;
+
 namespace FishGUI
 {
 	struct Theme;

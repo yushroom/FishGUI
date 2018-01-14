@@ -49,7 +49,7 @@ void FileListWidget::DrawImpl()
 	auto theme = ctx->theme;
 	
 	// rect of each cell (including padding)
-	Rect r = m_rect;
+	auto r = m_rect;
 	r.x = m_rect.x;
 	r.y = m_rect.y + m_imContext->yStart;
 	r.width = imageSize + pad*2;
@@ -62,6 +62,13 @@ void FileListWidget::DrawImpl()
 	
 	for (int i = 0; i < count; ++i)
 	{
+		if (r.right() > m_imContext->Right())
+		{
+			r.x = m_rect.x;
+			r.y += r.height;
+			m_imContext->NextCell(r.height, outOfRange);
+		}
+
 		auto node = m_model.childAt(m_root, i);
 		m_selectionModel.AppendVisibleItem(node);
 		if (!outOfRange)
@@ -76,7 +83,7 @@ void FileListWidget::DrawImpl()
 				DrawRect(ctx, r, theme->selectionHighlightColor);
 			}
 		
-			Rect imageRect = r;
+			auto imageRect = r;
 			imageRect.x += pad;
 			imageRect.y += pad;
 			imageRect.width = imageSize;
@@ -84,7 +91,7 @@ void FileListWidget::DrawImpl()
 			FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 0, 0));
 			const auto& text = m_model.childAt(m_root, i)->fileName;
 
-			Rect textRect = r;
+			auto textRect = r;
 			textRect.x += pad;
 			textRect.y += pad + imageSize;
 			textRect.width = imageSize;
@@ -93,12 +100,6 @@ void FileListWidget::DrawImpl()
 		}
 		
 		r.x += r.width;
-		if (r.right() > m_imContext->Right())
-		{
-			r.x = m_rect.x;
-			r.y += r.height;
-			m_imContext->NextCell(r.height, outOfRange);
-		}
 	}
 	
 	m_selectionModel.AfterFrame(&e);

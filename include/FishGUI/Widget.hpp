@@ -3,7 +3,7 @@
 #include <vector>
 #include <cassert>
 
-#include "Vector.hpp"
+#include "Math.hpp"
 
 namespace FishGUI
 {

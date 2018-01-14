@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector.hpp"
+#include "Math.hpp"
 
 struct GLFWcursor;
 
@@ -36,7 +36,6 @@ namespace FishGUI
 		Alt = 4,
 		Super = 8,
 	};
-
 	
 	class Widget;
 	

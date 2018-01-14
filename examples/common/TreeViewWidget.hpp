@@ -12,6 +12,8 @@
 #include <FishGUI/Draw.hpp>
 #include <FishGUI/Theme.hpp>
 
+#include <iostream>
+
 namespace FishGUI
 {
 	template<class ItemType>
@@ -105,7 +107,9 @@ namespace FishGUI
 				}
 				
 				// preicon
-				int x = rect.x + 30/2 + 2;
+				constexpr int preiconWidth = 20;
+				constexpr int iconWidth = 20;
+				int x = rect.x + preiconWidth/2 + 2;
 				int y = rect.y + 16/2;
 				if (m_model.hasChildren(go))
 				{
@@ -114,14 +118,14 @@ namespace FishGUI
 					{
 						if (isUnfolded)
 							m_unfolded.erase(it2);
-						//					m_model.FoldItem(go);
+		//					m_model.FoldItem(go);
 						else
 							m_unfolded.insert(go);
-						//					m_model.UnfoldItem(go);
+		//					m_model.UnfoldItem(go);
 						e->isAccepted = true;
 					}
 					
-					//			auto icon = m_model.icon(go);
+		//			auto icon = m_model.icon(go);
 					nvgFontSize(ctx, 32);
 					nvgFontFace(ctx, "icons");
 					nvgFillColor(ctx, theme->textColor);
@@ -130,11 +134,25 @@ namespace FishGUI
 						nvgText(ctx, x, y, "▾", nullptr);
 					else
 						nvgText(ctx, x, y, "▸", nullptr);
-					//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+			//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+				}
+				rect.x += preiconWidth;
+				
+				auto icon = m_model.icon(go);
+				if (icon != nullptr)
+				{
+					x += iconWidth/2+3;
+					nvgFontSize(ctx, icon->fontSize);
+					nvgFontFace(ctx, icon->fontFace);
+					nvgFillColor(ctx, theme->textColor);
+					nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+					nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+					
+					rect.x += 14;
 				}
 				
 				// text
-				rect.x += 20+2;
+//				rect.x += 2;
 				rect.width -= 20 + 2;
 				Label(m_model.data(go), rect);
 			}
