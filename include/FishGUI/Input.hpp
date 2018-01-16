@@ -219,7 +219,10 @@ namespace FishGUI
 	public:
 		// event pool
 		std::deque<MouseEvent*> m_mouseEvents;
+		MouseEvent* m_firstMouseEvent = nullptr;
+
 		std::deque<KeyEvent*> m_keyEvents;
+		KeyEvent* m_firstKeyEvent = nullptr;
 	};
 	
 	

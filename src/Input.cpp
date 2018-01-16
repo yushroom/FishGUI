@@ -13,14 +13,32 @@ namespace FishGUI
 	
 	void Input::Update()
 	{
+		if (m_firstMouseEvent != nullptr)
+		{
+			delete m_firstMouseEvent;
+			m_firstMouseEvent = nullptr;
+		}
 		if (!m_mouseEvents.empty())
 		{
 			auto e = m_mouseEvents.front();
 			m_mouseEvents.pop_front();
 			m_window->OnMouseEvent(e);
-			// todo
-			// delete e;
+			m_firstMouseEvent = e;
 		}
+
+		if (m_firstKeyEvent != nullptr)
+		{
+			delete m_firstKeyEvent;
+			m_firstKeyEvent = nullptr;
+		}
+		if (!m_keyEvents.empty())
+		{
+			auto e = m_keyEvents.front();
+			m_keyEvents.pop_front();
+			m_firstKeyEvent = e;
+		}
+
+
 		m_leftMouseButtonDoubleClicked = false;
 		for (auto& s : m_mouseButtonStates)
 		{
