@@ -70,7 +70,6 @@ namespace FishGUI
 	protected:
 		void Cell(ItemType go, MouseEvent* e)
 		{
-//			m_selectionModel.m_visiableItems.push_back(go);
 			m_selectionModel.AppendVisibleItem(go);
 			auto it2 = m_unfolded.find(go);
 			bool isUnfolded = (it2 != m_unfolded.end());
@@ -94,9 +93,9 @@ namespace FishGUI
 				if (e != nullptr && !e->isAccepted())
 				{
 					bool insidePreicon = PointInRect(e->pos(), preiconRect);
-					clickedPreicon = insidePreicon && e->type() == MouseEvent::Type::MouseButtonRelease;
+					clickedPreicon = insidePreicon && e->type() == MouseEvent::Type::MouseButtonPress;
 					bool inside = (!insidePreicon) && PointInRect(e->pos(), totalCellRect);
-					bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonRelease;
+					bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonPress;
 					
 					if (clicked)
 					{

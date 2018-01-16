@@ -19,6 +19,10 @@ template<class T>
 class TSelectionModel
 {
 public:
+	TSelectionModel() = default;
+	TSelectionModel(TSelectionModel&) = delete;
+	TSelectionModel& operator=(TSelectionModel&) = delete;
+
 	bool IsSelected(T item)
 	{
 		bool selected = (m_selected.find(item) != m_selected.end());
@@ -39,8 +43,13 @@ public:
 		auto it = m_selected.find(item);
 		bool selected = (it != m_selected.end());
 		bool isMulti = (m_type == SelectionType::Multi);
-		bool appendMode = isMulti &&
-			(e->modifiers() & int(FishGUI::Modifier::Super)) != 0;
+		int mods = e->modifiers();
+#if __APPLE__
+		constexpr int MODIFIER = int(FishGUI::Modifier::Super);
+#else
+		constexpr int MODIFIER = int(FishGUI::Modifier::Ctrl);
+#endif
+		bool appendMode = isMulti && (e->modifiers() & MODIFIER) != 0;
 		bool rangeMode = isMulti &&
 			(e->modifiers() & int(FishGUI::Modifier::Shift)) != 0 &&
 			m_lastSelected != nullptr;
@@ -74,7 +83,7 @@ public:
 	
 	void AfterFrame(FishGUI::MouseEvent* e)
 	{
-		if (e == nullptr || e->isAccepted())
+		if (e == nullptr)
 			return;
 		
 //		if (e->type()==FishGUI::MouseEvent::Type::MouseButtonPress)
@@ -157,7 +166,7 @@ private:
 	SelectionType m_type = SelectionType::Single;
 	
 	std::set<T> m_selected;
-	// logically visiable, not visually
+	// logically visible, not visually
 	std::vector<T> m_visibleItems;
 	
 	// for range selection

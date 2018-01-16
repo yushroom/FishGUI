@@ -58,8 +58,6 @@ void FileListWidget::DrawImpl()
 	bool outOfRange = false;
 	m_imContext->NextCell(r.height, outOfRange);
 	
-//	auto input = Context::GetInstance().m_input;
-	
 	for (int i = 0; i < count; ++i)
 	{
 		if (r.right() > m_imContext->Right())
@@ -77,16 +75,18 @@ void FileListWidget::DrawImpl()
 			{
 				auto e = m_mouseEvent;
 				bool inside = PointInRect(e->pos(), r);
-				bool clicked = inside && e->type()==MouseEvent::Type::MouseButtonRelease;
+				bool clicked = inside && e->type()==MouseEvent::Type::MouseButtonPress;
 			
 				if (clicked)
 					m_selectionModel.OnItemClicked(node, e);
-				if (m_selectionModel.IsSelected(node))
-				{
-					auto& color = m_isFocused ? theme->selectionHighlightColor : theme->selectionColor;
-					DrawRect(ctx, r, color);
-				}
 			}
+
+			if (m_selectionModel.IsSelected(node))
+			{
+				auto& color = m_isFocused ? theme->selectionHighlightColor : theme->selectionColor;
+				DrawRect(ctx, r, color);
+			}
+
 		
 			auto imageRect = r;
 			imageRect.x += pad;

@@ -249,23 +249,18 @@ namespace FishGUI
 	{
 		Context::GetInstance().UnbindWindow();
 
-//		Widget* newFocused = nullptr;
-//		if (m_input.GetMouseButtonDown(MouseButton::Left))
-//		{
-//			auto p = m_input.GetMousePosition();
-//			newFocused = FindVisableWidget(m_widgets, p.x, p.y);
-////			w->SetIsFocused(true);
-////			std::cout << "focus on: " << w->GetName() << std::endl;
-//		}
-//		if (newFocused != nullptr)
-//		{
-//			for (auto w : m_widgets)
-//			{
-//				w->SetIsFocused(false);
-//			}
-//			newFocused->SetIsFocused(true);
-//		}
-		
+		if (!m_isFocused)
+		{
+			for (auto w : m_widgets)
+			{
+				w->SetIsFocused(false);
+			}
+		}
+		else
+		{
+			if (m_focusedWidget != nullptr)
+				m_focusedWidget->SetIsFocused(true);
+		}
 		
 		nvgEndFrame(GetNVGContext());
 		OverlayDraw();
