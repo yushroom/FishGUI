@@ -420,6 +420,11 @@ namespace FishGUI
 //		}
 //	}
 
+	void DrawImage(DrawContext* context, unsigned int image, const Rect& r, bool flip)
+	{
+		abort();
+	}
+
 
 	void DrawLine(DrawContext* context, float x1, float y1, float x2, float y2, const NVGcolor& color)
 	{

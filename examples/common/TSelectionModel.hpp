@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -34,7 +35,6 @@ public:
 	
 	void OnItemClicked(T item, FishGUI::MouseEvent* e)
 	{
-		printf(ClearSelections)
 		assert(e != nullptr);
 		auto it = m_selected.find(item);
 		bool selected = (it != m_selected.end());

@@ -93,8 +93,8 @@ void FileListWidget::DrawImpl()
 			imageRect.y += pad;
 			imageRect.width = imageSize;
 			imageRect.height = imageSize;
-//			FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 0, 0));
-			FishGUI::DrawImage(ctx, 2, imageRect);
+			FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 255, 255));
+			//FishGUI::DrawImage(ctx, 2, imageRect);
 			
 			const auto& text = m_model.childAt(m_root, i)->fileName;
 			auto textRect = r;

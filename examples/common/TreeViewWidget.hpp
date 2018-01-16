@@ -11,6 +11,7 @@
 #include <FishGUI/Input.hpp>
 #include <FishGUI/Draw.hpp>
 #include <FishGUI/Theme.hpp>
+#include <FishGUI/Utils.hpp>
 
 #include <iostream>
 
@@ -133,10 +134,13 @@ namespace FishGUI
 					nvgFontFace(ctx, "icons");
 					nvgFillColor(ctx, theme->textColor);
 					nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+					char icon[8];
 					if (isUnfolded)
-						nvgText(ctx, x, y, "▾", nullptr);
+						// nvgText(ctx, x, y, "▾", nullptr);
+						nvgText(ctx, x, y, CodePointToUTF8(0x25be, icon), nullptr);
 					else
-						nvgText(ctx, x, y, "▸", nullptr);
+						// nvgText(ctx, x, y, "▸", nullptr);
+						nvgText(ctx, x, y, CodePointToUTF8(0x25b8, icon), nullptr);
 			//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
 				}
 				rect.x += preiconWidth;
