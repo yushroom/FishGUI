@@ -54,7 +54,7 @@ namespace FishGUI
 			Cell(m_root, m_mouseEvent);
 //			Unindent(10);
 			
-			m_selectionModel.AfterFrame(m_mouseEvent);
+			m_selectionModel.AfterFrame(m_mouseEvent, m_keyEvent);
 		}
 		
 		virtual void SetRoot(ItemType root)

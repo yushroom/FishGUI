@@ -8,6 +8,8 @@
 #include <FishGUI/Widget.hpp>
 #include <FishGUI/Input.hpp>
 
+#include <GLFW/glfw3.h>
+
 enum class SelectionType
 {
 	None,
@@ -35,6 +37,65 @@ public:
 		m_lastSelected = item;
 		m_rangeSelectionEnd = nullptr;
 		SelectionShanged();
+	}
+
+	void OnKeyEvent(FishGUI::KeyEvent* e)
+	{
+		if (e == nullptr || e->isAccepted())
+			return;
+
+		if (m_selected.empty())
+			return;
+
+		if (e->type() != FishGUI::KeyEvent::Type::KeyPress)
+		{
+			return;
+		}
+
+		// first selection
+		T first = nullptr;
+		int idx = 0;
+		for (auto w : m_visibleItems)
+		{
+			if (IsSelected(w))
+			{
+				first = w;
+				break;
+			}
+			idx++;
+		}
+		
+		auto key = e->key();
+		auto mod = e->modifiers();
+
+		int offset = 0;
+		if (m_itemsPerRow == 1)		// 1D
+		{
+			if (key == GLFW_KEY_UP)
+				offset = -1;
+			else if (key == GLFW_KEY_DOWN)
+				offset = 1;
+		}
+		else	// 2D
+		{
+			if (key == GLFW_KEY_LEFT)
+				offset = -1;
+			else if (key == GLFW_KEY_RIGHT)
+				offset = 1;
+			else if (key == GLFW_KEY_UP)
+				offset = -m_itemsPerRow;
+			else if (key == GLFW_KEY_DOWN)
+				offset = m_itemsPerRow;
+		}
+
+		idx += offset;
+		if (idx >= 0 && idx < m_visibleItems.size())
+		{
+			//if (idx >= m_visibleItems.size())
+			//	idx = m_visibleItems.size() - 1;
+			ClearSelections();
+			Select(m_visibleItems[idx]);
+		}
 	}
 	
 	void OnItemClicked(T item, FishGUI::MouseEvent* e)
@@ -81,8 +142,9 @@ public:
 		m_visibleItems.clear();
 	}
 	
-	void AfterFrame(FishGUI::MouseEvent* e)
+	void AfterFrame(FishGUI::MouseEvent* e, FishGUI::KeyEvent* keyEvent)
 	{
+		OnKeyEvent(keyEvent);
 		if (e == nullptr)
 			return;
 		
@@ -153,6 +215,12 @@ public:
 		m_onSelectionChanged = callback;
 	}
 	
+	void SetItemsPerRow(int count)
+	{
+		assert(count > 0);
+		m_itemsPerRow = count;
+	}
+
 private:
 	void SelectionShanged()
 	{
@@ -164,6 +232,7 @@ private:
 	
 private:
 	SelectionType m_type = SelectionType::Single;
+	int m_itemsPerRow = 1;	// 1D
 	
 	std::set<T> m_selected;
 	// logically visible, not visually

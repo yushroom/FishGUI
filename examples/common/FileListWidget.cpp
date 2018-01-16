@@ -13,28 +13,11 @@ FileListWidget::FileListWidget(const char* name)
 	m_imContext->ymargin = 0;
 //	m_imContext->xmargin = 0;
 	m_selectionModel.SetSelectionType(SelectionType::Multi);
+	m_selectionModel.SetItemsPerRow(1);
 }
 
 void FileListWidget::DrawImpl()
 {
-//	MouseEvent2 e;
-//	auto input = Context::GetInstance().m_input;
-//	bool inside = input->MouseInRect(m_rect);
-//	bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
-//	if (clicked)
-//	{
-//		e.button = static_cast<int>(MouseButton::Left);
-//		e.pos = input->GetMousePosition();
-//		e.state = MouseButtonState::Up;
-//		e.isAccepted = false;
-//		e.modifiers = input->m_mouseEventModifiers[0];
-//	}
-//	else
-//	{
-//		// no mouse event, just set isAccepted = true
-//		e.isAccepted = true;
-//	}
-	
 	m_selectionModel.BeforeFrame();
 	
 	constexpr int imageSize = 64;
@@ -54,6 +37,10 @@ void FileListWidget::DrawImpl()
 	r.y = m_rect.y + m_imContext->yStart;
 	r.width = imageSize + pad*2;
 	r.height = pad + imageSize + textHight + pad;
+
+	float totalWidth = m_imContext->Right() - m_rect.x;
+	int itemsPerRow = std::floor( totalWidth / r.width );
+	m_selectionModel.SetItemsPerRow(itemsPerRow);
 
 	bool outOfRange = false;
 	m_imContext->NextCell(r.height, outOfRange);
@@ -108,5 +95,5 @@ void FileListWidget::DrawImpl()
 		r.x += r.width;
 	}
 	
-	m_selectionModel.AfterFrame(m_mouseEvent);
+	m_selectionModel.AfterFrame(m_mouseEvent, m_keyEvent);
 }

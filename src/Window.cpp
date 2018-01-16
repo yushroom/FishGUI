@@ -12,13 +12,18 @@ namespace FishGUI
 {
 	void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
+		printf("[glfwKeyCallback] key: %d, scancode: %d, actions: %d, mods: %d\n", key, scancode, action, mods);
+		auto win = WindowManager::GetInstance().FindWindow(window);
+		auto& input = win->GetInput();
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		
-		auto type = action==GLFW_PRESS ? KeyEvent::Type::KeyPress : KeyEvent::Type::KeyRelease;
-		static KeyEvent e(type, key, mods);
-		auto w = WindowManager::GetInstance().FindWindow(window);
-		w->OnKeyEvent(&e);
+		KeyEvent::Type type = KeyEvent::Type::KeyPress;	// GLFW_PRESS, GLFW_REPEAT
+		if (action == GLFW_RELEASE)
+			type = KeyEvent::Type::KeyRelease;
+		//auto type = action==GLFW_PRESS ? KeyEvent::Type::KeyPress : KeyEvent::Type::KeyRelease;
+		auto e = new KeyEvent(type, key, mods);
+		input.m_keyEvents.push_back(e);
 	}
 	
 	void glfwCharCallback(GLFWwindow *window, unsigned int codepoint)
@@ -34,6 +39,7 @@ namespace FishGUI
 	
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
+		printf("[glfwMouseButtonCallback] button: %d, actions: %d, mods: %d\n", button, action, mods);
 //		printf("mods: %d\n", mods);
 		MouseButtonState state = MouseButtonState::None;
 		auto win = WindowManager::GetInstance().FindWindow(window);
@@ -67,7 +73,6 @@ namespace FishGUI
 		auto btn = static_cast<MouseButton>(button);
 		auto e = new MouseEvent(type, input.GetMousePosition(), btn, mods);
 		input.m_mouseEvents.push_back(e);
-//		win->OnMouseEvent(&e);
 	}
 	
 	void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)

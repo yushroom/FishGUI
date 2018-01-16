@@ -35,6 +35,7 @@ namespace FishGUI
 		{
 			auto e = m_keyEvents.front();
 			m_keyEvents.pop_front();
+			m_window->OnKeyEvent(e);
 			m_firstKeyEvent = e;
 		}
 

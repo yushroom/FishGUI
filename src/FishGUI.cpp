@@ -365,15 +365,16 @@ namespace FishGUI
 			
 			double now = glfwGetTime();
 			double interval = now - lastTime;
-			constexpr int target_fps = 30;
-			constexpr double target_interval = 1.0 / target_fps;
-			if (interval < target_interval)
-			{
-//				std::cout << "time: " << interval << std::endl;
-				std::this_thread::sleep_for((target_interval-interval)*1000ms);
-			}
+			//printf("time: %lf ms\n", interval*1000);
+//			constexpr int target_fps = 30;
+//			constexpr double target_interval = 1.0 / target_fps;
+//			if (interval < target_interval)
+//			{
+////				std::cout << "time: " << interval << std::endl;
+//				std::this_thread::sleep_for((target_interval-interval)*1000ms);
+//			}
 			lastTime = now;
-			glCheckError();
+			//glCheckError();
 		}
 		
 		glfwDestroyWindow(mainWindow->GetGLFWWindow());
