@@ -18,10 +18,10 @@ set(CMAKE_CXX_STANDARD 14)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Output
-set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/Binary)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/Binary)
+# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 #set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 if(UNIX AND NOT APPLE)
@@ -34,13 +34,15 @@ if (LINUX)
 	SET(CMAKE_C_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
 endif()
 
-# boost
-set(Boost_USE_STATIC_LIBS       ON)
-set(Boost_USE_MULTITHREADED     ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.59 REQUIRED COMPONENTS system filesystem)
-include_directories(${Boost_INCLUDE_DIRS})
-MESSAGE("Found Boost: " ${Boost_INCLUDE_DIRS})
+if (NOT WIN32)
+	# boost
+	set(Boost_USE_STATIC_LIBS       ON)
+	set(Boost_USE_MULTITHREADED     ON)
+	set(Boost_USE_STATIC_RUNTIME    OFF)
+	find_package(Boost 1.59 REQUIRED COMPONENTS system filesystem)
+	include_directories(${Boost_INCLUDE_DIRS})
+	MESSAGE("Found Boost: " ${Boost_INCLUDE_DIRS})
+endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 # include_directories(./src)
@@ -56,21 +58,19 @@ FILE(GLOB_RECURSE NANO_VG_SRCS 		${CMAKE_CURRENT_LIST_DIR}/ThirdParty/nanovg/*.c
 FILE(GLOB_RECURSE NANO_VG_HEADERS 	${CMAKE_CURRENT_LIST_DIR}/ThirdParty/nanovg/*.h)
 source_group("nanovg" FILES ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
 
+if (NOT APPLE)
+	# glew
+	set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
+	ADD_SUBDIRECTORY( ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/glew/build/cmake )
+	include_directories( ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/glew/include )
+	SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "ThirdParty")
+	SET_TARGET_PROPERTIES(glew_s PROPERTIES FOLDER "ThirdParty")
+endif()
 
 add_library(FishGUI STATIC ${SRCS} ${HEADERS} ${NANO_VG_SRCS} ${NANO_VG_HEADERS})
 
 
 if (FISHGUI_BUILD_EXAMPLES)
-
-	if (NOT APPLE)
-		# glew
-		set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
-		ADD_SUBDIRECTORY(./ThirdParty/glew/build/cmake)
-		include_directories(./ThirdParty/glew/include)
-		SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "ThirdParty")
-		SET_TARGET_PROPERTIES(glew_s PROPERTIES FOLDER "ThirdParty")
-	endif()
-
 	# glfw
 	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -95,19 +95,21 @@ if (FISHGUI_BUILD_EXAMPLES)
 	source_group("Resources" FILES ${RESOURCES})
 
 	target_link_libraries(Demo glfw FishGUI)
-	target_link_libraries(Demo ${Boost_LIBRARIES})
+	# target_link_libraries(Demo ${Boost_LIBRARIES})
 
 	if (WIN32)
 		target_link_libraries(Demo opengl32.lib)
 		target_link_libraries(Demo glew_s)
 	endif()
 	if (APPLE)
+		target_link_libraries(Demo ${Boost_LIBRARIES})
 		set_target_properties(Demo PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
 		# file( GLOB FONTS ${CMAKE_CURRENT_LIST_DIR}/resources/fonts/*.ttf)
 		set_source_files_properties(${RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
 	endif()
 	if (LINUX)
-		SET(CMAKE_BUILD_TYPE "Debug")  
+		target_link_libraries(Demo ${Boost_LIBRARIES})
+		SET(CMAKE_BUILD_TYPE "Debug")
 		SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
 		SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 		target_link_libraries(Demo glew_s)

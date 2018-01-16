@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <functional>
 
 #include "Vector.hpp"
 

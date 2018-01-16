@@ -1,14 +1,18 @@
 #pragma once
 
 #include "ItemModel.hpp"
-//#include <boost/filesystem.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
-
 #include <iostream>
 
-typedef boost::filesystem::path Path;
+#ifdef _WIN32
+#include <filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
+#endif
+typedef fs::path Path;
+
 
 struct FileNode
 {
@@ -50,13 +54,13 @@ struct FileNode
 //	FileNode(const std::string& rootDir) : FileNode(Path(rootDir)) {
 //	}
 	
-	FileNode* Find(const Path& p)
-	{
-		auto r = fs::relative(p, path);
-		std::cout << r << std::endl;
-		std::cout << r.root_directory() << std::endl;
-		return nullptr;
-	}
+	//FileNode* Find(const Path& p)
+	//{
+	//	auto r = fs::relative(p, path);
+	//	std::cout << r << std::endl;
+	//	std::cout << r.root_directory() << std::endl;
+	//	return nullptr;
+	//}
 };
 
 

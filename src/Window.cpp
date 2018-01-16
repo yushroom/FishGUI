@@ -60,8 +60,8 @@ namespace FishGUI
 //		printf("xoffset: %le yoffset: %le\n", xoffset, yoffset);
 		auto& input = WindowManager::GetInstance().FindWindow(window)->GetInput();
 		input.m_scrolling = true;
-		input.m_scroll.x = static_cast<float>(xoffset);
-		input.m_scroll.y = static_cast<float>(yoffset);
+		input.m_scroll.x = static_cast<float>(xoffset*4);
+		input.m_scroll.y = static_cast<float>(yoffset*4);
 	}
 	
 	void glfwBindWindowCallbacks(GLFWwindow* window)

@@ -1,12 +1,12 @@
 #ifdef _WIN32
-	//#define GLEW_STATIC
+	#define GLEW_STATIC
 	#include <GL/glew.h>
 #elif defined(__APPLE__)
 	#include <OpenGL/gl3.h>
 	#include <OpenGL/gl3ext.h>
 	#define GLFW_INCLUDE_GLCOREARB
 #else
-	//#define GLEW_STATIC
+	#define GLEW_STATIC
 	#include <GL/glew.h>
 #endif
 
@@ -233,7 +233,7 @@ namespace FishGUI
 	void DrawCheckBox(DrawContext* context, float x, float y, float w, float h, bool checked)
 	{
 		NVGpaint bg;
-//		char icon[8];
+		char icon[8];
 		NVG_NOTUSED(w);
 		
 	//	nvgFontSize(ctx, 18.0f);
@@ -255,7 +255,7 @@ namespace FishGUI
 			nvgFontFace(ctx, "icons");
 			nvgFillColor(ctx, theme->textColor);
 			nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-			nvgText(ctx, x + size/2 + 2, y + h * 0.5f, "✓", NULL);
+			nvgText(ctx, x + size/2 + 2, y + h * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
 		}
 	}
 	
