@@ -40,7 +40,7 @@ namespace FishGUI
 		auto& input = win->GetInput();
 		if (action == GLFW_PRESS)
 		{
-			printf("GLFW_PRESS\n");
+			//printf("GLFW_PRESS\n");
 			state = MouseButtonState::Down;
 			double lastTime = input.m_lastMouseButtonClickTime[button];
 			double now = glfwGetTime();
@@ -56,7 +56,7 @@ namespace FishGUI
 		}
 		else if (action == GLFW_RELEASE)
 		{
-			printf("GLFW_RELEASE\n");
+			//printf("GLFW_RELEASE\n");
 			state = MouseButtonState::Up;
 		}
 		
@@ -169,12 +169,7 @@ namespace FishGUI
 		m_size.width = width;
 		m_size.height = height;
 		
-		// update all widgets
-//		m_widgets.clear();
-//		if (m_layout != nullptr)
-//		{
-//			m_layout->GetAllWidgets(m_widgets);
-//		}
+		m_widgets.clear();
 		
 		glViewport(0, 0, fbWidth, fbHeight);
 		float bck = 162 / 255.0f;
