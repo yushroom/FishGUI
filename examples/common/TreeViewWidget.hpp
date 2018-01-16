@@ -11,7 +11,8 @@
 #include <FishGUI/Input.hpp>
 #include <FishGUI/Draw.hpp>
 #include <FishGUI/Theme.hpp>
-#include <FishGUI/Utils.hpp>
+
+#include <iostream>
 
 namespace FishGUI
 {
@@ -28,35 +29,34 @@ namespace FishGUI
 		
 		virtual void DrawImpl() override
 		{
-			MouseEvent e;
-			auto input = Context::GetInstance().m_input;
+//			auto input = Context::GetInstance().m_input;
 //			auto theme = Context::GetInstance().m_drawContext->theme;
-			bool inside = input->MouseInRect(m_rect);
-			bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
-			if (clicked)
-			{
-				e.button = static_cast<int>(MouseButton::Left);
-				e.pos = input->GetMousePosition();
-				e.state = MouseButtonState::Up;
-				e.isAccepted = false;
-				e.modifiers = input->m_mouseEventModifiers[0];
-			}
-			else
-			{
-				// no mouse event, just set isAccepted = true
-				e.isAccepted = true;
-			}
+//			bool inside = input->MouseInRect(m_rect);
+//			bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
+//			if (clicked)
+//			{
+//				e.button = static_cast<int>(MouseButton::Left);
+//				e.pos = input->GetMousePosition();
+//				e.state = MouseButtonState::Up;
+//				e.isAccepted = false;
+//				e.modifiers = input->m_mouseEventModifiers[0];
+//			}
+//			else
+//			{
+//				// no mouse event, just set isAccepted = true
+//				e.isAccepted = true;
+//			}
 			
 			m_selectionModel.BeforeFrame();
 			
-			Indent(10);
-			Cell(m_root, &e);
-			Unindent(10);
+//			Indent(10);
+			Cell(m_root, m_mouseEvent);
+//			Unindent(10);
 			
-			m_selectionModel.AfterFrame(&e);
+			m_selectionModel.AfterFrame(m_mouseEvent);
 		}
 		
-		virtual void SetRoot(ItemType* root)
+		virtual void SetRoot(ItemType root)
 		{
 			m_root = root;
 		}
@@ -65,9 +65,9 @@ namespace FishGUI
 		{
 			return &m_selectionModel;
 		}
-
+		
 	protected:
-		void Cell(ItemType* go, MouseEvent* e)
+		void Cell(ItemType go, MouseEvent* e)
 		{
 //			m_selectionModel.m_visiableItems.push_back(go);
 			m_selectionModel.AppendVisibleItem(go);
@@ -89,56 +89,73 @@ namespace FishGUI
 				totalCellRect.x = m_rect.x;
 				totalCellRect.width = m_rect.width;
 				
-				bool insidePreicon = PointInRect(e->pos, preiconRect);
-				bool inside = (!insidePreicon) && PointInRect(e->pos, totalCellRect);
-				bool clicked = inside && e->state == MouseButtonState::Up;
 				bool clickedPreicon = false;
-				
-				if (clicked)
+				if (e != nullptr && !e->isAccepted())
 				{
-					m_selectionModel.OnItemClicked(go, e);
+					bool insidePreicon = PointInRect(e->pos(), preiconRect);
+					clickedPreicon = insidePreicon && e->type() == MouseEvent::Type::MouseButtonRelease;
+					bool inside = (!insidePreicon) && PointInRect(e->pos(), totalCellRect);
+					bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonRelease;
+					
+					if (clicked)
+					{
+						m_selectionModel.OnItemClicked(go, e);
+					}
 				}
 				
 				bool selected = m_selectionModel.IsSelected(go);
 				if (selected)
 				{
-					DrawRect(Context::GetInstance().m_drawContext, totalCellRect, theme->selectionHighlightColor);
+					auto& color = m_imContext->widget->IsFocused() ? theme->selectionHighlightColor : theme->selectionColor;
+					DrawRect(Context::GetInstance().m_drawContext, totalCellRect, color);
 				}
 				
 				// preicon
-				int x = rect.x + 30/2 + 2;
+				constexpr int preiconWidth = 20;
+				constexpr int iconWidth = 20;
+				int x = rect.x + preiconWidth/2 + 2;
 				int y = rect.y + 16/2;
 				if (m_model.hasChildren(go))
 				{
-					clickedPreicon = insidePreicon && e->state == MouseButtonState::Up;
 					if (clickedPreicon)
 					{
 						if (isUnfolded)
 							m_unfolded.erase(it2);
-						//					m_model.FoldItem(go);
+		//					m_model.FoldItem(go);
 						else
 							m_unfolded.insert(go);
-						//					m_model.UnfoldItem(go);
-						e->isAccepted = true;
+		//					m_model.UnfoldItem(go);
+						e->Accept();
 					}
 					
-					//			auto icon = m_model.icon(go);
+		//			auto icon = m_model.icon(go);
 					nvgFontSize(ctx, 32);
 					nvgFontFace(ctx, "icons");
 					nvgFillColor(ctx, theme->textColor);
 					nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-					char icon[8];
 					if (isUnfolded)
-						//nvgText(ctx, x, y, "▾", nullptr);
-						nvgText(ctx, x, y, CodePointToUTF8(0x25be, icon), nullptr);
+						nvgText(ctx, x, y, "▾", nullptr);
 					else
-						//nvgText(ctx, x, y, "▸", nullptr);
-						nvgText(ctx, x, y, CodePointToUTF8(0x25b8, icon), nullptr);
-					//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+						nvgText(ctx, x, y, "▸", nullptr);
+			//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+				}
+				rect.x += preiconWidth;
+				
+				auto icon = m_model.icon(go);
+				if (icon != nullptr)
+				{
+					x += iconWidth/2+3;
+					nvgFontSize(ctx, icon->fontSize);
+					nvgFontFace(ctx, icon->fontFace);
+					nvgFillColor(ctx, theme->textColor);
+					nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+					nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+					
+					rect.x += 14;
 				}
 				
 				// text
-				rect.x += 20+2;
+//				rect.x += 2;
 				rect.width -= 20 + 2;
 				Label(m_model.data(go), rect);
 			}
@@ -148,17 +165,17 @@ namespace FishGUI
 			{
 				for (int i = 0; i < m_model.rowCount(go); ++i)
 				{
-					Cell(m_model.childAt(go, i), e);
+					Cell(m_model.childAt(go, i), m_mouseEvent);
 				}
 			}
 			Unindent(10);
 		}
 
 
-		ItemType* m_root = nullptr;
+		ItemType m_root = nullptr;
 
 		ModelType 			m_model;
 		SelectionModelType	m_selectionModel;
-		std::set<ItemType*>	m_unfolded;
+		std::set<ItemType>	m_unfolded;
 	};
 }

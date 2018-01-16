@@ -7,17 +7,6 @@
 #include <FishGUI/Widget.hpp>
 #include <FishGUI/Input.hpp>
 
-
-// FishGUI is not event-driven
-struct MouseEvent
-{
-	int button;
-	FishGUI::Vector2i pos;
-	FishGUI::MouseButtonState state;
-	int modifiers;
-	bool isAccepted;
-};
-
 enum class SelectionType
 {
 	None,
@@ -29,13 +18,13 @@ template<class T>
 class TSelectionModel
 {
 public:
-	bool IsSelected(T* item)
+	bool IsSelected(T item)
 	{
 		bool selected = (m_selected.find(item) != m_selected.end());
 		return selected;
 	}
 	
-	void Select(T* item)
+	void Select(T item)
 	{
 		m_selected.insert(item);
 		m_lastSelected = item;
@@ -43,15 +32,17 @@ public:
 		SelectionShanged();
 	}
 	
-	void OnItemClicked(T* item, MouseEvent* e)
+	void OnItemClicked(T item, FishGUI::MouseEvent* e)
 	{
+		printf(ClearSelections)
+		assert(e != nullptr);
 		auto it = m_selected.find(item);
 		bool selected = (it != m_selected.end());
 		bool isMulti = (m_type == SelectionType::Multi);
 		bool appendMode = isMulti &&
-			(e->modifiers & int(FishGUI::Modifier::Super)) != 0;
+			(e->modifiers() & int(FishGUI::Modifier::Super)) != 0;
 		bool rangeMode = isMulti &&
-			(e->modifiers & int(FishGUI::Modifier::Shift)) != 0 &&
+			(e->modifiers() & int(FishGUI::Modifier::Shift)) != 0 &&
 			m_lastSelected != nullptr;
 		
 		if (appendMode)
@@ -73,7 +64,7 @@ public:
 			Select(item);
 //			selected = true;
 		}
-		e->isAccepted = true;
+		e->Accept();
 	}
 	
 	void BeforeFrame()
@@ -81,39 +72,50 @@ public:
 		m_visibleItems.clear();
 	}
 	
-	void AfterFrame(MouseEvent* e)
+	void AfterFrame(FishGUI::MouseEvent* e)
 	{
-		if (!e->isAccepted)
-		{
-			ClearSelections();
+		if (e == nullptr || e->isAccepted())
 			return;
-		}
 		
-		if (m_type == SelectionType::Multi && m_rangeSelectionEnd != nullptr)
+//		if (e->type()==FishGUI::MouseEvent::Type::MouseButtonPress)
+//		{
+//
+//		}
+		
+		if (e->type() == FishGUI::MouseEvent::Type::MouseButtonPress)
 		{
-//			m_lastSelected = m_rangeSelectionBegin;
-			auto it1 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionBegin);
-			auto it2 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionEnd);
-			
-			if (it1 == m_visibleItems.end())
-			{
-			}
-			else if (it2 == m_visibleItems.end())
-			{
-			}
-			else
+			if (!e->isAccepted())
 			{
 				ClearSelections();
-				if (it1 > it2)
-					std::swap(it1, it2);
-				it2++;
-				for (auto it = it1; it != it2; ++it)
-				{
-					m_selected.insert(*it);
-				}
-				m_lastSelected = m_rangeSelectionBegin = *it1;
+				return;
 			}
-			m_rangeSelectionEnd = nullptr;
+		
+			if (m_type == SelectionType::Multi && m_rangeSelectionEnd != nullptr)
+			{
+	//			m_lastSelected = m_rangeSelectionBegin;
+				auto it1 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionBegin);
+				auto it2 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionEnd);
+				
+				if (it1 == m_visibleItems.end())
+				{
+				}
+				else if (it2 == m_visibleItems.end())
+				{
+				}
+				else
+				{
+					ClearSelections();
+					if (it1 > it2)
+						std::swap(it1, it2);
+					it2++;
+					for (auto it = it1; it != it2; ++it)
+					{
+						m_selected.insert(*it);
+					}
+					m_lastSelected = m_rangeSelectionBegin = *it1;
+				}
+				m_rangeSelectionEnd = nullptr;
+			}
 		}
 	}
 	
@@ -128,7 +130,7 @@ public:
 		m_type = type;
 	}
 	
-	void AppendVisibleItem(T* item)
+	void AppendVisibleItem(T item)
 	{
 		m_visibleItems.push_back(item);
 	}
@@ -136,7 +138,7 @@ public:
 	//	typedef std::function<void(const std::vector<T*>&)> SelectionChangedCallback;
 	//	void OnSelectionChanged();
 	
-	typedef std::function<void(T*)> SelectionChangedCallback;
+	typedef std::function<void(T)> SelectionChangedCallback;
 	void SetSelectionChangedCallback(SelectionChangedCallback callback)
 	{
 		m_onSelectionChanged = callback;
@@ -154,12 +156,12 @@ private:
 private:
 	SelectionType m_type = SelectionType::Single;
 	
-	std::set<T*> m_selected;
+	std::set<T> m_selected;
 	// logically visiable, not visually
-	std::vector<T*> m_visibleItems;
+	std::vector<T> m_visibleItems;
 	
 	// for range selection
-	T* m_lastSelected = nullptr;
-	T* m_rangeSelectionBegin = nullptr;
-	T* m_rangeSelectionEnd = nullptr;
+	T m_lastSelected = nullptr;
+	T m_rangeSelectionBegin = nullptr;
+	T m_rangeSelectionEnd = nullptr;
 };

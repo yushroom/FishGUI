@@ -40,7 +40,20 @@ namespace FishGUI
 		virtual void Draw();
 		void AfterFrame();
 		
-		void OverlayDraw();
+		void OnMouseEvent(MouseEvent* e);
+		void OnKeyEvent(KeyEvent* e);
+		
+		void PreDraw()
+		{
+			if (m_preDrawFunction != nullptr)
+				m_preDrawFunction();
+		}
+		
+		void OverlayDraw()
+		{
+			if (m_overlayDrawFunction != nullptr)
+				m_overlayDrawFunction();
+		}
 		
 		Input& GetInput()
 		{
@@ -52,7 +65,25 @@ namespace FishGUI
 			m_layout = layout;
 		}
 		
+		typedef std::function<void(void)> PreDrawFunction;
+		void SetPreDraw(PreDrawFunction func)
+		{
+			m_preDrawFunction = func;
+		}
+		
+		typedef std::function<void(void)> OverlayDrawFunction;
+		void SetOverlayDraw(OverlayDrawFunction func)
+		{
+			m_overlayDrawFunction = func;
+		}
+		
+		const std::vector<Widget*>& GetAllWidgets() const
+		{
+			return m_widgets;
+		}
+		
 	protected:
+		friend struct Context;
 		std::string			m_name;
 		Size				m_size;
 		Size				m_minSize = {16, 16};
@@ -65,10 +96,15 @@ namespace FishGUI
 		Layout*				m_layout = nullptr;
 //		NVGcontext*			m_nvgContext;
 		
+		// visiable widgets in this frame
+		std::vector<Widget*> m_widgets;
+		Widget*				m_focusedWidget = nullptr;
+		
 		// a unfocused window may be rendered as normal, but will not receive input events(except for scroll event)
 		bool				m_isFocused = false;
 		
 		std::function<void(void)> m_overlayDrawFunction;
+		std::function<void(void)> m_preDrawFunction;
 	};
 
 	class MainWindow : public Window

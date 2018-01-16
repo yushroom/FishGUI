@@ -7,10 +7,10 @@
 
 #include <iostream>
 
-class DirTreeWidget : public FishGUI::TreeWidget<FileNode>
+class DirTreeWidget : public FishGUI::TreeWidget<FileNode*>
 {
 public:
-	typedef FishGUI::TreeWidget<FileNode> Super;
+	typedef FishGUI::TreeWidget<FileNode*> Super;
 	
 	DirTreeWidget(const char* name, FileNode* root) : Super(name)
 	{

@@ -63,7 +63,8 @@ int main()
 	bottom->AddChild(project);
 	bottom->AddChild(console);
 	
-	auto rootNode = new FileNode("/Users/yushroom/program/FishEngine/Example/Sponza/Assets");
+//	auto rootNode = new FileNode("/Users/yushroom/program/FishEngine/Example/UnityChan-crs/Assets");
+	auto rootNode = new FileNode("/Users/yushroom/program/FishEngine/Example/PBR/Assets");
 //	rootNode->Find("/Users/yushroom/program/FishEngine/Example/Sponza/Assets/texture");
 	auto dirs = new DirTreeWidget("Dirs", rootNode);
 	dirs->SetWidth(150);
@@ -174,7 +175,8 @@ int main()
 	scene->SetRenderFunction(f2);
 	game->SetRenderFunction(f1);
 	
-
+	scene->SetIsFocused(true);
+	
 //	{
 //		auto win2 = FishGUI::NewWindow("dialog");
 //		auto t = new TabWidget("center");

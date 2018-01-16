@@ -84,6 +84,7 @@ namespace FishGUI
 		NVGcolor scrollBarBackColor				= Color(230, 255);
 		
 		NVGcolor selectionHighlightColor 		= Color(62, 125, 231, 255);
+		NVGcolor selectionColor 				= Color(143, 255);
 		
 		static Theme* GetDefaultTheme()
 		{

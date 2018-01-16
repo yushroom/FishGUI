@@ -46,7 +46,7 @@ namespace FishGUI
 		if (m_widget == nullptr)
 			return;
 		m_widget->m_rect = rect;
-		m_widget->Draw2();
+		m_widget->BindAndDraw();
 	}
 
 	bool Splitter::MouseDragEvent(const Vector2i & mousePos)
@@ -166,7 +166,7 @@ namespace FishGUI
 		if (part1.type == PartType::EWidget)
 		{
 			part1.w->m_rect = r1;
-			part1.w->Draw2();
+			part1.w->BindAndDraw();
 		}
 		else
 		{
@@ -176,7 +176,7 @@ namespace FishGUI
 		if (part2.type == PartType::EWidget)
 		{
 			part2.w->m_rect = r2;
-			part2.w->Draw2();
+			part2.w->BindAndDraw();
 		}
 		else
 		{

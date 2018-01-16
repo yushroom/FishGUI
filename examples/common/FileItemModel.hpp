@@ -1,18 +1,16 @@
 #pragma once
 
 #include "ItemModel.hpp"
-#include <iostream>
-
-#ifdef _WIN32
-#include <filesystem>
-namespace fs = std::experimental::filesystem;
-#else
+//#include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
-#endif
-typedef fs::path Path;
 
+#include <FishGUI/Utils.hpp>
+
+#include <iostream>
+
+typedef boost::filesystem::path Path;
+namespace fs = boost::filesystem;
 
 struct FileNode
 {
@@ -23,20 +21,20 @@ struct FileNode
 	
 	FileNode(const Path& rootDir) : path(rootDir)
 	{
-//		assert(fs::is_directory(path));
 		fileName = path.stem().string();
 		if (!fs::is_directory(path))
 		{
 			return;
 		}
+		
 		fs::directory_iterator end;
 		for (fs::directory_iterator it(path); it != end; ++it)
 		{
 			auto p = it->path();
 			auto fn = p.filename();
-			if (fn.c_str()[0] == '.')
+			if (fn.c_str()[0] == '.')		// hidden file
 				continue;
-			if (fn.extension() == ".meta")
+			if (fn.extension() == ".meta")	// .meta file
 				continue;
 			if (fs::is_directory(p))
 			{
@@ -51,20 +49,17 @@ struct FileNode
 		}
 	}
 	
-//	FileNode(const std::string& rootDir) : FileNode(Path(rootDir)) {
-//	}
-	
-	//FileNode* Find(const Path& p)
-	//{
-	//	auto r = fs::relative(p, path);
-	//	std::cout << r << std::endl;
-	//	std::cout << r.root_directory() << std::endl;
-	//	return nullptr;
-	//}
+	FileNode* Find(const Path& p)
+	{
+		auto r = fs::relative(p, path);
+		std::cout << r << std::endl;
+		std::cout << r.root_directory() << std::endl;
+		return nullptr;
+	}
 };
 
 
-typedef TListModel<FileNode, std::string> FileListModel;
+typedef TListModel<FileNode*, std::string> FileListModel;
 
 template<>
 inline FileNode* FileListModel::childAt(FileNode* parent, int row) const
@@ -88,7 +83,7 @@ inline std::string	FileListModel::data(FileNode* item) const
 
 
 
-typedef TTreeModel<FileNode, std::string> DirTreeModel;
+typedef TTreeModel<FileNode*, std::string> DirTreeModel;
 
 template<>
 inline FileNode* DirTreeModel::childAt(FileNode* parent, int row) const
@@ -105,17 +100,17 @@ inline int DirTreeModel::rowCount(FileNode* parent) const
 }
 
 template<>
-inline bool DirTreeModel::hasChildren(FileNode* parent) const
-{
-	if (parent == nullptr)
-		return false;
-	return !parent->subdirs.empty();
-}
-
-template<>
 inline std::string DirTreeModel::data(FileNode* item) const
 {
 	return item->fileName;
+}
+
+template<>
+inline const FontIcon*	DirTreeModel::icon(FileNode* item) const
+{
+	static char icon[8];
+	static FontIcon folderIcon = {CodePointToUTF8(0xe930, icon), 12, "ui"};
+	return &folderIcon;
 }
 	
 //	virtual const FontIcon* icon(FileNode* item) const override

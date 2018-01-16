@@ -1,10 +1,11 @@
 #pragma once
 
 #include "nanovg.h"
-#include "Vector.hpp"
+#include "Math.hpp"
 #include "FishGUI.hpp"
 
 //struct NVGcontext;
+
 namespace FishGUI
 {
 	struct Theme;
@@ -77,7 +78,7 @@ namespace FishGUI
 //	{
 //		DrawSegmentedButtons(ctx, count, buttons, r.x, r.y, r.width, r.height);
 //	}
-
+	void DrawImage(DrawContext* context, unsigned int image, const Rect& r, bool flip = false);
 
 	void DrawLine(DrawContext* ctx, float x1, float y1, float x2, float y2, const NVGcolor& color);
 	void DrawRect(DrawContext* ctx, float x, float y, float w, float h, const NVGcolor & color);

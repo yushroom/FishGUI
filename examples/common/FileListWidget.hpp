@@ -18,6 +18,6 @@ public:
 	
 private:
 	FileListModel m_model;
-	TSelectionModel<FileNode> m_selectionModel;
+	TSelectionModel<FileNode*> m_selectionModel;
 	FileNode* m_root;
 };
