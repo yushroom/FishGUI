@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <FishGUI/Widget.hpp>
+#include <FishGUI/Window.hpp>
 
 namespace FishGUI
 {
@@ -12,6 +13,14 @@ namespace FishGUI
 	
 	void Input::Update()
 	{
+		if (!m_mouseEvents.empty())
+		{
+			auto e = m_mouseEvents.front();
+			m_mouseEvents.pop_front();
+			m_window->OnMouseEvent(e);
+			// todo
+			// delete e;
+		}
 		m_leftMouseButtonDoubleClicked = false;
 		for (auto& s : m_mouseButtonStates)
 		{

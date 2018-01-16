@@ -59,7 +59,7 @@ struct FileNode
 };
 
 
-typedef TListModel<FileNode, std::string> FileListModel;
+typedef TListModel<FileNode*, std::string> FileListModel;
 
 template<>
 inline FileNode* FileListModel::childAt(FileNode* parent, int row) const
@@ -83,7 +83,7 @@ inline std::string	FileListModel::data(FileNode* item) const
 
 
 
-typedef TTreeModel<FileNode, std::string> DirTreeModel;
+typedef TTreeModel<FileNode*, std::string> DirTreeModel;
 
 template<>
 inline FileNode* DirTreeModel::childAt(FileNode* parent, int row) const

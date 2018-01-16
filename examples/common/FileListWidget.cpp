@@ -17,27 +17,27 @@ FileListWidget::FileListWidget(const char* name)
 
 void FileListWidget::DrawImpl()
 {
-	MouseEvent e;
-	auto input = Context::GetInstance().m_input;
-	bool inside = input->MouseInRect(m_rect);
-	bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
-	if (clicked)
-	{
-		e.button = static_cast<int>(MouseButton::Left);
-		e.pos = input->GetMousePosition();
-		e.state = MouseButtonState::Up;
-		e.isAccepted = false;
-		e.modifiers = input->m_mouseEventModifiers[0];
-	}
-	else
-	{
-		// no mouse event, just set isAccepted = true
-		e.isAccepted = true;
-	}
+//	MouseEvent2 e;
+//	auto input = Context::GetInstance().m_input;
+//	bool inside = input->MouseInRect(m_rect);
+//	bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
+//	if (clicked)
+//	{
+//		e.button = static_cast<int>(MouseButton::Left);
+//		e.pos = input->GetMousePosition();
+//		e.state = MouseButtonState::Up;
+//		e.isAccepted = false;
+//		e.modifiers = input->m_mouseEventModifiers[0];
+//	}
+//	else
+//	{
+//		// no mouse event, just set isAccepted = true
+//		e.isAccepted = true;
+//	}
 	
 	m_selectionModel.BeforeFrame();
 	
-	constexpr int imageSize = 90;
+	constexpr int imageSize = 64;
 	constexpr int textHight = 14;
 	constexpr int pad = 6;
 	int count = m_model.rowCount(m_root);
@@ -73,14 +73,19 @@ void FileListWidget::DrawImpl()
 		m_selectionModel.AppendVisibleItem(node);
 		if (!outOfRange)
 		{
-			bool inside = input->MouseInRect(r);
-			bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
-		
-			if (clicked)
-				m_selectionModel.OnItemClicked(node, &e);
-			if (m_selectionModel.IsSelected(node))
+			if (m_mouseEvent != nullptr && !m_mouseEvent->isAccepted())
 			{
-				DrawRect(ctx, r, theme->selectionHighlightColor);
+				auto e = m_mouseEvent;
+				bool inside = PointInRect(e->pos(), r);
+				bool clicked = inside && e->type()==MouseEvent::Type::MouseButtonRelease;
+			
+				if (clicked)
+					m_selectionModel.OnItemClicked(node, e);
+				if (m_selectionModel.IsSelected(node))
+				{
+					auto& color = m_isFocused ? theme->selectionHighlightColor : theme->selectionColor;
+					DrawRect(ctx, r, color);
+				}
 			}
 		
 			auto imageRect = r;
@@ -88,9 +93,10 @@ void FileListWidget::DrawImpl()
 			imageRect.y += pad;
 			imageRect.width = imageSize;
 			imageRect.height = imageSize;
-			FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 0, 0));
+//			FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 0, 0));
+			FishGUI::DrawImage(ctx, 2, imageRect);
+			
 			const auto& text = m_model.childAt(m_root, i)->fileName;
-
 			auto textRect = r;
 			textRect.x += pad;
 			textRect.y += pad + imageSize;
@@ -102,5 +108,5 @@ void FileListWidget::DrawImpl()
 		r.x += r.width;
 	}
 	
-	m_selectionModel.AfterFrame(&e);
+	m_selectionModel.AfterFrame(m_mouseEvent);
 }

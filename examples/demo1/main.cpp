@@ -175,7 +175,8 @@ int main()
 	scene->SetRenderFunction(f2);
 	game->SetRenderFunction(f1);
 	
-
+	scene->SetIsFocused(true);
+	
 //	{
 //		auto win2 = FishGUI::NewWindow("dialog");
 //		auto t = new TabWidget("center");

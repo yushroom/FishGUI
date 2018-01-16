@@ -72,6 +72,27 @@ namespace FishGUI
 		delete m_drawContext;
 	}
 	
+	void Context::BindWindow(Window* window)
+	{
+		m_window = window;
+	}
+	
+	void Context::BindWidget(Widget* widget)
+	{
+		m_widget = widget;
+		m_window->m_widgets.push_back(m_widget);
+	}
+	
+	void Context::UnbindWindow()
+	{
+		m_window = nullptr;
+	}
+	
+	void Context::UnbindWidget()
+	{
+		m_widget = nullptr;
+	}
+	
 	inline Context* CurrentContext()
 	{
 		return &Context::GetInstance();
@@ -115,23 +136,32 @@ namespace FishGUI
 			{
 				newActivateId = i;
 			}
-			if (input->GetMouseButton(MouseButton::Left) && input->MouseInRect(r))
-			{
-				std::cout << "tab " << name << " dragged.\n";
-			}
+//			if (input->GetMouseButton(MouseButton::Left) && input->MouseInRect(r))
+//			{
+//				std::cout << "tab " << name << " dragged.\n";
+//			}
 		}
 		return newActivateId;
 	}
 
-	void Widget::Draw2()
+	void Widget::BindAndDraw()
 	{
+		// bind
+		Context::GetInstance().BindWidget(this);
 		if (m_theme != nullptr)
 			GetDrawContext()->theme = m_theme;
 		else
 			GetDrawContext()->theme = Theme::GetDefaultTheme();
-//		auto dc = GetDrawContext();
+		
 		Draw();
+		
+		// unbind
 		GetDrawContext()->theme = nullptr;
+		Context::GetInstance().UnbindWidget();
+		
+		// clear events
+		m_keyEvent = nullptr;
+		m_mouseEvent = nullptr;
 	}
 
 	void StatusBar::Draw()
@@ -185,7 +215,7 @@ namespace FishGUI
 //		Widget::Draw();
 		auto content = m_children[m_activeTabId];
 		content->SetRect(r.x, r.y, r.width, r.height);
-		content->Draw2();
+		content->BindAndDraw();
 		
 		nvgRestore(vg);
 	}
@@ -198,107 +228,6 @@ namespace FishGUI
 //		DrawRect(ctx, m_rect, nvgRGB(0, 255, 0));
 	}
 	
-	void Window::BeforeFrame()
-	{
-		glfwMakeContextCurrent(m_glfwWindow);
-		
-		m_isFocused = (glfwGetWindowAttrib(m_glfwWindow, GLFW_FOCUSED) == 1);
-		
-		int width = m_size.width;
-		int height = m_size.height;
-		int fbWidth = m_size.width;
-		int fbHeight = m_size.height;
-		glfwGetWindowSize(m_glfwWindow, &width, &height);
-		glfwGetFramebufferSize(m_glfwWindow, &fbWidth, &fbHeight);
-		
-		m_size.width = width;
-		m_size.height = height;
-//		m_rect.width = width;
-//		m_rect.height = height;
-		
-		glViewport(0, 0, fbWidth, fbHeight);
-		float bck = 162 / 255.0f;
-		glClearColor(bck, bck, bck, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
-		GetDrawContext()->vg = this->GetNVGContext();
-		CurrentContext()->m_input = &m_input;
-		
-		float ratio = float(fbWidth) / width;
-		nvgBeginFrame(GetNVGContext(), width, height, ratio);
-	}
-	
-	void Window::AfterFrame()
-	{
-		nvgEndFrame(GetNVGContext());
-		glfwSwapBuffers(m_glfwWindow);
-	}
-	
-	void Window::Draw()
-	{
-		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
-		if (iconified)
-			return;
-		BeforeFrame();
-//		Widget::Draw();
-		if (m_layout != nullptr)
-		{
-			Rect rect = {0, 0, m_size.width, m_size.height};
-			m_layout->PerformLayout(rect);
-		}
-			
-		AfterFrame();
-	}
-
-	void MainWindow::Draw()
-	{
-		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
-		if (iconified)
-			return;
-		
-		BeforeFrame();
-		
-		Rect rect = {0, 0, m_size.width, m_size.height};
-
-		if (m_toolBar != nullptr)
-		{
-			m_toolBar->SetRect(0, 0, rect.width, m_toolBar->GetHeight());
-			m_toolBar->Draw2();
-		}
-		
-		if (m_statusBar != nullptr)
-		{
-			m_statusBar->SetRect(0, rect.height - m_statusBar->GetHeight(), rect.width, m_statusBar->GetHeight());
-			m_statusBar->Draw2();
-		}
-		if (m_toolBar != nullptr)
-		{
-			rect.height -= m_toolBar->GetHeight();
-			rect.y += m_toolBar->GetHeight();
-		}
-		if (m_statusBar != nullptr)
-		{
-			rect.height -= m_statusBar->GetHeight();
-		}
-		
-//		Widget::Draw();
-		if (m_layout != nullptr)
-		{
-			m_layout->PerformLayout(rect);
-		}
-		
-		if (m_toolBar != nullptr)
-		{
-			rect.height += m_toolBar->GetHeight();
-			rect.y -= m_toolBar->GetHeight();
-		}
-		if (m_statusBar != nullptr)
-		{
-			rect.height += m_statusBar->GetHeight();
-		}
-
-		AfterFrame();
-	}
 	
 	static void GlfwErrorCallback(int error, const char* description)
 	{
@@ -781,6 +710,22 @@ namespace FishGUI
 		DrawLabel(ctx, label.c_str(), r1);
 		
 		DrawDropDown(ctx, inoutValue.c_str(), r2);
+	}
+	
+	void Image(unsigned int image, int width, int height, bool flip)
+	{
+		assert(g_IMContext->widget != nullptr);
+//		auto ctx = GetDrawContext();
+		bool outOfRange;
+		auto r = g_IMContext->NextCell(height, outOfRange);
+		r.width = width;
+		Image(image, r, flip);
+	}
+	
+	void Image(unsigned int image, const Rect& r, bool flip)
+	{
+		auto ctx = GetDrawContext();
+		DrawImage(ctx, image, r, flip);
 	}
 	
 	void Float3(const std::string & label, float& x, float& y, float& z)

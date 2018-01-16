@@ -25,6 +25,9 @@ namespace FishGUI
 		Vertical,
 	};
 
+	struct KeyEvent;
+	struct MouseEvent;
+	
 	class Widget
 	{
 	public:
@@ -86,7 +89,24 @@ namespace FishGUI
 			return false;
 		}
 		
-		void Draw2();
+		void BindAndDraw();
+		
+//		virtual void OverlayDraw()
+//		{
+//		}
+		
+		bool IsFocused() const
+		{
+			return m_isFocused;
+		}
+		
+		void SetIsFocused(bool focused)
+		{
+			m_isFocused = focused;
+		}
+		
+		void OnKeyEvent(KeyEvent* e) { m_keyEvent = e; };
+		void OnMouseEvent(MouseEvent* e) { m_mouseEvent = e; };
 
 	protected:
 		friend class Layout;
@@ -96,7 +116,7 @@ namespace FishGUI
 		friend class VLayout;
 
 //		FishGUIContext* 	m_context = nullptr;
-		Theme* 				m_theme = nullptr;
+		Theme*				m_theme = nullptr;
 		//Widget*				m_parent = nullptr;
 		Layout * 			m_layout = nullptr;
 		std::string 		m_name;
@@ -106,6 +126,12 @@ namespace FishGUI
 		Size				m_maxSize = { 4096, 4096 };
 		//Alignment			m_alignment = Alignment::Fill;
 		//std::vector<Widget *> m_children;
+		
+		// a focused widget is the first responder of keyboard event
+		bool				m_isFocused = false;
+		
+		KeyEvent*	m_keyEvent = nullptr;
+		MouseEvent* m_mouseEvent = nullptr;
 	};
 
 	

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math.hpp"
+#include <deque>
 
 struct GLFWcursor;
 
@@ -37,7 +38,76 @@ namespace FishGUI
 		Super = 8,
 	};
 	
+	// Event system is modified from Qt
+	
+	struct Event
+	{
+		void Accept() { m_isAccepted = true; }
+		void Ignore() { m_isAccepted = false; }
+		bool isAccepted() const { return m_isAccepted; }
+		
+	protected:
+		bool m_isAccepted = false;
+	};
+	
+	struct InputEvent : public Event
+	{
+		int modifiers() const { return m_modifiers; }
+		
+	protected:
+		int m_modifiers = 0;	// combination of Modifier(s)
+	};
+	
+	struct KeyEvent : public InputEvent
+	{
+		enum class Type
+		{
+			KeyPress,
+			KeyRelease,
+			ShortcutOverride,
+		};
+		
+		KeyEvent(Type type, int key, int modifiers)
+			: m_type(type), m_key(key)
+		{
+			m_modifiers = modifiers;
+		}
+		
+		Type type() const { return m_type; }
+		int  key()  const { return m_key; }
+		
+	protected:
+		Type m_type;
+		int m_key;
+	};
+	
+	struct MouseEvent : public InputEvent
+	{
+		enum class Type
+		{
+			MouseButtonPress,
+			MouseButtonRelease,
+			MouseButtonDoubleClick,
+			MouseMove,
+		};
+		
+		MouseEvent(Type type, const Vector2i& pos, MouseButton button, int modifiers ) : m_type(type), m_pos(pos), m_button(button)
+		{
+			m_modifiers = modifiers;
+		}
+		
+		Type type() const { return m_type; }
+		MouseButton button() const { return m_button; }
+		Vector2i pos() const { return m_pos; }
+		
+	protected:
+		Type 		m_type;
+		Vector2i 	m_pos;
+		MouseButton m_button;
+	};
+	
 	class Widget;
+	class Window;
 	
 	class Input
 	{
@@ -141,8 +211,15 @@ namespace FishGUI
 
 		Widget * m_dragWidget = nullptr;
 		
+		Window* m_window = nullptr;
+		
 	protected:
 		static Input* 	s_current;
+		
+	public:
+		// event pool
+		std::deque<MouseEvent*> m_mouseEvents;
+		std::deque<KeyEvent*> m_keyEvents;
 	};
 	
 	

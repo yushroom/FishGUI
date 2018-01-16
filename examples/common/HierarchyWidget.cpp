@@ -33,6 +33,7 @@ HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
 	}
 	
 	m_model.SetRootItem(m_root);
+	m_selectionModel.Select(m_root);
 }
 
 
