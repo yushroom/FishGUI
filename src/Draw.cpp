@@ -1,3 +1,6 @@
+#pragma warning(push)
+#pragma warning(disable : 4244)
+
 #ifdef _WIN32
 	#define GLEW_STATIC
 	#include <GL/glew.h>

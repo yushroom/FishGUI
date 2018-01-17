@@ -31,13 +31,13 @@ protected:
 	ItemType m_root;
 };
 
-template<class ItemType>
-class TListModel
-{
-public:
-	ItemType	childAt(ItemType parent, int row) const;
-	int		 	rowCount(ItemType parent) const;
-//	int			columnCount(ItemType parent) const;
-	std::string	text(ItemType item) const;
-};
+//template<class ItemType>
+//class TListModel
+//{
+//public:
+//	ItemType	childAt(ItemType parent, int row) const;
+//	int		 	rowCount(ItemType parent) const;
+////	int			columnCount(ItemType parent) const;
+//	std::string	text(ItemType item) const;
+//};
 

@@ -37,9 +37,9 @@ struct SegmentedButtons
 		auto theme = Context::GetInstance().m_drawContext->theme;
 		NVGcolor colorTop = theme->buttonGradientTopUnfocused;
 		NVGcolor colorBot = theme->buttonGradientBotUnfocused;
-		NVGpaint bg = nvgLinearGradient(ctx, x, y, x, y + h, colorTop, colorBot);
+		NVGpaint bg = nvgLinearGradient(ctx, (float)x, (float)y, (float)x, (float)(y + h), colorTop, colorBot);
 		nvgBeginPath(ctx);
-		nvgRoundedRect(ctx, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
+		nvgRoundedRect(ctx, (float)(x + 1), (float)(y + 1), (float)(w - 2), (float)(h - 2), cornerRadius - 1);
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
 		
@@ -58,14 +58,14 @@ struct SegmentedButtons
 		//	auto theme = Context::GetInstance().m_drawContext->theme;
 		int width = w / g_segCount;
 		nvgBeginPath(ctx);
-		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
+		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1.0f, h - 1.0f, cornerRadius - 0.5f);
 		nvgStrokeColor(ctx, nvgRGBA(0, 0, 0, 255));
 		nvgStroke(ctx);
 		
 		for (int i = 1; i < g_segCount; ++i)
 		{
 			int xx = x + width*i;
-			DrawLine(context, xx, y, xx, y+h, nvgRGBA(0, 0, 0, 255));
+			DrawLine(context, (float)xx, (float)y, (float)xx, (float)(y+h), nvgRGBA(0, 0, 0, 255));
 		}
 	}
 	
@@ -99,8 +99,8 @@ struct SegmentedButtons
 			}
 			
 			// because of this scissor, do NOT insert any other draw functions between Begin() and Button()
-			nvgScissor(ctx, x, y, w, h);
-			auto bg = nvgLinearGradient(ctx, x, y, x, y + h, colorTop, colorBot);
+			nvgScissor(ctx, (float)x, (float)y, (float)w, (float)h);
+			auto bg = nvgLinearGradient(ctx, (float)x, (float)y, (float)x, (float)(y + h), colorTop, colorBot);
 			//	nvgBeginPath(ctx);
 			nvgFillPaint(ctx, bg);
 			nvgFill(ctx);
@@ -114,7 +114,7 @@ struct SegmentedButtons
 		
 		y += h/2;
 		x += w/2;
-		nvgText(ctx, x, y, text, nullptr);
+		nvgText(ctx, (float)x, (float)y, text, nullptr);
 		
 //		g_rect.x += width;
 		g_segID ++;

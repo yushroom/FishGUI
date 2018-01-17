@@ -61,6 +61,7 @@ struct FileNode
 	// }
 };
 
+/*
 
 typedef TListModel<FileNode*> FileListModel;
 
@@ -84,6 +85,7 @@ inline std::string	FileListModel::text(FileNode* item) const
 	return std::string(item->fileName);
 }
 
+*/
 
 
 typedef TTreeModel<FileNode*> DirTreeModel;
@@ -99,7 +101,7 @@ inline int DirTreeModel::rowCount(FileNode* parent) const
 {
 	if (parent == nullptr)
 		return 0;
-	return parent->subdirs.size();
+	return static_cast<int>( parent->subdirs.size() );
 }
 
 template<>

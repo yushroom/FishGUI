@@ -80,8 +80,8 @@ namespace FishGUI
 //		printf("xoffset: %le yoffset: %le\n", xoffset, yoffset);
 		auto& input = WindowManager::GetInstance().FindWindow(window)->GetInput();
 		input.m_scrolling = true;
-		input.m_scroll.x = static_cast<float>(xoffset*4);
-		input.m_scroll.y = static_cast<float>(yoffset*4);
+		input.m_scroll.x = static_cast<float>(xoffset*6);
+		input.m_scroll.y = static_cast<float>(yoffset*6);
 	}
 	
 	void glfwBindWindowCallbacks(GLFWwindow* window)
@@ -214,7 +214,7 @@ namespace FishGUI
 		Widget* newFocused = nullptr;
 		if (e->type() == MouseEvent::Type::MouseButtonPress)
 		{
-			if (e->button() == MouseButton::Left)
+			//if (e->button() == MouseButton::Left)
 			{
 				auto p = e->pos();
 				newFocused = FindVisableWidget(m_widgets, p.x, p.y);

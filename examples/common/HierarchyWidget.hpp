@@ -30,7 +30,7 @@ inline int HierarchyModel::rowCount(GameObject* parent) const
 {
 	if (parent == nullptr)
 		return 0;
-	return parent->children.size();
+	return static_cast<int>( parent->children.size() );
 }
 
 template<>

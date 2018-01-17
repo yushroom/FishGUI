@@ -1,5 +1,8 @@
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable : 4244)
+
 #include "nanovg.h"
 #include "Math.hpp"
 #include "FishGUI.hpp"
@@ -88,3 +91,6 @@ namespace FishGUI
 	}
 	void DrawRoundedRect(DrawContext* ctx, float x, float y, float w, float h, float r, const NVGcolor & color);
 }
+
+	
+#pragma warning(pop)

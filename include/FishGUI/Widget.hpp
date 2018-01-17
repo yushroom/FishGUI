@@ -380,7 +380,7 @@ namespace FishGUI
 			indent = 0;
 			rect = widget->GetRect();
 			pos.x = rect.x;
-			pos.y = rect.y + yStart;
+			pos.y = static_cast<int>( rect.y + yStart );
 			showScrollBar = needScrollBar;	// set by last frame
 			needScrollBar = false;			// clear for this frame
 		}

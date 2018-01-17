@@ -82,7 +82,7 @@ namespace FishGUI
 			size = rect.width - INTERVAL;
 		else
 			size = rect.height - INTERVAL;
-		int size1 = size * 0.5f;
+		int size1 = size / 2;
 		auto r1 = rect;
 		auto r2 = rect;
 
@@ -101,7 +101,7 @@ namespace FishGUI
 					s1 = part1.w->GetHeight();
 					s2 = part2.w->GetHeight();
 				}
-				size1 = size * float(s1) / (s1 + s2);
+				size1 = static_cast<int>(size * float(s1) / (s1 + s2));
 			}
 			else
 			{
@@ -123,7 +123,7 @@ namespace FishGUI
 			}
 			else
 			{
-				size1 = size * 0.5f;
+				size1 = size / 2;
 			}
 		}
 

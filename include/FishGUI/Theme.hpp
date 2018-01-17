@@ -16,7 +16,7 @@ namespace FishGUI
 
 	struct Theme
 	{
-		int standardFontSize                 = 15;
+		float standardFontSize               = 15;
 		int buttonFontSize                   = 20;
 		int textBoxFontSize                  = 20;
 		int windowCornerRadius               = 2;

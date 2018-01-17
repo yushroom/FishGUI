@@ -64,7 +64,8 @@ int main()
 	bottom->AddChild(console);
 	
 //	auto rootNode = new FileNode("/Users/yushroom/program/FishEngine/Example/UnityChan-crs/Assets");
-	auto rootNode = new FileNode(ApplicationFilePath());
+	//auto rootNode = new FileNode(ApplicationFilePath());
+	auto rootNode = new FileNode(R"(D:\program\FishGUI)");
 //	rootNode->Find("/Users/yushroom/program/FishEngine/Example/Sponza/Assets/texture");
 	auto dirs = new DirTreeWidget("Dirs", rootNode);
 	dirs->SetWidth(150);

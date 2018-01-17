@@ -119,10 +119,10 @@ namespace FishGUI
 					char icon[8];
 					if (isUnfolded)
 						// nvgText(ctx, x, y, "▾", nullptr);
-						nvgText(ctx, x, y, CodePointToUTF8(0x25be, icon), nullptr);
+						nvgText(ctx, (float)x, (float)y, CodePointToUTF8(0x25be, icon), nullptr);
 					else
 						// nvgText(ctx, x, y, "▸", nullptr);
-						nvgText(ctx, x, y, CodePointToUTF8(0x25b8, icon), nullptr);
+						nvgText(ctx, (float)x, (float)y, CodePointToUTF8(0x25b8, icon), nullptr);
 			//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
 				}
 				rect.x += preiconWidth;
@@ -131,11 +131,11 @@ namespace FishGUI
 				if (icon != nullptr)
 				{
 					x += iconWidth/2+3;
-					nvgFontSize(ctx, icon->fontSize);
+					nvgFontSize(ctx, (float)icon->fontSize);
 					nvgFontFace(ctx, icon->fontFace);
 					nvgFillColor(ctx, theme->textColor);
 					nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-					nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+					nvgText(ctx, (float)x, (float)y, icon->fontText.c_str(), nullptr);
 					
 					rect.x += 14;
 				}

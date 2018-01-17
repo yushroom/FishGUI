@@ -119,7 +119,7 @@ namespace FishGUI
 	}
 	
 	
-	int DrawTabHeader(DrawContext* context, float x, float y, float w, float h, const std::vector<std::string>& tabNames, int activeHeaderId)
+	int DrawTabHeader(DrawContext* context, int x, int y, int w, int h, const std::vector<std::string>& tabNames, int activeHeaderId)
 	{
 		int newActivateId = activeHeaderId;
 		for (int i = 0; i < tabNames.size(); ++i)
@@ -188,7 +188,7 @@ namespace FishGUI
 		auto r = m_rect;
 
 		nvgSave(vg);
-		nvgScissor(vg, r.x, r.y, r.width, r.height);
+		nvgScissor(vg, (float)r.x, (float)r.y, (float)r.width, (float)r.height);
 
 		if (!m_children.empty())
 		{
@@ -204,7 +204,7 @@ namespace FishGUI
 
 		// content background
 		nvgFillColor(vg, theme->tabContentBackgroundColor);
-		nvgRect(vg, r.x, r.y, r.width, r.height);
+		nvgRect(vg, (float)r.x, (float)r.y, (float)r.width, (float)r.height);
 		nvgFill(vg);
 		
 //		nvgBeginPath(vg);
@@ -281,7 +281,7 @@ namespace FishGUI
 		auto resourcesRoot = ApplicationFilePath();
 		auto fontsRoot = resourcesRoot + "/fonts/";
 		nvgCreateFont(context.m_nvgContext, "icons", 	(fontsRoot+"entypo.ttf").c_str());
-		nvgCreateFont(context.m_nvgContext, "sans", 	(fontsRoot+"ArialUnicode.ttf").c_str());
+		nvgCreateFont(context.m_nvgContext, "sans", 	(fontsRoot+"Roboto-Regular.ttf").c_str());
 		nvgCreateFont(context.m_nvgContext, "sans-bold", (fontsRoot+"Roboto-Bold.ttf").c_str());
 		nvgCreateFont(context.m_nvgContext, "emoji", 	(fontsRoot+"NotoEmoji-Regular.ttf").c_str());
 		nvgCreateFont(context.m_nvgContext, "ui", (fontsRoot+"icomoon.ttf").c_str());
@@ -395,7 +395,7 @@ namespace FishGUI
 	// horizontally divide rect into 2 rects, left & right
 	//  if size1 > 0 and size2 > 0:	width of left = (r.width - interval) * size1 / (size1+size2))
 	//  if size1 == -1, then right has fixed width size2
-	void HSplitRect2(const Rect& r, Rect& r1, Rect& r2, float size1, float size2, int interval)
+	void HSplitRect2(const Rect& r, Rect& r1, Rect& r2, int size1, int size2, int interval)
 	{
 		r1 = r2 = r;
 		int w1, w2;
@@ -448,7 +448,7 @@ namespace FishGUI
 		
 	void IMGUIContext::EndFrame()
 	{
-		totalHeight = pos.y - (yStart+rect.y);
+		totalHeight = static_cast<int>( pos.y - (yStart+rect.y) );
 		if (totalHeight > rect.height)
 		{
 			needScrollBar = true;
@@ -463,25 +463,25 @@ namespace FishGUI
 			int y = rect.y;
 			int w = scrollBarWidth;
 			int h = rect.height;
-			DrawRect(ctx, x, y, w, h, theme->scrollBarBackColor);
+			DrawRect(ctx, (float)x, (float)y, (float)w, (float)h, theme->scrollBarBackColor);
 			
 //				const int total_height = pos.y - (yStart+rect.y);
 			float p = float(rect.height) / totalHeight;
 			constexpr int pad = 1;
 			x = rect.x+rect.width-scrollBarWidth+pad;
 //				y = rect.y + float(rect.height)*(-yStart)/total_height;
-			y = rect.y + (-yStart)*p;
+			y = static_cast<int>( rect.y + (-yStart)*p );
 			w = scrollBarWidth - pad*2;
-			h = p * rect.height;
+			h = static_cast<int>(p * rect.height);
 			int r = scrollBarWidth / 2 - pad;
-			DrawRoundedRect(ctx, x, y, w, h, r, theme->scrollBarColor);
+			DrawRoundedRect(ctx, (float)x, (float)y, (float)w, (float)h, (float)r, theme->scrollBarColor);
 			
 			auto input = Input::GetCurrent();
 			if (input->m_scrolling && input->MouseInRect(rect))
 			{
 				yStart += input->m_scroll.y*4;
 //					printf("%lf\n", yStart);
-				yStart = Clamp(yStart, (rect.height - totalHeight), 0);
+				yStart = Clamp(yStart, float(rect.height - totalHeight), 0);
 			}
 		}
 	}
@@ -542,7 +542,7 @@ namespace FishGUI
 	{
 		auto& r = m_rect;
 		auto vg = GetNVGContext();
-		nvgIntersectScissor(vg, r.x, r.y, r.width, r.height);
+		nvgIntersectScissor(vg, (float)r.x, (float)r.y, (float)r.width, (float)r.height);
 		g_IMContext = m_imContext;
 		m_imContext->BeginFrame();
 		this->DrawImpl();
