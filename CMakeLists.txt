@@ -105,7 +105,9 @@ if (FISHGUI_BUILD_EXAMPLES)
 	if (LINUX)
 		target_link_libraries(Demo ${Boost_LIBRARIES})
 		target_link_libraries(Demo glew_s)
+	endif()
 
+	if (NOT APPLE)
 		# copy fonts
 		add_custom_command(TARGET Demo POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/resources/fonts $<TARGET_FILE_DIR:Demo>/fonts)
 	endif()
