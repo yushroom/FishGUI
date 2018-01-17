@@ -11,14 +11,14 @@ struct FontIcon
 };
 
 // notice that ItemType must be a pointer type or std::shared_ptr
-template<class ItemType, class DataType>
+template<class ItemType>
 class TTreeModel
 {
 public:
 	ItemType		childAt(ItemType parent, int row) const;
 	int 			rowCount(ItemType parent) const;
 	bool 			hasChildren(ItemType parent) const { return rowCount(parent) > 0; }
-	DataType		data(ItemType item) const;
+	std::string		text(ItemType item) const;
 	const FontIcon*	icon(ItemType item) const { return nullptr; }
 //	bool		setData(ItemType* item, const DataType& data);
 	
@@ -31,12 +31,13 @@ protected:
 	ItemType m_root;
 };
 
-template<class ItemType, class DataType>
+template<class ItemType>
 class TListModel
 {
 public:
 	ItemType	childAt(ItemType parent, int row) const;
 	int		 	rowCount(ItemType parent) const;
-	DataType	data(ItemType item) const;
+//	int			columnCount(ItemType parent) const;
+	std::string	text(ItemType item) const;
 };
 

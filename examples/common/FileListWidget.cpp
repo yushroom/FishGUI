@@ -39,8 +39,9 @@ void FileListWidget::DrawImpl()
 	r.height = pad + imageSize + textHight + pad;
 
 	float totalWidth = m_imContext->Right() - m_rect.x;
-	int itemsPerRow = std::floor( totalWidth / r.width );
-	m_selectionModel.SetItemsPerRow(itemsPerRow);
+	int columns = std::floor( totalWidth / r.width );
+	m_selectionModel.SetItemsPerRow(columns);
+	int rows = std::ceil(float(count));
 
 	bool outOfRange = false;
 	m_imContext->NextCell(r.height, outOfRange);
@@ -95,5 +96,6 @@ void FileListWidget::DrawImpl()
 		r.x += r.width;
 	}
 	
-	m_selectionModel.AfterFrame(m_mouseEvent, m_keyEvent);
+	m_selectionModel.OnKeyEvent(m_keyEvent);
+	m_selectionModel.AfterFrame(m_mouseEvent);
 }

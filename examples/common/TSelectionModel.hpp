@@ -142,9 +142,8 @@ public:
 		m_visibleItems.clear();
 	}
 	
-	void AfterFrame(FishGUI::MouseEvent* e, FishGUI::KeyEvent* keyEvent)
+	void AfterFrame(FishGUI::MouseEvent* e)
 	{
-		OnKeyEvent(keyEvent);
 		if (e == nullptr)
 			return;
 		

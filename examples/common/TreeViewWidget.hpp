@@ -21,7 +21,7 @@ namespace FishGUI
 	class TreeWidget : public IMWidget
 	{
 	public:
-		typedef TTreeModel<ItemType, std::string> ModelType;
+		typedef TTreeModel<ItemType> ModelType;
 		typedef TSelectionModel<ItemType> SelectionModelType;
 		
 		TreeWidget(const char* name) : IMWidget(name)
@@ -30,31 +30,14 @@ namespace FishGUI
 		
 		virtual void DrawImpl() override
 		{
-//			auto input = Context::GetInstance().m_input;
-//			auto theme = Context::GetInstance().m_drawContext->theme;
-//			bool inside = input->MouseInRect(m_rect);
-//			bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
-//			if (clicked)
-//			{
-//				e.button = static_cast<int>(MouseButton::Left);
-//				e.pos = input->GetMousePosition();
-//				e.state = MouseButtonState::Up;
-//				e.isAccepted = false;
-//				e.modifiers = input->m_mouseEventModifiers[0];
-//			}
-//			else
-//			{
-//				// no mouse event, just set isAccepted = true
-//				e.isAccepted = true;
-//			}
-			
 			m_selectionModel.BeforeFrame();
 			
 //			Indent(10);
 			Cell(m_root, m_mouseEvent);
 //			Unindent(10);
 			
-			m_selectionModel.AfterFrame(m_mouseEvent, m_keyEvent);
+			m_selectionModel.OnKeyEvent(m_keyEvent);
+			m_selectionModel.AfterFrame(m_mouseEvent);
 		}
 		
 		virtual void SetRoot(ItemType root)
@@ -160,7 +143,7 @@ namespace FishGUI
 				// text
 //				rect.x += 2;
 				rect.width -= 20 + 2;
-				Label(m_model.data(go), rect);
+				Label(m_model.text(go), rect);
 			}
 			
 			Indent(10);

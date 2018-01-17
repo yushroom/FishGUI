@@ -17,7 +17,7 @@ struct GameObject
 	GameObject(const std::string& name) : name(name) {}
 };
 
-typedef TTreeModel<GameObject*, std::string> HierarchyModel;
+typedef TTreeModel<GameObject*> HierarchyModel;
 
 template<>
 inline GameObject* HierarchyModel::childAt(GameObject* parent, int row) const
@@ -34,7 +34,7 @@ inline int HierarchyModel::rowCount(GameObject* parent) const
 }
 
 template<>
-inline std::string HierarchyModel::data(GameObject* item) const
+inline std::string HierarchyModel::text(GameObject* item) const
 {
 	return item->name;
 }

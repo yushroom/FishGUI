@@ -62,7 +62,7 @@ struct FileNode
 };
 
 
-typedef TListModel<FileNode*, std::string> FileListModel;
+typedef TListModel<FileNode*> FileListModel;
 
 template<>
 inline FileNode* FileListModel::childAt(FileNode* parent, int row) const
@@ -79,14 +79,14 @@ inline int FileListModel::rowCount(FileNode* parent) const
 }
 
 template<>
-inline std::string	FileListModel::data(FileNode* item) const
+inline std::string	FileListModel::text(FileNode* item) const
 {
 	return std::string(item->fileName);
 }
 
 
 
-typedef TTreeModel<FileNode*, std::string> DirTreeModel;
+typedef TTreeModel<FileNode*> DirTreeModel;
 
 template<>
 inline FileNode* DirTreeModel::childAt(FileNode* parent, int row) const
@@ -103,7 +103,7 @@ inline int DirTreeModel::rowCount(FileNode* parent) const
 }
 
 template<>
-inline std::string DirTreeModel::data(FileNode* item) const
+inline std::string DirTreeModel::text(FileNode* item) const
 {
 	return item->fileName;
 }

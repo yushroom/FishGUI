@@ -1,3 +1,5 @@
+#include <FishGUI/Utils.hpp>
+
 #ifdef __APPLE__
 #include "CoreFoundation/CoreFoundation.h"
 
