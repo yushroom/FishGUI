@@ -1,7 +1,6 @@
 #pragma once
 
-#include <FishGUI/ModelView/ItemView.hpp>
-#include "TreeWidget.hpp"
+#include <FishGUI/ModelView/TreeWidget.hpp>
 
 struct GameObject
 {

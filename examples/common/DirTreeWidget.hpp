@@ -1,9 +1,7 @@
 #pragma once
 
-#include <FishGUI/Widget.hpp>
-#include <FishGUI/ModelView/ItemView.hpp>
+#include <FishGUI/ModelView/TreeWidget.hpp>
 #include "FileNode.hpp"
-#include "TreeWidget.hpp"
 
 #include <iostream>
 

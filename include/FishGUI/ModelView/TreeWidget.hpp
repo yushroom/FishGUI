@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FishGUI/ModelView/ItemView.hpp>
+#include "ItemView.hpp"
 #include <FishGUI/FishGUI.hpp>
 #include <FishGUI/Input.hpp>
 #include <FishGUI/Draw.hpp>

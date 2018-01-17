@@ -28,22 +28,16 @@ namespace FishGUI
 	class TListModel : public TItemModel<T>
 	{
 	public:
-		virtual inline int rows(T item)    const override { return (int)std::ceil(childCount(item) / float(m_columns)); }
-		virtual inline int columns(T item = nullptr) const override { return m_columns; }
+		virtual inline int rows(T item)    const override { return childCount(item); }
+		virtual inline int columns(T item = nullptr) const override { return 1; }
 
-		// TODO: fast method
-		T childAtIndex(int idx, T parent)
-		{
-			int row = idx / m_columns;
-			int col = idx % m_columns;
-			return childAt(row, col, parent);
-		}
-
-		// internal use only
-		void SetColumns(int columns) { m_columns = columns; }
-
-	protected:
-		int m_columns = 1;
+		//// TODO: fast method
+		//T childAtIndex(int idx, T parent)
+		//{
+		//	int row = idx / m_columns;
+		//	int col = idx % m_columns;
+		//	return childAt(row, col, parent);
+		//}
 	};
 
 	template<class T>
