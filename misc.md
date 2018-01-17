@@ -2,15 +2,15 @@ TODO
 
 底层部分
 
-- [ ] 鼠标事件在不同widget之间的分发
+- [x] 鼠标事件在不同widget之间的分发
 
 - [x] 提取TreeView，最好是模板
 
-- [x] theme里面去掉NVGcolor
+- [ ] theme里面去掉NVGcolor
 
 - [ ] widget::OnResized
 
-- [ ] KeyEvent 以及触发区域
+- [x] KeyEvent 以及触发区域
 
 - [ ] 从FishGUI.cpp中移出来
 
@@ -40,7 +40,9 @@ TODO
 
 - [ ] 清理CPU/GPU，delete
 
-- [ ] 每个窗口独立input，drag event要重新设计
+- [x] 每个窗口独立input
+
+- [ ] drag event要重新设计
 
 - [x] 渲染状态context
 
@@ -60,7 +62,7 @@ TODO
 
 - [ ] combox选择
 
-- [ ] hierarchy层次结构的收起/选中高亮/重命名，开放API？
+- [ ] hierarchy层次结构的收起/选中高亮/**重命名**
 
 - [ ] tab移动
 
@@ -75,7 +77,7 @@ TODO
 demo部分
 
 - [ ] 主场景绘制
-- [ ] project view，文件夹
+- [x] project view，文件夹
 - [ ] console view
 
 
