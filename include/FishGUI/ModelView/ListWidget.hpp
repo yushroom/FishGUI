@@ -59,16 +59,13 @@ namespace FishGUI
 			const float totalWidth = float(m_imContext->Right() - m_rect.x);
 			const int columns = (int)std::floor(totalWidth / r.width);
 			this->m_columns = columns;
-			//m_model->SetColumns(columns);
-//			const int rows = m_model->rows(m_root);
 			const int rows = (int)std::ceil(float(count)/columns);
 
-			for (int i = 0; i < count; ++i)
-			{
-				int row = i / columns;
-				int col = i % columns;
-
-			}
+//			for (int i = 0; i < count; ++i)
+//			{
+//				int row = i / columns;
+//				int col = i % columns;
+//			}
 
 			for (int row = 0; row < rows; ++row)
 			{

@@ -23,8 +23,6 @@ HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
 	}
 	m_unfolded.insert(m_root);
 	m_unfolded.insert(go);
-//	m_model.UnfoldItem(m_root);
-//	m_model.UnfoldItem(go);
 	
 	for (int i = 0; i < 10; ++i)
 	{
@@ -32,6 +30,5 @@ HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
 		go->AddChild(new GameObject("Child" + std::to_string(i)));
 	}
 	
-	//m_model->SetRoot(m_root);
 	m_selectionModel.selectItem(m_root);
 }

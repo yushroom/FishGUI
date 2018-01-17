@@ -91,5 +91,13 @@ namespace FishGUI
 			static Theme theme;
 			return &theme;
 		}
+		
+		static Theme* GetCurrent()
+		{
+			return s_current!=nullptr ? s_current : GetDefaultTheme();
+		}
+		
+	private:
+		static Theme* s_current;
 	};
 }

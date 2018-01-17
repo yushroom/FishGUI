@@ -422,12 +422,26 @@ namespace FishGUI
 //			x += width;
 //		}
 //	}
-
+	
 	void DrawImage(DrawContext* context, unsigned int image, const Rect& r, bool flip)
 	{
-		abort();
+		auto ctx2 = (GLNVGcontext*)nvgInternalParams(ctx)->userPtr;
+		auto t = glnvg__findTexture2(ctx2, image);
+		if (t == nullptr)
+		{
+			t = glnvg__allocTexture(ctx2);
+			t->tex = image;
+			t->type = NVG_TEXTURE_RGBA;
+			t->width = 1;
+			t->height = 1;
+		}
+		int h = flip ? -r.height : r.height;
+		auto imgPaint = nvgImagePattern(ctx, r.x, r.y, r.width, h, 0, t->id, 1);
+		nvgBeginPath(ctx);
+		nvgRect(ctx, r.x, r.y, r.width, r.height);
+		nvgFillPaint(ctx, imgPaint);
+		nvgFill(ctx);
 	}
-
 
 	void DrawLine(DrawContext* context, float x1, float y1, float x2, float y2, const NVGcolor& color)
 	{

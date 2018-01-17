@@ -76,11 +76,6 @@ namespace FishGUI
 	}
 
 
-//	void DrawSegmentedButtons(DrawContext* ctx, int count, SegmentedButton buttons[], float x, float y, float w, float h);
-//	inline void DrawSegmentedButtons(DrawContext* ctx, int count, SegmentedButton buttons[], const FishGUI::Rect& r)
-//	{
-//		DrawSegmentedButtons(ctx, count, buttons, r.x, r.y, r.width, r.height);
-//	}
 	void DrawImage(DrawContext* context, unsigned int image, const Rect& r, bool flip = false);
 
 	void DrawLine(DrawContext* ctx, float x1, float y1, float x2, float y2, const NVGcolor& color);

@@ -36,5 +36,8 @@ class FileListWidget : public FishGUI::ListWidget<FileNode*>
 {
 	typedef ListWidget<FileNode*> Super;
 public:
-	FileListWidget(const char* name);
+	FileListWidget(const char* name) : Super(name)
+	{
+		m_model = new FileListModel();
+	}
 };

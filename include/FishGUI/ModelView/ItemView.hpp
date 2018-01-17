@@ -185,20 +185,15 @@ namespace FishGUI
 			{
 				return;
 			}
+			
+			if (m_selectionModel.selections().empty())
+			{
+				return;
+			}
 
 			// first selection
-			T first = nullptr;
+			auto first = m_selectionModel.selections().back();;
 			int idx = 0;
-			first = m_selectionModel.selections().front();
-			//for (auto w : m_visibleItems)
-			//{
-			//	if (m_selectionModel.IsSelected(w))
-			//	{
-			//		first = w;
-			//		break;
-			//	}
-			//	idx++;
-			//}
 			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), first);
 			idx = (int)std::distance(m_visibleItems.begin(), it);
 

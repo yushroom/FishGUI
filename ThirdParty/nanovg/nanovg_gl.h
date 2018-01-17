@@ -372,6 +372,15 @@ static GLNVGtexture* glnvg__allocTexture(GLNVGcontext* gl)
 	return tex;
 }
 
+static GLNVGtexture* glnvg__findTexture2(GLNVGcontext* gl, int tex)
+{
+	int i;
+	for (i = 0; i < gl->ntextures; i++)
+		if (gl->textures[i].tex == tex)
+			return &gl->textures[i];
+	return NULL;
+}
+
 static GLNVGtexture* glnvg__findTexture(GLNVGcontext* gl, int id)
 {
 	int i;
@@ -1229,6 +1238,7 @@ static void glnvg__renderFlush(void* uptr)
 		int size = gl->nverts * sizeof(NVGvertex);
 		if (vertexBufferSize < size)
 		{
+			printf("bytes: %d\n", size);
 			while (vertexBufferSize < size)
 				vertexBufferSize *= 2;
 			glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, nullptr, GL_STREAM_DRAW);

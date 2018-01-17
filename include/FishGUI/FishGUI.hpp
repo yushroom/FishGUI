@@ -86,15 +86,4 @@ namespace FishGUI
 	
 	// useful widgets
 	void Float3(const std::string & label, float& x, float& y, float& z);
-	
-	
-//	struct SegmentedButton
-//	{
-//		const char* text;
-//		const NVGcolor& fontColor;
-//		bool active;
-//		bool& outClicked;
-//	};
-//
-//	void SegmentedButtons(int count, SegmentedButton buttons[], const Rect& rect);
 }

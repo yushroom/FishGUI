@@ -172,22 +172,6 @@ void UnityToolBar::Draw()
 		}
 	}
 	SegmentedButtons::End();
-//	{
-//		bool btnClicked[4];
-//		char icon[4][8];
-//		SegmentedButton buttons[] = {
-//			{CodePointToUTF8(icons[0], icon[0]), (activeID == 0 ? white : theme->textColor), activeID==0, btnClicked[0]},
-//			{CodePointToUTF8(icons[1], icon[1]), (activeID == 1 ? white : theme->textColor), activeID==1, btnClicked[1]},
-//			{CodePointToUTF8(icons[2], icon[2]), (activeID == 2 ? white : theme->textColor), activeID==2, btnClicked[2]},
-//			{CodePointToUTF8(icons[3], icon[3]), (activeID == 3 ? white : theme->textColor), activeID==3, btnClicked[3]},
-//		};
-//		SegmentedButtons(4, buttons, r);
-//		for (int i = 0; i < 4; ++i)
-//		{
-//			if (btnClicked[i])
-//				activeID = i;
-//		}
-//	}
 	
 	const int anchor = r.x+r.width;
 	
@@ -239,21 +223,7 @@ void UnityToolBar::Draw()
 		nvgFontFace(ctx, "sans");
 		nvgFontSize(ctx, theme->standardFontSize);
 //		nvgFillColor(ctx, theme->textColor);
-		
-//		bool btn1Clicked = false;
-//		bool btn2Clicked = false;
-//		SegmentedButton buttons[] = {
-//			{(active1 ? "Pivot":"Center"), theme->textColor, false, btn1Clicked},
-//			{(active2 ? "Global":"local"), theme->textColor, false, btn2Clicked}
-//		};
-//
-//		SegmentedButtons(2, buttons, r);
-//
-//		if (btn1Clicked)
-//			active1 = !active1;
-//		if (btn2Clicked)
-//			active2 = !active2;
-		
+				
 		SegmentedButtons::Begin(r, 2);
 		if (SegmentedButtons::Button(active1 ? "Pivot" : "Center", theme->textColor, false))
 		{
