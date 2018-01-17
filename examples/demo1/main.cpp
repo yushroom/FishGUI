@@ -76,8 +76,10 @@ int main()
 //	dirs->SetRoot(rootNode);
 	files->SetRoot(rootNode);
 	dirs->GetSelectionModel()->SetSelectionChangedCallback([files](FileNode* node){
-		files->SetRoot(node);
+		if (node != nullptr)
+			files->SetRoot(node);
 	});
+
 	{
 		auto layout = new SplitLayout(Orientation::Horizontal);
 		project->SetLayout(layout);

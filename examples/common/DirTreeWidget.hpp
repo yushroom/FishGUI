@@ -2,7 +2,7 @@
 
 #include <FishGUI/Widget.hpp>
 #include <FishGUI/ModelView/ItemView.hpp>
-#include "FileItemModel.hpp"
+#include "FileNode.hpp"
 #include "TreeWidget.hpp"
 
 #include <iostream>
@@ -15,7 +15,7 @@ class DirTreeModel : public FishGUI::TTreeModel<FileNode*>
 		return parent->subdirs[row];
 	}
 
-	inline int count(FileNode* parent) const override
+	inline int childCount(FileNode* parent) const override
 	{
 		if (parent == nullptr)
 			return 0;

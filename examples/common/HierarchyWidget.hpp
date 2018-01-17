@@ -16,7 +16,7 @@ class HierarchyModel : public FishGUI::TTreeModel<GameObject*>
 {
 	typedef GameObject* T;
 public:
-	virtual int count(T item) const override
+	virtual int childCount(T item) const override
 	{
 		return (int)item->children.size();
 	}

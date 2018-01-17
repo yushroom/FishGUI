@@ -19,7 +19,7 @@ namespace FishGUI
 		virtual int rows(T item)    const = 0;
 		virtual int columns(T item) const = 0;
 		virtual T childAt(int row, int column, T parent) const = 0;
-		//virtual int childCount(T item) const = 0;
+		virtual int childCount(T item) const = 0;
 		virtual std::string text(T item) const = 0;
 	};
 
@@ -28,9 +28,8 @@ namespace FishGUI
 	class TListModel : public TItemModel<T>
 	{
 	public:
-		virtual inline int rows(T item)    const override { return (int)std::ceil(count(item) / float(m_columns)); }
+		virtual inline int rows(T item)    const override { return (int)std::ceil(childCount(item) / float(m_columns)); }
 		virtual inline int columns(T item = nullptr) const override { return m_columns; }
-		virtual int count(T item) const = 0;
 
 		// TODO: fast method
 		T childAtIndex(int idx, T parent)
@@ -40,13 +39,10 @@ namespace FishGUI
 			return childAt(row, col, parent);
 		}
 
-		//void SetRoot(T root) { m_root = root; }
-
 		// internal use only
 		void SetColumns(int columns) { m_columns = columns; }
 
 	protected:
-		//T m_root = nullptr;
 		int m_columns = 1;
 	};
 
@@ -54,20 +50,14 @@ namespace FishGUI
 	class TTreeModel : public TItemModel<T>
 	{
 	public:
-		virtual inline int rows(T item)    const override { return count(item); }
+		virtual inline int rows(T item)    const override { return childCount(item); }
 		virtual inline int columns(T item = nullptr) const override { return 1; }
-		virtual int count(T item) const = 0;
 
 		//// TODO: fast method
 		//T childAtIndex(int idx, T parent)
 		//{
 		//	return childAt(row, 1, parent);
 		//}
-
-	//	void SetRoot(T root) { m_root = root; }
-
-	//protected:
-	//	T m_root = nullptr;
 	};
 
 	enum class SelectionMode
@@ -101,6 +91,7 @@ namespace FishGUI
 		void ClearSelections()
 		{
 			m_selection.clear();
+			m_lastSelected = m_rangeSelectionBegin = m_rangeSelectionEnd = nullptr;
 			SelectionChanged();
 		}
 
@@ -112,16 +103,23 @@ namespace FishGUI
 				ClearSelections();
 				m_selection.push_back(item);
 				BlockSignals(false);
+				m_lastSelected = item;
 				SelectionChanged();
 			}
 			else if (flag == SelectionFlag::Clear)
 			{
 				m_selection.remove(item);
+				if (m_selection.empty())
+					m_lastSelected = nullptr;
+				else
+					m_lastSelected = m_selection.back();
 				SelectionChanged();
 			}
 			else if (flag == SelectionFlag::Select)
 			{
 				m_selection.emplace_back(item);
+				m_lastSelected = item;
+				SelectionChanged();
 			}
 			else
 			{
@@ -159,7 +157,7 @@ namespace FishGUI
 				return;
 			if (m_onSelectionChanged)
 			{
-				m_onSelectionChanged(nullptr);
+				m_onSelectionChanged(m_lastSelected);
 			}
 		}
 
@@ -167,6 +165,13 @@ namespace FishGUI
 		std::list<T> m_selection;
 		SelectionMode m_mode = SelectionMode::Extended;
 		SelectionChangedCallback m_onSelectionChanged;
+
+		
+		T m_lastSelected = nullptr;
+
+		// for range selection
+		T m_rangeSelectionBegin = nullptr;
+		T m_rangeSelectionEnd = nullptr;
 	};
 
 

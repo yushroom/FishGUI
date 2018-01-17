@@ -119,7 +119,7 @@ void FileListWidget::Render()
 	constexpr int imageSize = 64;
 	constexpr int textHight = 14;
 	constexpr int pad = 6;
-	int count = model->count(m_root);
+	int count = model->childCount(m_root);
 
 	if (count == 0)
 		return;

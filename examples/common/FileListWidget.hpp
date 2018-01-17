@@ -1,7 +1,7 @@
 #pragma once
 
 #include <FishGUI/Widget.hpp>
-#include "FileItemModel.hpp"
+#include "FileNode.hpp"
 #include <FishGUI/ModelView/ItemView.hpp>
 
 
@@ -10,7 +10,7 @@ class FileListViewModel : public FishGUI::TListModel<FileNode*>
 public:
 	typedef FileNode* T;
 
-	virtual int count(T item) const override
+	virtual int childCount(T item) const override
 	{
 		//assert(item == m_root);
 		return static_cast<int>( item->files.size() );
