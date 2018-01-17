@@ -242,6 +242,15 @@ namespace FishGUI
 		return window;
 	}
 
+	void CreateFont(NVGcontext* ctx, const char* name, const std::string& path)
+	{
+		auto ret = nvgCreateFont(ctx, name, path.c_str());
+		if (ret == -1)
+		{
+			printf("[ERROR] font not found: %s\n", path.c_str());
+		}
+	}
+
 	void Init()
 	{
 		static FishGUIContext context;
@@ -280,11 +289,11 @@ namespace FishGUI
 //		auto full_path = fs::current_path();
 		auto resourcesRoot = ApplicationFilePath();
 		auto fontsRoot = resourcesRoot + "/fonts/";
-		nvgCreateFont(context.m_nvgContext, "icons", 	(fontsRoot+"entypo.ttf").c_str());
-		nvgCreateFont(context.m_nvgContext, "sans", 	(fontsRoot+"Roboto-Regular.ttf").c_str());
-		nvgCreateFont(context.m_nvgContext, "sans-bold", (fontsRoot+"Roboto-Bold.ttf").c_str());
-		nvgCreateFont(context.m_nvgContext, "emoji", 	(fontsRoot+"NotoEmoji-Regular.ttf").c_str());
-		nvgCreateFont(context.m_nvgContext, "ui", (fontsRoot+"icomoon.ttf").c_str());
+		CreateFont(context.m_nvgContext, "icons", 		fontsRoot+"entypo.ttf");
+		CreateFont(context.m_nvgContext, "sans", 		fontsRoot+"Roboto-Regular.ttf");
+		CreateFont(context.m_nvgContext, "sans-bold", 	fontsRoot+"Roboto-Bold.ttf");
+		CreateFont(context.m_nvgContext, "emoji", 		fontsRoot+"NotoEmoji-Regular.ttf");
+		CreateFont(context.m_nvgContext, "ui", 			fontsRoot+"icomoon.ttf");
 
 		Cursor::GetInstance().Init();
 		

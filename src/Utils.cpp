@@ -39,3 +39,32 @@ std::string ApplicationFilePath()
 }
 
 #endif
+
+#if __linux__
+// #include <unistd.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>	// memset
+
+#include <boost/filesystem/path.hpp>
+
+std::string ApplicationFilePath()
+{
+	// char buf[PATH_MAX];
+	// char* cwd = getcwd(buf, PATH_MAX);
+	// if (cwd == nullptr)
+	// 	abort();
+	// printf("cwd: %s\n", cwd);
+	// return std::string(cwd);
+
+	char dest[PATH_MAX];
+	memset(dest, 0, sizeof(dest));
+	if (readlink("/proc/self/exe", dest, PATH_MAX) == -1)
+	{
+		puts("[fatal error] readlink failed!");
+		abort();
+	}
+	return boost::filesystem::path(dest).parent_path().string();
+}
+
+#endif

@@ -28,18 +28,13 @@ if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
 
-if (LINUX)
-	SET(CMAKE_BUILD_TYPE "Debug")  
-	SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
-	SET(CMAKE_C_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
-endif()
 
 if (NOT WIN32)
 	# boost
 	set(Boost_USE_STATIC_LIBS       ON)
 	set(Boost_USE_MULTITHREADED     ON)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
-	find_package(Boost 1.59 REQUIRED COMPONENTS system filesystem)
+	find_package(Boost 1.58 REQUIRED COMPONENTS system filesystem)
 	include_directories(${Boost_INCLUDE_DIRS})
 	MESSAGE("Found Boost: " ${Boost_INCLUDE_DIRS})
 endif()
@@ -94,7 +89,7 @@ if (FISHGUI_BUILD_EXAMPLES)
 	source_group("common" FILES ${EXAMPLES_COMMON})
 	source_group("Resources" FILES ${RESOURCES})
 
-	target_link_libraries(Demo glfw FishGUI)
+	target_link_libraries(Demo FishGUI glfw)
 	# target_link_libraries(Demo ${Boost_LIBRARIES})
 
 	if (WIN32)
@@ -109,9 +104,9 @@ if (FISHGUI_BUILD_EXAMPLES)
 	endif()
 	if (LINUX)
 		target_link_libraries(Demo ${Boost_LIBRARIES})
-		SET(CMAKE_BUILD_TYPE "Debug")
-		SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
-		SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 		target_link_libraries(Demo glew_s)
+
+		# copy fonts
+		add_custom_command(TARGET Demo POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/resources/fonts $<TARGET_FILE_DIR:Demo>/fonts)
 	endif()
 endif() # FISHGUI_BUILD_EXAMPLES
