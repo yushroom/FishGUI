@@ -12,13 +12,13 @@ public:
 
 	virtual int count(T item) const override
 	{
-		assert(item == m_root);
-		return static_cast<int>( m_root->files.size() );
+		//assert(item == m_root);
+		return static_cast<int>( item->files.size() );
 	}
 
-	virtual T childAt(int row, int column, T parent) override
+	virtual T childAt(int row, int column, T parent) const override
 	{
-		assert(parent == m_root);
+		//assert(parent == m_root);
 		int idx = row * m_columns + column;
 		if (idx >= 0 && idx < parent->files.size())
 			return parent->files[idx];
@@ -42,7 +42,9 @@ public:
 	void SetRoot(FileNode* root)
 	{
 		m_root = root;
-		m_model->SetRoot(root);
+
+		//auto model = dynamic_cast<TListModel<FileNode*>>
+		//m_model->SetRoot(root);
 		m_imContext->Reset();
 
 		//m_selectionModel.selectItem(m_model->childAtIndex(0, m_root));

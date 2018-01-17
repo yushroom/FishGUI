@@ -87,7 +87,7 @@ inline std::string	FileListModel::text(FileNode* item) const
 
 */
 
-
+/*
 typedef TTreeModel<FileNode*> DirTreeModel;
 
 template<>
@@ -117,6 +117,7 @@ inline const FontIcon*	DirTreeModel::icon(FileNode* item) const
 	static FontIcon folderIcon = {CodePointToUTF8(0xe930, icon), 12, "ui"};
 	return &folderIcon;
 }
+*/
 	
 //	virtual const FontIcon* icon(FileNode* item) const override
 //	{

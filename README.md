@@ -36,7 +36,7 @@ cmake ..
 make
 ```
 
-build result can be found under **FishGUI/Binary**
+build result can be found under **FishGUI/bin**
 
 ### Windows
 

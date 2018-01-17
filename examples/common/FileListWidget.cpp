@@ -119,7 +119,7 @@ void FileListWidget::Render()
 	constexpr int imageSize = 64;
 	constexpr int textHight = 14;
 	constexpr int pad = 6;
-	int count = m_model->count(m_root);
+	int count = model->count(m_root);
 
 	if (count == 0)
 		return;
@@ -136,8 +136,8 @@ void FileListWidget::Render()
 
 	const float totalWidth = float( m_imContext->Right() - m_rect.x );
 	const int columns = (int)std::floor(totalWidth / r.width);
-	m_model->SetColumns(columns);
-	const int rows = m_model->rows();
+	model->SetColumns(columns);
+	const int rows = m_model->rows(m_root);
 
 	for (int row = 0; row < rows; ++row)
 	{
@@ -153,15 +153,15 @@ void FileListWidget::Render()
 			AppendVisibleItem(node, r);
 			if (!outOfRange)
 			{
-				if (m_mouseEvent != nullptr && !m_mouseEvent->isAccepted())
-				{
-					auto e = m_mouseEvent;
-					bool inside = PointInRect(e->pos(), r);
-					bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonPress;
+				//if (m_mouseEvent != nullptr && !m_mouseEvent->isAccepted())
+				//{
+				//	auto e = m_mouseEvent;
+				//	bool inside = PointInRect(e->pos(), r);
+				//	bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonPress;
 
-					//if (clicked)
-					//	m_selectionModel.OnItemClicked(node, e);
-				}
+				//	//if (clicked)
+				//	//	m_selectionModel.OnItemClicked(node, e);
+				//}
 
 				if (m_selectionModel.IsSelected(node))
 				{

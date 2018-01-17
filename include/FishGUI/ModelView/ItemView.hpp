@@ -18,8 +18,8 @@ namespace FishGUI
 	public:
 		virtual int rows(T item)    const = 0;
 		virtual int columns(T item) const = 0;
-		virtual T childAt(int row, int column, T parent) = 0;
-		//virtual int count(T item) const = 0;
+		virtual T childAt(int row, int column, T parent) const = 0;
+		//virtual int childCount(T item) const = 0;
 		virtual std::string text(T item) const = 0;
 	};
 
@@ -28,9 +28,9 @@ namespace FishGUI
 	class TListModel : public TItemModel<T>
 	{
 	public:
-		virtual inline int rows(T item = nullptr)    const override { return (int)std::ceil(count(m_root) / float(m_columns)); }
+		virtual inline int rows(T item)    const override { return (int)std::ceil(count(item) / float(m_columns)); }
 		virtual inline int columns(T item = nullptr) const override { return m_columns; }
-		virtual int count(T item = nullptr) const = 0;
+		virtual int count(T item) const = 0;
 
 		// TODO: fast method
 		T childAtIndex(int idx, T parent)
@@ -40,14 +40,34 @@ namespace FishGUI
 			return childAt(row, col, parent);
 		}
 
-		void SetRoot(T root) { m_root = root; }
+		//void SetRoot(T root) { m_root = root; }
 
 		// internal use only
 		void SetColumns(int columns) { m_columns = columns; }
 
 	protected:
-		T m_root = nullptr;
+		//T m_root = nullptr;
 		int m_columns = 1;
+	};
+
+	template<class T>
+	class TTreeModel : public TItemModel<T>
+	{
+	public:
+		virtual inline int rows(T item)    const override { return count(item); }
+		virtual inline int columns(T item = nullptr) const override { return 1; }
+		virtual int count(T item) const = 0;
+
+		//// TODO: fast method
+		//T childAtIndex(int idx, T parent)
+		//{
+		//	return childAt(row, 1, parent);
+		//}
+
+	//	void SetRoot(T root) { m_root = root; }
+
+	//protected:
+	//	T m_root = nullptr;
 	};
 
 	enum class SelectionMode
@@ -115,7 +135,15 @@ namespace FishGUI
 			return it != m_selection.end();
 		}
 
-		SelectionMode mode() const { return m_mode; }
+		void SetMode(SelectionMode mode) { m_mode = mode; }
+		SelectionMode GetMode() const { return m_mode; }
+
+		typedef std::function<void(T)> SelectionChangedCallback;
+
+		void SetSelectionChangedCallback(SelectionChangedCallback callback)
+		{
+			m_onSelectionChanged = callback;
+		}
 
 	protected:
 
@@ -129,12 +157,16 @@ namespace FishGUI
 		{
 			if (m_signalBlocked)
 				return;
-			// ...
+			if (m_onSelectionChanged)
+			{
+				m_onSelectionChanged(nullptr);
+			}
 		}
 
 
 		std::list<T> m_selection;
 		SelectionMode m_mode = SelectionMode::Extended;
+		SelectionChangedCallback m_onSelectionChanged;
 	};
 
 
@@ -151,6 +183,9 @@ namespace FishGUI
 		{
 			m_model = model;
 		}
+
+		inline ModelType* GetModel() const { return m_model; }
+		inline SelectionModelType* GetSelectionModel() { return &m_selectionModel; }
 
 		void AppendVisibleItem(T item, const Rect& r)
 		{
@@ -202,7 +237,9 @@ namespace FishGUI
 			auto mod = e->modifiers();
 
 			int offset = 0;
-			int columns = m_model->columns();	// items per row
+
+			// TODO: remove nullptr
+			int columns = m_model->columns(nullptr);	// items per row
 			if (columns == 1)		// 1D
 			{
 				if (key == GLFW_KEY_UP)
@@ -241,7 +278,7 @@ namespace FishGUI
 			//auto it = m_selected.find(item);
 			//bool selected = (it != m_selected.end());
 			bool selected = m_selectionModel.IsSelected(item);
-			bool isMulti = (m_selectionModel.mode() == SelectionMode::Extended);
+			bool isMulti = (m_selectionModel.GetMode() == SelectionMode::Extended);
 			int mods = e->modifiers();
 #if __APPLE__
 			constexpr int MODIFIER = int(Modifier::Super);
@@ -372,7 +409,7 @@ namespace FishGUI
 		}
 
 
-		TListModel<T>*			m_model;
+		TItemModel<T>*			m_model;
 		TItemSelectionModel<T> 	m_selectionModel;
 		std::vector<T> 			m_visibleItems;
 		std::vector<Rect>		m_visibleItemRects;

@@ -1,13 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <set>
-#include <FishGUI/Widget.hpp>
-
-#include "TSelectionModel.hpp"
-#include "ItemModel.hpp"
-
-#include "TreeViewWidget.hpp"
+#include <FishGUI/ModelView/ItemView.hpp>
+#include "TreeWidget.hpp"
 
 struct GameObject
 {
@@ -17,36 +11,31 @@ struct GameObject
 	GameObject(const std::string& name) : name(name) {}
 };
 
-typedef TTreeModel<GameObject*> HierarchyModel;
 
-template<>
-inline GameObject* HierarchyModel::childAt(GameObject* parent, int row) const
+class HierarchyModel : public FishGUI::TTreeModel<GameObject*>
 {
-	return parent->children[row];
-}
+	typedef GameObject* T;
+public:
+	virtual int count(T item) const override
+	{
+		return (int)item->children.size();
+	}
 
-template<>
-inline int HierarchyModel::rowCount(GameObject* parent) const
-{
-	if (parent == nullptr)
-		return 0;
-	return static_cast<int>( parent->children.size() );
-}
+	virtual T childAt(int row, int column, T parent) const
+	{
+		return parent->children[row];
+	}
 
-template<>
-inline std::string HierarchyModel::text(GameObject* item) const
-{
-	return item->name;
-}
-
-
+	virtual std::string text(T item) const
+	{
+		return item->name;
+	}
+};
 
 class HierarchyWidget : public FishGUI::TreeWidget<GameObject*>
 {
 public:
 	typedef FishGUI::TreeWidget<GameObject*> Super;
-	
+
 	HierarchyWidget(const char* name);
-	
-private:
 };

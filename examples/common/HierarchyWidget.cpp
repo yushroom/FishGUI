@@ -10,7 +10,7 @@ using namespace FishGUI;
 
 HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
 {
-	m_selectionModel.SetSelectionType( SelectionType::Multi );
+	m_model = new HierarchyModel();
 	m_imContext->ymargin = 0;
 	m_root = new GameObject("Root");
 	m_root->children.push_back(new GameObject("Main Camera"));
@@ -32,6 +32,6 @@ HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
 		go->children.push_back(new GameObject("Child" + std::to_string(i)));
 	}
 	
-	m_model.SetRootItem(m_root);
-	m_selectionModel.Select(m_root);
+	//m_model->SetRoot(m_root);
+	m_selectionModel.selectItem(m_root);
 }

@@ -12,7 +12,7 @@ namespace FishGUI
 {
 	void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-		printf("[glfwKeyCallback] key: %d, scancode: %d, actions: %d, mods: %d\n", key, scancode, action, mods);
+		//printf("[glfwKeyCallback] key: %d, scancode: %d, actions: %d, mods: %d\n", key, scancode, action, mods);
 		auto win = WindowManager::GetInstance().FindWindow(window);
 		auto& input = win->GetInput();
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -39,8 +39,7 @@ namespace FishGUI
 	
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
-		printf("[glfwMouseButtonCallback] button: %d, actions: %d, mods: %d\n", button, action, mods);
-//		printf("mods: %d\n", mods);
+		//printf("[glfwMouseButtonCallback] button: %d, actions: %d, mods: %d\n", button, action, mods);
 		MouseButtonState state = MouseButtonState::None;
 		auto win = WindowManager::GetInstance().FindWindow(window);
 		auto& input = win->GetInput();

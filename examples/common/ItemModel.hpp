@@ -10,6 +10,7 @@ struct FontIcon
 	const char* fontFace;
 };
 
+/*
 // notice that ItemType must be a pointer type or std::shared_ptr
 template<class ItemType>
 class TTreeModel
@@ -30,6 +31,7 @@ public:
 protected:
 	ItemType m_root;
 };
+*/
 
 //template<class ItemType>
 //class TListModel
