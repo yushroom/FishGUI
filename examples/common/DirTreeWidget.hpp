@@ -6,11 +6,18 @@
 #include <iostream>
 
 
-class DirTreeModel : public FishGUI::TTreeModel<FileNode*>
+class DirTreeModel : public FishGUI::TItemModel<FileNode*>
 {
-	inline FileNode* childAt(int row, int column, FileNode* parent) const override
+	typedef FileNode* T;
+public:
+	virtual T parent(T child) const override
 	{
-		return parent->subdirs[row];
+		return child->parent;
+	}
+	
+	inline FileNode* childAt(int index, FileNode* parent) const override
+	{
+		return parent->subdirs[index];
 	}
 
 	inline int childCount(FileNode* parent) const override

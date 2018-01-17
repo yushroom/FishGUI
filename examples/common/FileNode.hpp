@@ -18,6 +18,7 @@ struct FileNode
 {
 	Path path;
 	std::string fileName;
+	FileNode* parent = nullptr;
 	std::vector<FileNode*> subdirs;
 	std::vector<FileNode*> files;
 	
@@ -42,11 +43,13 @@ struct FileNode
 			{
 				auto n = new FileNode(p);
 				subdirs.push_back(n);
+				n->parent = this;
 			}
 			else
 			{
 				auto n = new FileNode(p);
 				files.push_back(n);
+				n->parent = this;
 			}
 		}
 	}

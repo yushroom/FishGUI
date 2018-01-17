@@ -1,11 +1,26 @@
+#pragma once
+
 #include "ItemView.hpp"
+#include <FishGUI/FishGUI.hpp>
+#include <FishGUI/Input.hpp>
+#include <FishGUI/Draw.hpp>
+#include <FishGUI/Theme.hpp>
+#include <FishGUI/Utils.hpp>
 
 namespace FishGUI
 {
 	template<class T>
 	class ListWidget : public TItemView<T>
 	{
+	protected:
 		typedef TItemView<T> Super;
+		using Super::m_model;
+		using Super::m_selectionModel;
+		using Super::AppendVisibleItem;
+		using IMWidget::m_imContext;
+		using Widget::m_rect;
+		using Widget::m_isFocused;
+		
 	public:
 		ListWidget(const char* name) : Super(name) { }
 
@@ -43,8 +58,10 @@ namespace FishGUI
 
 			const float totalWidth = float(m_imContext->Right() - m_rect.x);
 			const int columns = (int)std::floor(totalWidth / r.width);
+			this->m_columns = columns;
 			//m_model->SetColumns(columns);
-			const int rows = m_model->rows(m_root);
+//			const int rows = m_model->rows(m_root);
+			const int rows = (int)std::ceil(float(count)/columns);
 
 			for (int i = 0; i < count; ++i)
 			{
@@ -65,7 +82,7 @@ namespace FishGUI
 						break;
 
 					r.x = m_rect.x + r.width * col;
-					auto node = m_model->childAt(index, 1, m_root);
+					auto node = m_model->childAt(index, m_root);
 					AppendVisibleItem(node, r);
 					if (!outOfRange)
 					{

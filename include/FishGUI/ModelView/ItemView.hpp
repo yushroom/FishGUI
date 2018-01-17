@@ -2,9 +2,6 @@
 
 #include <list>
 #include <FishGUI/Widget.hpp>
-//#include "../common/FileItemModel.hpp"
-//#include "../common/TSelectionModel.hpp"
-
 #include <FishGUI/Input.hpp>
 
 #include <GLFW/glfw3.h>
@@ -14,46 +11,14 @@ namespace FishGUI
 	template<class T>
 	class TItemModel
 	{
-		//friend class TItemView<T>;
 	public:
-		virtual int rows(T item)    const = 0;
-		virtual int columns(T item) const = 0;
-		virtual T childAt(int row, int column, T parent) const = 0;
+		virtual T parent(T child) const = 0;
+		virtual T childAt(int index, T parent) const = 0;
 		virtual int childCount(T item) const = 0;
 		virtual std::string text(T item) const = 0;
 	};
 
-
-	template<class T>
-	class TListModel : public TItemModel<T>
-	{
-	public:
-		virtual inline int rows(T item)    const override { return childCount(item); }
-		virtual inline int columns(T item = nullptr) const override { return 1; }
-
-		//// TODO: fast method
-		//T childAtIndex(int idx, T parent)
-		//{
-		//	int row = idx / m_columns;
-		//	int col = idx % m_columns;
-		//	return childAt(row, col, parent);
-		//}
-	};
-
-	template<class T>
-	class TTreeModel : public TItemModel<T>
-	{
-	public:
-		virtual inline int rows(T item)    const override { return childCount(item); }
-		virtual inline int columns(T item = nullptr) const override { return 1; }
-
-		//// TODO: fast method
-		//T childAtIndex(int idx, T parent)
-		//{
-		//	return childAt(row, 1, parent);
-		//}
-	};
-
+	
 	enum class SelectionMode
 	{
 		//NoSelection,
@@ -82,6 +47,11 @@ namespace FishGUI
 
 		inline const std::list<T>& selections() const { return m_selection; }
 
+		T CurrentSelected() const
+		{
+			return m_lastSelected;
+		}
+		
 		void ClearSelections()
 		{
 			m_selection.clear();
@@ -233,13 +203,11 @@ namespace FishGUI
 			idx = (int)std::distance(m_visibleItems.begin(), it);
 
 			auto key = e->key();
-			auto mod = e->modifiers();
+//			auto mod = e->modifiers();
 
 			int offset = 0;
 
-			// TODO: remove nullptr
-			int columns = m_model->columns(nullptr);	// items per row
-			if (columns == 1)		// 1D
+			if (m_columns == 1)		// 1D
 			{
 				if (key == GLFW_KEY_UP)
 					offset = -1;
@@ -253,9 +221,9 @@ namespace FishGUI
 				else if (key == GLFW_KEY_RIGHT)
 					offset = 1;
 				else if (key == GLFW_KEY_UP)
-					offset = -columns;
+					offset = -m_columns;
 				else if (key == GLFW_KEY_DOWN)
-					offset = columns;
+					offset = m_columns;
 			}
 
 			idx += offset;
@@ -278,7 +246,7 @@ namespace FishGUI
 			//bool selected = (it != m_selected.end());
 			bool selected = m_selectionModel.IsSelected(item);
 			bool isMulti = (m_selectionModel.GetMode() == SelectionMode::Extended);
-			int mods = e->modifiers();
+//			int mods = e->modifiers();
 #if __APPLE__
 			constexpr int MODIFIER = int(Modifier::Super);
 #else
@@ -412,5 +380,7 @@ namespace FishGUI
 		TItemSelectionModel<T> 	m_selectionModel;
 		std::vector<T> 			m_visibleItems;
 		std::vector<Rect>		m_visibleItemRects;
+		
+		int m_columns = 1;	// items per row
 	};
 }

@@ -48,6 +48,7 @@ std::string ApplicationFilePath()
 
 #include <boost/filesystem/path.hpp>
 
+// https://stackoverflow.com/questions/4025370/can-an-executable-discover-its-own-path-linux
 std::string ApplicationFilePath()
 {
 	// char buf[PATH_MAX];

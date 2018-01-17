@@ -4,10 +4,14 @@
 #include <FishGUI/ModelView/ListWidget.hpp>
 
 
-class FileListModel : public FishGUI::TListModel<FileNode*>
+class FileListModel : public FishGUI::TItemModel<FileNode*>
 {
-public:
 	typedef FileNode* T;
+public:
+	virtual T parent(T child) const override
+	{
+		return child->parent;
+	}
 
 	virtual int childCount(T item) const override
 	{
@@ -15,12 +19,10 @@ public:
 		return static_cast<int>( item->files.size() );
 	}
 
-	virtual T childAt(int row, int column, T parent) const override
+	virtual T childAt(int index, T parent) const override
 	{
 		//assert(parent == m_root);
-		//int idx = row * m_columns + column;
-		//if (idx >= 0 && idx < parent->files.size())
-			return parent->files[row];
+		return parent->files[index];
 		//return nullptr;
 	}
 

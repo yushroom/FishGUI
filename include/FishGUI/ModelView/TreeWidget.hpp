@@ -19,7 +19,13 @@ namespace FishGUI
 
 		T m_root = nullptr;
 		std::set<T> m_unfolded;
-
+		
+		using Super::m_model;
+		using Super::m_selectionModel;
+		using Super::AppendVisibleItem;
+		using IMWidget::m_imContext;
+		using Widget::m_rect;
+		
 	public:
 
 		TreeWidget(const char* name) : Super(name) {
@@ -29,6 +35,43 @@ namespace FishGUI
 		{
 			assert(m_model != nullptr);
 			Cell(m_root);
+			
+			// handle aditional keyEvent
+			auto e = this->m_keyEvent;
+			auto item = m_selectionModel.CurrentSelected();
+			if (e != nullptr && !e->isAccepted() && item != nullptr && e->type()==KeyEvent::Type::KeyPress)
+			{
+				int key = e->key();
+				if (key == GLFW_KEY_RIGHT && m_model->childCount(item) > 0)
+				{
+					auto child = m_model->childAt(0, item);
+					m_selectionModel.selectItem(child, SelectionFlag::ClearAndSelect);
+					m_unfolded.insert(item);
+					e->Accept();
+				}
+				else if (key == GLFW_KEY_LEFT)
+				{
+					auto it = this->m_unfolded.find(item);
+					if (it != this->m_unfolded.end())	// unfolded
+					{
+						// fold it
+						this->m_unfolded.erase(it);
+						e->Accept();
+					}
+					else
+					{
+						auto parent = m_model->parent(item);
+						if (parent != nullptr)
+						{
+							m_selectionModel.selectItem(parent, SelectionFlag::ClearAndSelect);
+							e->Accept();
+						}
+					}
+//					m_selectionModel.selectItem(parent, SelectionFlag::ClearAndSelect);
+//					m_unfolded.insert(item);
+//					e->Accept();
+				}
+			}
 		}
 
 		void SetRoot(T root)
@@ -66,18 +109,19 @@ namespace FishGUI
 				totalCellRect.width = m_rect.width;
 
 				bool clickedPreicon = false;
-				//if (e != nullptr && !e->isAccepted())
-				//{
-				//	bool insidePreicon = PointInRect(e->pos(), preiconRect);
-				//	clickedPreicon = insidePreicon && e->type() == MouseEvent::Type::MouseButtonPress;
-				//	bool inside = (!insidePreicon) && PointInRect(e->pos(), totalCellRect);
-				//	bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonPress;
+				auto e = this->m_mouseEvent;
+				if (e != nullptr && !e->isAccepted())
+				{
+					bool insidePreicon = PointInRect(e->pos(), preiconRect);
+					clickedPreicon = insidePreicon && e->type() == MouseEvent::Type::MouseButtonPress;
+//					bool inside = (!insidePreicon) && PointInRect(e->pos(), totalCellRect);
+//					bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonPress;
 
-				//	//if (clicked)
-				//	//{
-				//	//	m_selectionModel.OnItemClicked(go, e);
-				//	//}
-				//}
+					//if (clicked)
+					//{
+					//	m_selectionModel.OnItemClicked(go, e);
+					//}
+				}
 
 				bool selected = m_selectionModel.IsSelected(go);
 				if (selected)
@@ -91,20 +135,18 @@ namespace FishGUI
 				constexpr int iconWidth = 20;
 				int x = rect.x + preiconWidth / 2 + 2;
 				int y = rect.y + 16 / 2;
-				if (m_model->rows(go) > 0)
+				if (m_model->childCount(go) > 0)
 				{
-					//if (clickedPreicon)
-					//{
-					//	if (isUnfolded)
-					//		m_unfolded.erase(it2);
-					//	//					m_model.FoldItem(go);
-					//	else
-					//		m_unfolded.insert(go);
-					//	//					m_model.UnfoldItem(go);
-					//	e->Accept();
-					//}
+					if (clickedPreicon)
+					{
+						if (isUnfolded)
+							m_unfolded.erase(it2);
+						else
+							m_unfolded.insert(go);
+						e->Accept();
+					}
 
-					//			auto icon = m_model.icon(go);
+		//			auto icon = m_model.icon(go);
 					nvgFontSize(ctx, 32);
 					nvgFontFace(ctx, "icons");
 					nvgFillColor(ctx, theme->textColor);
@@ -114,7 +156,7 @@ namespace FishGUI
 						nvgText(ctx, (float)x, (float)y, CodePointToUTF8(0x25be, icon), nullptr);
 					else
 						nvgText(ctx, (float)x, (float)y, CodePointToUTF8(0x25b8, icon), nullptr);
-					//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
+				//			nvgText(ctx, x, y, icon->fontText.c_str(), nullptr);
 				}
 				rect.x += preiconWidth;
 
@@ -132,17 +174,17 @@ namespace FishGUI
 				//}
 
 				// text
-				//				rect.x += 2;
+//				rect.x += 2;
 				rect.width -= 20 + 2;
 				Label(m_model->text(go), rect);
 			}
 
 			Indent(10);
-			if (m_model->rows(go) > 0 && isUnfolded)
+			if (m_model->childCount(go) > 0 && isUnfolded)
 			{
-				for (int i = 0; i < m_model->rows(go); ++i)
+				for (int i = 0; i < m_model->childCount(go); ++i)
 				{
-					Cell(m_model->childAt(i, 1, go));
+					Cell(m_model->childAt(i, go));
 				}
 			}
 			Unindent(10);
