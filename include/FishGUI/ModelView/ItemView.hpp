@@ -12,10 +12,10 @@ namespace FishGUI
 	class TItemModel
 	{
 	public:
-		virtual T parent(T child) const = 0;
-		virtual T childAt(int index, T parent) const = 0;
-		virtual int childCount(T item) const = 0;
-		virtual std::string text(T item) const = 0;
+		virtual T Parent(T child) const = 0;
+		virtual T ChildAt(int index, T parent) const = 0;
+		virtual int ChildCount(T item) const = 0;
+		virtual std::string Text(T item) const = 0;
 	};
 
 	
@@ -43,14 +43,9 @@ namespace FishGUI
 	class TItemSelectionModel
 	{
 		//	friend class TItemView<T>;
-	protected:
-		using IMWidget::m_imContext;
-		using Widget::m_rect;
-		using Widget::m_isFocused;
-
 	public:
 
-		inline const std::list<T>& selections() const { return m_selection; }
+		inline const std::list<T>& GetSelections() const { return m_selection; }
 
 		T CurrentSelected() const
 		{
@@ -64,7 +59,7 @@ namespace FishGUI
 			SelectionChanged();
 		}
 
-		void selectItem(T item, SelectionFlag flag = SelectionFlag::ClearAndSelect)
+		void SelectItem(T item, SelectionFlag flag = SelectionFlag::ClearAndSelect)
 		{
 			if (flag == SelectionFlag::ClearAndSelect)
 			{
@@ -168,7 +163,7 @@ namespace FishGUI
 		}
 
 		// Scrolls the view if necessary to ensure that the item at index is visible.
-		void scrollTo(T item)
+		void ScrollTo(T item)
 		{
 			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), item);
 			assert(it != m_visibleItems.end());
@@ -183,7 +178,7 @@ namespace FishGUI
 			if (e == nullptr || e->isAccepted())
 				return;
 
-			if (m_selectionModel.selections().empty())
+			if (m_selectionModel.GetSelections().empty())
 				return;
 
 			if (e->type() != KeyEvent::Type::KeyPress)
@@ -191,22 +186,14 @@ namespace FishGUI
 				return;
 			}
 			
-			if (m_selectionModel.selections().empty())
+			if (m_selectionModel.GetSelections().empty())
 			{
 				return;
 			}
 
-			// first selection
-			auto first = m_selectionModel.selections().back();;
-			int idx = 0;
-			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), first);
-			idx = (int)std::distance(m_visibleItems.begin(), it);
-
 			auto key = e->key();
 //			auto mod = e->modifiers();
-
 			int offset = 0;
-
 			if (m_columns == 1)		// 1D
 			{
 				if (key == GLFW_KEY_UP)
@@ -226,6 +213,17 @@ namespace FishGUI
 					offset = m_columns;
 			}
 
+			if (offset == 0)	// key not matched
+			{
+				return;
+			}
+
+			// last selection
+			auto last = m_selectionModel.GetSelections().back();;
+			int idx = 0;
+			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), last);
+			idx = (int)std::distance(m_visibleItems.begin(), it);
+
 			idx += offset;
 			if (idx >= 0 && idx < m_visibleItems.size())
 			{
@@ -233,10 +231,11 @@ namespace FishGUI
 				//	idx = m_visibleItems.size() - 1;
 	//			auto rect = m_visibleItemRects[idx];
 				auto& item = m_visibleItems[idx];
-				m_selectionModel.selectItem(item, SelectionFlag::ClearAndSelect);
+				m_selectionModel.SelectItem(item, SelectionFlag::ClearAndSelect);
 
 				__ScrollTo(idx);
 			}
+			e->Accept();
 		}
 
 		void OnItemClicked(T item, MouseEvent* e)
@@ -281,7 +280,7 @@ namespace FishGUI
 				//Select(item);
 				flag = SelectionFlag::ClearAndSelect;
 			}
-			m_selectionModel.selectItem(item, flag);
+			m_selectionModel.SelectItem(item, flag);
 
 			e->Accept();
 		}

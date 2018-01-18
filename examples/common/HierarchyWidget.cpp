@@ -30,5 +30,5 @@ HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
 		go->AddChild(new GameObject("Child" + std::to_string(i)));
 	}
 	
-	m_selectionModel.selectItem(m_root);
+	m_selectionModel.SelectItem(m_root);
 }

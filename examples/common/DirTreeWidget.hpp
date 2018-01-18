@@ -10,24 +10,24 @@ class DirTreeModel : public FishGUI::TItemModel<FileNode*>
 {
 	typedef FileNode* T;
 public:
-	virtual T parent(T child) const override
+	virtual T Parent(T child) const override
 	{
 		return child->parent;
 	}
 	
-	inline FileNode* childAt(int index, FileNode* parent) const override
+	inline FileNode* ChildAt(int index, FileNode* parent) const override
 	{
 		return parent->subdirs[index];
 	}
 
-	inline int childCount(FileNode* parent) const override
+	inline int ChildCount(FileNode* parent) const override
 	{
 		if (parent == nullptr)
 			return 0;
 		return static_cast<int>(parent->subdirs.size());
 	}
 
-	inline std::string text(FileNode* item) const override
+	inline std::string Text(FileNode* item) const override
 	{
 		return item->fileName;
 	}
@@ -52,6 +52,6 @@ public:
 		m_selectionModel.SetMode(FishGUI::SelectionMode::SingleSelection);
 		m_root = root;
 		m_unfolded.insert(m_root);
-		m_selectionModel.selectItem(m_root);
+		m_selectionModel.SelectItem(m_root);
 	}
 };
