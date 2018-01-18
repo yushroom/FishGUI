@@ -41,7 +41,7 @@ namespace FishGUI
 			constexpr int imageSize = 64;
 			constexpr int textHight = 14;
 			constexpr int pad = 6;
-			int count = m_model->childCount(m_root);
+			int count = m_model->ChildCount(m_root);
 
 			if (count == 0)
 				return;
@@ -79,7 +79,7 @@ namespace FishGUI
 						break;
 
 					r.x = m_rect.x + r.width * col;
-					auto node = m_model->childAt(index, m_root);
+					auto node = m_model->ChildAt(index, m_root);
 					AppendVisibleItem(node, r);
 					if (!outOfRange)
 					{
@@ -108,7 +108,7 @@ namespace FishGUI
 						FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 255, 255));
 						//FishGUI::DrawImage(ctx, 2, imageRect);
 
-						const auto& text = m_model->text(node);
+						const auto& text = m_model->Text(node);
 						auto textRect = r;
 						textRect.x += pad;
 						textRect.y += pad + imageSize;

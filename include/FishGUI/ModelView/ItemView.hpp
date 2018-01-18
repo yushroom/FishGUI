@@ -1,9 +1,9 @@
 #pragma once
 
 #include <list>
+#include <algorithm>
 #include <FishGUI/Widget.hpp>
 #include <FishGUI/Input.hpp>
-
 #include <GLFW/glfw3.h>
 
 namespace FishGUI
@@ -12,10 +12,10 @@ namespace FishGUI
 	class TItemModel
 	{
 	public:
-		virtual T parent(T child) const = 0;
-		virtual T childAt(int index, T parent) const = 0;
-		virtual int childCount(T item) const = 0;
-		virtual std::string text(T item) const = 0;
+		virtual T Parent(T child) const = 0;
+		virtual T ChildAt(int index, T parent) const = 0;
+		virtual int ChildCount(T item) const = 0;
+		virtual std::string Text(T item) const = 0;
 	};
 
 	
@@ -45,7 +45,7 @@ namespace FishGUI
 		//	friend class TItemView<T>;
 	public:
 
-		inline const std::list<T>& selections() const { return m_selection; }
+		inline const std::list<T>& GetSelections() const { return m_selection; }
 
 		T CurrentSelected() const
 		{
@@ -55,11 +55,11 @@ namespace FishGUI
 		void ClearSelections()
 		{
 			m_selection.clear();
-			m_lastSelected = m_rangeSelectionBegin = m_rangeSelectionEnd = nullptr;
+			m_lastSelected = nullptr;
 			SelectionChanged();
 		}
 
-		void selectItem(T item, SelectionFlag flag = SelectionFlag::ClearAndSelect)
+		void SelectItem(T item, SelectionFlag flag = SelectionFlag::ClearAndSelect)
 		{
 			if (flag == SelectionFlag::ClearAndSelect)
 			{
@@ -107,12 +107,12 @@ namespace FishGUI
 			m_onSelectionChanged = callback;
 		}
 
-	protected:
-
 		void BlockSignals(bool block)
 		{
 			m_signalBlocked = block;
 		}
+
+	protected:
 		bool m_signalBlocked = false;
 
 		void SelectionChanged()
@@ -132,10 +132,6 @@ namespace FishGUI
 
 		
 		T m_lastSelected = nullptr;
-
-		// for range selection
-		T m_rangeSelectionBegin = nullptr;
-		T m_rangeSelectionEnd = nullptr;
 	};
 
 
@@ -163,7 +159,7 @@ namespace FishGUI
 		}
 
 		// Scrolls the view if necessary to ensure that the item at index is visible.
-		void scrollTo(T item)
+		void ScrollTo(T item)
 		{
 			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), item);
 			assert(it != m_visibleItems.end());
@@ -178,7 +174,7 @@ namespace FishGUI
 			if (e == nullptr || e->isAccepted())
 				return;
 
-			if (m_selectionModel.selections().empty())
+			if (m_selectionModel.GetSelections().empty())
 				return;
 
 			if (e->type() != KeyEvent::Type::KeyPress)
@@ -186,22 +182,14 @@ namespace FishGUI
 				return;
 			}
 			
-			if (m_selectionModel.selections().empty())
+			if (m_selectionModel.GetSelections().empty())
 			{
 				return;
 			}
 
-			// first selection
-			auto first = m_selectionModel.selections().back();;
-			int idx = 0;
-			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), first);
-			idx = (int)std::distance(m_visibleItems.begin(), it);
-
 			auto key = e->key();
 //			auto mod = e->modifiers();
-
 			int offset = 0;
-
 			if (m_columns == 1)		// 1D
 			{
 				if (key == GLFW_KEY_UP)
@@ -221,6 +209,17 @@ namespace FishGUI
 					offset = m_columns;
 			}
 
+			if (offset == 0)	// key not matched
+			{
+				return;
+			}
+
+			// last selection
+			auto last = m_selectionModel.GetSelections().back();;
+			int idx = 0;
+			auto it = std::find(m_visibleItems.begin(), m_visibleItems.end(), last);
+			idx = (int)std::distance(m_visibleItems.begin(), it);
+
 			idx += offset;
 			if (idx >= 0 && idx < m_visibleItems.size())
 			{
@@ -228,15 +227,16 @@ namespace FishGUI
 				//	idx = m_visibleItems.size() - 1;
 	//			auto rect = m_visibleItemRects[idx];
 				auto& item = m_visibleItems[idx];
-				m_selectionModel.selectItem(item, SelectionFlag::ClearAndSelect);
+				m_selectionModel.SelectItem(item, SelectionFlag::ClearAndSelect);
 
 				__ScrollTo(idx);
 			}
+			e->Accept();
 		}
 
 		void OnItemClicked(T item, MouseEvent* e)
 		{
-			assert(e != nullptr);
+			assert(item != nullptr && e != nullptr);
 			//auto it = m_selected.find(item);
 			//bool selected = (it != m_selected.end());
 			bool selected = m_selectionModel.IsSelected(item);
@@ -247,36 +247,58 @@ namespace FishGUI
 #else
 			constexpr int MODIFIER = int(Modifier::Ctrl);
 #endif
-			bool appendMode = isMulti && (e->modifiers() & MODIFIER) != 0;
-			//bool rangeMode = isMulti &&
-			//	(e->modifiers() & int(Modifier::Shift)) != 0 &&
-			//	m_lastSelected != nullptr;
-			bool rangeMode = false;
+			auto lastSelected = m_selectionModel.CurrentSelected();
 
-			SelectionFlag flag;
+			bool appendMode = isMulti && (e->modifiers() & MODIFIER) != 0;
+			bool rangeMode = isMulti && (e->modifiers() & int(Modifier::Shift)) != 0 && lastSelected != nullptr;
+			
 			if (appendMode)
 			{
+				SelectionFlag flag;
 				if (selected)
 					flag = SelectionFlag::Clear;
 				else
 					flag = SelectionFlag::Select;
-				//if (selected)
-				//	m_selected.erase(it);
-				//else
-				//	Select(item);
+				m_selectionModel.SelectItem(item, flag);
 			}
 			else if (rangeMode)
 			{
-				//m_rangeSelectionBegin = m_lastSelected;
-				//m_rangeSelectionEnd = item;
+				auto rangeSelectionBegin = lastSelected;
+				auto rangeSelectionEnd = item;
+
+				auto it1 = std::find(m_visibleItems.begin(), m_visibleItems.end(), rangeSelectionBegin);
+				auto it2 = std::find(m_visibleItems.begin(), m_visibleItems.end(), rangeSelectionEnd);
+
+				if (it1 == m_visibleItems.end())
+				{
+				}
+				else if (it2 == m_visibleItems.end())
+				{
+				}
+				else
+				{
+					m_selectionModel.BlockSignals(true);
+					m_selectionModel.ClearSelections();
+					//int step = 1;
+					if (it1 > it2)
+					{
+						std::swap(it1, it2);
+						//step = -1;
+					}
+					it2++;
+					for (auto it = it1; it != it2; ++it)
+					{
+						m_selectionModel.SelectItem(*it, SelectionFlag::Select);
+					}
+					m_selectionModel.BlockSignals(false);
+					//m_lastSelected = m_rangeSelectionBegin = *it1;
+				}
+				//rangeSelectionEnd = nullptr;
 			}
 			else	// single selection
 			{
-				//ClearSelections();
-				//Select(item);
-				flag = SelectionFlag::ClearAndSelect;
+				m_selectionModel.SelectItem(item, SelectionFlag::ClearAndSelect);
 			}
-			m_selectionModel.selectItem(item, flag);
 
 			e->Accept();
 		}
@@ -305,35 +327,6 @@ namespace FishGUI
 					OnItemClicked(itemClicked, e);
 					__ScrollTo(idx);
 				}
-
-				/*
-				if (m_selectionModel.mode() == SelectionMode::Extended && m_rangeSelectionEnd != nullptr)
-				{
-					//			m_lastSelected = m_rangeSelectionBegin;
-					auto it1 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionBegin);
-					auto it2 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionEnd);
-
-					if (it1 == m_visibleItems.end())
-					{
-					}
-					else if (it2 == m_visibleItems.end())
-					{
-					}
-					else
-					{
-						ClearSelections();
-						if (it1 > it2)
-							std::swap(it1, it2);
-						it2++;
-						for (auto it = it1; it != it2; ++it)
-						{
-							m_selected.insert(*it);
-						}
-						m_lastSelected = m_rangeSelectionBegin = *it1;
-					}
-					m_rangeSelectionEnd = nullptr;
-				}
-				*/
 			}
 
 			if (!e->isAccepted() && e->button() == MouseButton::Left && e->type() == MouseEvent::Type::MouseButtonPress)

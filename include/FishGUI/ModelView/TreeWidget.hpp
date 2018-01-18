@@ -42,10 +42,10 @@ namespace FishGUI
 			if (e != nullptr && !e->isAccepted() && item != nullptr && e->type()==KeyEvent::Type::KeyPress)
 			{
 				int key = e->key();
-				if (key == GLFW_KEY_RIGHT && m_model->childCount(item) > 0)
+				if (key == GLFW_KEY_RIGHT && m_model->ChildCount(item) > 0)
 				{
-					auto child = m_model->childAt(0, item);
-					m_selectionModel.selectItem(child, SelectionFlag::ClearAndSelect);
+					auto child = m_model->ChildAt(0, item);
+					m_selectionModel.SelectItem(child, SelectionFlag::ClearAndSelect);
 					m_unfolded.insert(item);
 					e->Accept();
 				}
@@ -60,10 +60,10 @@ namespace FishGUI
 					}
 					else
 					{
-						auto parent = m_model->parent(item);
+						auto parent = m_model->Parent(item);
 						if (parent != nullptr)
 						{
-							m_selectionModel.selectItem(parent, SelectionFlag::ClearAndSelect);
+							m_selectionModel.SelectItem(parent, SelectionFlag::ClearAndSelect);
 							e->Accept();
 						}
 					}
@@ -135,7 +135,7 @@ namespace FishGUI
 				constexpr int iconWidth = 20;
 				int x = rect.x + preiconWidth / 2 + 2;
 				int y = rect.y + 16 / 2;
-				if (m_model->childCount(go) > 0)
+				if (m_model->ChildCount(go) > 0)
 				{
 					if (clickedPreicon)
 					{
@@ -176,15 +176,15 @@ namespace FishGUI
 				// text
 //				rect.x += 2;
 				rect.width -= 20 + 2;
-				Label(m_model->text(go), rect);
+				Label(m_model->Text(go), rect);
 			}
 
 			Indent(10);
-			if (m_model->childCount(go) > 0 && isUnfolded)
+			if (m_model->ChildCount(go) > 0 && isUnfolded)
 			{
-				for (int i = 0; i < m_model->childCount(go); ++i)
+				for (int i = 0; i < m_model->ChildCount(go); ++i)
 				{
-					Cell(m_model->childAt(i, go));
+					Cell(m_model->ChildAt(i, go));
 				}
 			}
 			Unindent(10);
