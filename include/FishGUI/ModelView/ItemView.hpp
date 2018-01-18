@@ -1,9 +1,9 @@
 #pragma once
 
 #include <list>
+#include <algorithm>
 #include <FishGUI/Widget.hpp>
 #include <FishGUI/Input.hpp>
-
 #include <GLFW/glfw3.h>
 
 namespace FishGUI
@@ -43,6 +43,11 @@ namespace FishGUI
 	class TItemSelectionModel
 	{
 		//	friend class TItemView<T>;
+	protected:
+		using IMWidget::m_imContext;
+		using Widget::m_rect;
+		using Widget::m_isFocused;
+
 	public:
 
 		inline const std::list<T>& selections() const { return m_selection; }
