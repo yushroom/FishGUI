@@ -27,12 +27,9 @@
 #include <chrono>
 #include <iostream>
 
-//#include <boost/filesystem/path.hpp>
-//#include <boost/filesystem/operations.hpp>
 #include <FishGUI/Utils.hpp>
 
 using namespace std::chrono_literals;
-//namespace fs = boost::filesystem;
 
 void _checkOpenGLError(const char *file, int line)
 {
@@ -164,22 +161,6 @@ namespace FishGUI
 		m_mouseEvent = nullptr;
 	}
 
-	void StatusBar::Draw()
-	{
-//		auto ctx = m_context->m_nvgContext;
-
-		auto input = Input::GetCurrent();
-		std::ostringstream sout;
-		sout << "pos(" << input->m_mousePosition.x << ", " << input->m_mousePosition.y << ")";
-//		nvgFontSize(ctx, 16.0f);
-//		nvgFontFace(ctx, "sans");
-//		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
-//		nvgFillColor(ctx, theme.textColor);
-//		nvgText(ctx, m_rect.x + 5, m_rect.y + m_rect.height, sout.str().c_str(), nullptr);
-		auto r = m_rect;
-		r.x += 5;
-		Label(sout.str(), r);
-	}
 
 	void TabWidget::Draw()
 	{
@@ -286,12 +267,11 @@ namespace FishGUI
 			fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 			exit(EXIT_FAILURE);
 		}
-		fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+		//fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
 
 		context.m_nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 
-//		auto full_path = fs::current_path();
 		auto resourcesRoot = ApplicationFilePath();
 		auto fontsRoot = resourcesRoot + "/fonts/";
 		CreateFont(context.m_nvgContext, "icons", 		fontsRoot+"entypo.ttf");
@@ -779,88 +759,4 @@ namespace FishGUI
 		DrawLabel(ctx, "Z", l, align);
 		DrawEditBox(ctx, z_str.c_str(), r);
 	}
-	
-	/*
-	void DrawSegmentedButtons(DrawContext* context, int count, SegmentedButton buttons[], float x, float y, float w, float h)
-	{
-		constexpr float cornerRadius = 4.0f;
-		int width = w / count;
-		auto theme = CurrentTheme();
-		auto ctx = GetNVGContext();
-		NVGcolor colorTop = theme->buttonGradientTopUnfocused;
-		NVGcolor colorBot = theme->buttonGradientBotUnfocused;
-		NVGpaint bg = nvgLinearGradient(ctx, x, y, x, y + h, colorTop, colorBot);
-		nvgBeginPath(ctx);
-		nvgRoundedRect(ctx, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
-		nvgFillPaint(ctx, bg);
-		nvgFill(ctx);
-		
-		auto input = CurrentInput();
-		Rect r;
-		r.x = x;
-		r.y = y;
-		r.width = width;
-		r.height = h;
-		
-		// background
-		for (int i = 0; i < count; ++i)
-		{
-			bool inside = input->MouseInRect(r);
-			bool clicked = inside && input->GetMouseButtonUp(MouseButton::Left);
-			bool pushed = clicked || (inside && (input->GetMouseButton(MouseButton::Left)));
-			buttons[i].outClicked = clicked;
-			if (clicked)
-				buttons[i].active = !buttons[i].active;
-			r.x += width;
-			
-			if (!buttons[i].active)
-				continue;
-			nvgScissor(ctx, x+width*i, y, width, h);
-			colorTop = theme->buttonGradientTopFocused;
-			colorBot = theme->buttonGradientBotFocused;
-			if (pushed)
-			{
-				colorTop = theme->buttonGradientTopPushed;
-				colorBot = theme->buttonGradientBotPushed;
-			}
-			bg = nvgLinearGradient(ctx, x, y, x, y + h, colorTop, colorBot);
-			// nvgBeginPath(ctx);
-			nvgFillPaint(ctx, bg);
-			nvgFill(ctx);
-			nvgResetScissor(ctx);
-		}
-		
-		auto black = nvgRGB(0, 0, 0);
-		nvgBeginPath(ctx);
-		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
-		nvgStrokeColor(ctx, black);
-		nvgStroke(ctx);
-		
-		for (int i = 1; i < count; ++i)
-		{
-			int xx = x + width*i;
-			DrawLine(context, xx, y, xx, y+h, black);
-		}
-		
-//		nvgFontSize(ctx, theme->standardFontSize);
-//		nvgFontFace(ctx, "ui");
-//		nvgFillColor(ctx, theme->textColor);
-		nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-		y += h*0.5f;
-		x += width/2;
-		for (int i = 0; i < count; ++i)
-		{
-			nvgFillColor(ctx, buttons[i].fontColor);
-			nvgText(ctx, x, y, buttons[i].text, NULL);
-			x += width;
-			r.x += width;
-		}
-	}
-	
-	void SegmentedButtons(int count, SegmentedButton buttons[], const Rect& r)
-	{
-		auto ctx = GetDrawContext();
-		DrawSegmentedButtons(ctx, count, buttons, r.x, r.y, r.width, r.height);
-	}
-	 */
 }

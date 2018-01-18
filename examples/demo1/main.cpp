@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cassert>
 #include <iostream>
+#include <sstream>
 
 #include <FishGUI/FishGUI.hpp>
 #include <FishGUI/Window.hpp>
@@ -118,7 +119,8 @@ int main()
 	FishGUI::Vector3f scale{1, 1, 1};
 	
 	win->SetToolBar(new UnityToolBar());
-	win->SetStatusBar(new StatusBar());
+	auto statusBar = new StatusBar();
+	win->SetStatusBar(statusBar);
 	
 	float fov = 60;
 //	float near = 0.3f;
@@ -141,20 +143,27 @@ int main()
 		FishGUI::Slider("Field of View", fov, 1, 179);
 		if (FishGUI::CheckBox("Allow HDR", allowHDR))
 		{
-			printf("value of [Allow HDR] is changed\n");
+			//printf("value of [Allow HDR] is changed\n");
+			statusBar->SetText("value of[Allow HDR] is changed");
 		}
 		FishGUI::CheckBox("Allow MSAA", allowMSAA);
 		FishGUI::CheckBox("Allow Dynamic Resolution", allowDynamicResolution);
 		FishGUI::EndGroup();
 		
-//		FishGUI::InputText("Email", email);
-//		float value = 0.4f;
-//		FishGUI::Slider("Diameter", value, 0.0f, 1.0f);
+		FishGUI::Group("Test");
+		FishGUI::InputText("Email", email);
+		//float value = 0.4f;
+		//FishGUI::Slider("Diameter", value, 0.0f, 1.0f);
+		FishGUI::EndGroup();
 		for (int i = 0; i < 20; ++i) {
 			std::string text = "button " + std::to_string(i);
 			if (FishGUI::Button(text)) {
-				printf("%s clicked\n", text.c_str());
+			//	printf("%s clicked\n", text.c_str());
+				std::ostringstream sout;
+				sout << "button " << i << " clicked";
+				statusBar->SetText(sout.str());
 			}
+			
 		}
 	};
 	
@@ -164,32 +173,34 @@ int main()
 		FishGUI::InputText("Email", email);
 		FishGUI::Label("AaBbCcDdEeFfGg");
 		if (FishGUI::Button("button 1")) {
-			printf("button 1 clicked\n");
+			//printf("button 1 clicked\n");
+			statusBar->SetText("button 1 clicked");
 		}
 		if (FishGUI::Button("button 2")) {
-			printf("button 2 clicked\n");
+			//printf("button 2 clicked\n");
+			statusBar->SetText("button 2 clicked");
 		}
 	};
 	
-//	project->SetRenderFunction(f1);
-//	dirs->SetRenderFunction(f1);
-//	files->SetRenderFunction(f2);
+
 	inspector->SetRenderFunction(f1);
 	scene->SetRenderFunction(f2);
 	game->SetRenderFunction(f1);
 	
 	scene->SetIsFocused(true);
 	
-//	{
-//		auto win2 = FishGUI::NewWindow("dialog");
-//		auto t = new TabWidget("center");
-//		auto d = new IMWidget2("dialog");
-//		t->AddChild(d);
-//		auto layout = new SimpleLayout();
-//		layout->SetWidget(t);
-//		win2->SetLayout(layout);
-//		d->SetRenderFunction(f1);
-//	}
+#if 0
+	{
+		auto win2 = FishGUI::NewWindow("dialog");
+		auto t = new TabWidget("center");
+		auto d = new IMWidget2("dialog");
+		t->AddChild(d);
+		auto layout = new SimpleLayout();
+		layout->SetWidget(t);
+		win2->SetLayout(layout);
+		d->SetRenderFunction(f1);
+	}
+#endif
 
 	FishGUI::Run();
 	exit(EXIT_SUCCESS);

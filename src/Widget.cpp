@@ -1,6 +1,7 @@
 #include <FishGUI/Widget.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 
 #include <FishGUI/Input.hpp>
@@ -225,5 +226,20 @@ namespace FishGUI
 		else
 			m_splitter.m_pos = rect.y + size1;
 		m_splitter.m_dirty = false;
+	}
+
+	void StatusBar::Draw()
+	{
+		constexpr int leftMargin = 5;
+		//auto input = Input::GetCurrent();
+		//std::ostringstream sout;
+		//sout << "pos(" << input->m_mousePosition.x << ", " << input->m_mousePosition.y << ")";
+		//auto r = m_rect;
+		//r.x += leftMargin;
+		//Label(sout.str(), r);
+
+		auto r = m_rect;
+		r.x += leftMargin;
+		Label(m_text, r);
 	}
 }

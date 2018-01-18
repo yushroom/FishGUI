@@ -99,8 +99,6 @@ namespace FishGUI
 		m_input.m_window = this;
 		m_minSize.width = 200;
 		m_minSize.height = 200;
-//		m_rect.width = width;
-//		m_rect.height = height;
 		
 		GLFWwindow* mainGLFWWindow = nullptr;
 		Window* mainWindow = WindowManager::GetInstance().GetMainWindow();
@@ -148,12 +146,12 @@ namespace FishGUI
 	}
 	
 	
-	void Window::SetDecorated(bool decorated)
-	{
-		assert(m_glfwWindow != nullptr);
-		int v = decorated ? GLFW_TRUE : GLFW_FALSE;
-		glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
-	}
+	//void Window::SetDecorated(bool decorated)
+	//{
+	//	assert(m_glfwWindow != nullptr);
+	//	int v = decorated ? GLFW_TRUE : GLFW_FALSE;
+	//	glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
+	//}
 	
 	
 	void Window::BeforeFrame()
@@ -195,55 +193,6 @@ namespace FishGUI
 //		Image(9, Rect{0, 0, 800, 600});
 	}
 	
-	Widget* FindVisableWidget(std::vector<Widget*>& widgets, int x, int y)
-	{
-		for (auto it = widgets.rbegin(); it != widgets.rend(); ++it)
-		{
-			auto w = *it;
-			if (PointInRect(x, y, w->GetRect()))
-			{
-				return w;
-			}
-		}
-		return nullptr;
-	}
-	
-	void Window::OnMouseEvent(MouseEvent* e)
-	{
-		Widget* newFocused = nullptr;
-		if (e->type() == MouseEvent::Type::MouseButtonPress)
-		{
-			//if (e->button() == MouseButton::Left)
-			{
-				auto p = e->pos();
-				newFocused = FindVisableWidget(m_widgets, p.x, p.y);
-			}
-			if (newFocused != nullptr)
-			{
-				for (auto w : m_widgets)
-				{
-					w->SetIsFocused(false);
-				}
-				newFocused->SetIsFocused(true);
-				m_focusedWidget = newFocused;
-			}
-		}
-		
-		if (m_focusedWidget != nullptr)
-		{
-			m_focusedWidget->OnMouseEvent(e);
-		}
-	}
-	
-	void Window::OnKeyEvent(KeyEvent* e)
-	{
-		if (m_focusedWidget != nullptr)
-		{
-			m_focusedWidget->OnKeyEvent(e);
-		}
-	}
-
-	
 	void Window::AfterFrame()
 	{
 		Context::GetInstance().UnbindWindow();
@@ -272,7 +221,6 @@ namespace FishGUI
 		if (iconified)
 			return;
 		BeforeFrame();
-		//		Widget::Draw();
 		if (m_layout != nullptr)
 		{
 			Rect rect = {0, 0, m_size.width, m_size.height};
@@ -282,6 +230,55 @@ namespace FishGUI
 		AfterFrame();
 	}
 	
+
+	Widget* FindVisableWidget(std::vector<Widget*>& widgets, int x, int y)
+	{
+		for (auto it = widgets.rbegin(); it != widgets.rend(); ++it)
+		{
+			auto w = *it;
+			if (PointInRect(x, y, w->GetRect()))
+			{
+				return w;
+			}
+		}
+		return nullptr;
+	}
+
+	void Window::OnMouseEvent(MouseEvent* e)
+	{
+		Widget* newFocused = nullptr;
+		if (e->type() == MouseEvent::Type::MouseButtonPress)
+		{
+			//if (e->button() == MouseButton::Left)
+			{
+				auto p = e->pos();
+				newFocused = FindVisableWidget(m_widgets, p.x, p.y);
+			}
+			if (newFocused != nullptr)
+			{
+				for (auto w : m_widgets)
+				{
+					w->SetIsFocused(false);
+				}
+				newFocused->SetIsFocused(true);
+				m_focusedWidget = newFocused;
+			}
+		}
+
+		if (m_focusedWidget != nullptr)
+		{
+			m_focusedWidget->OnMouseEvent(e);
+		}
+	}
+
+	void Window::OnKeyEvent(KeyEvent* e)
+	{
+		if (m_focusedWidget != nullptr)
+		{
+			m_focusedWidget->OnKeyEvent(e);
+		}
+	}
+
 	
 	MainWindow::MainWindow(FishGUIContext* context, const char* title, int width, int height)
 	: Window(context, title, width, height)

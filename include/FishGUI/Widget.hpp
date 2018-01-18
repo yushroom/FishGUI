@@ -295,6 +295,14 @@ namespace FishGUI
 		StatusBar& operator=(StatusBar&) = delete;
 
 		virtual void Draw() override;
+
+		void SetText(const std::string& text)
+		{
+			m_text = text;
+		}
+
+	protected:
+		std::string m_text;
 	};
 
 

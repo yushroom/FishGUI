@@ -34,7 +34,7 @@ namespace FishGUI
 		void SetPosition(int x, int y);
 		void SetSize(int width, int height);
 		void SetTitle(const char* title);
-		void SetDecorated(bool decorated);
+		//void SetDecorated(bool decorated);
 		
 		void BeforeFrame();
 		virtual void Draw();
@@ -96,7 +96,7 @@ namespace FishGUI
 		Layout*				m_layout = nullptr;
 //		NVGcontext*			m_nvgContext;
 		
-		// visiable widgets in this frame
+		// visible widgets in this frame
 		std::vector<Widget*> m_widgets;
 		Widget*				m_focusedWidget = nullptr;
 		
