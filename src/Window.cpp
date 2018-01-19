@@ -166,7 +166,17 @@ namespace FishGUI
 	//	glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
 	//}
 	
-	
+	void Window::PreDraw()
+	{
+
+	}
+
+	void Window::AfterDraw()
+	{
+		glfwMakeContextCurrent(m_glfwWindow);
+		glfwSwapBuffers(m_glfwWindow);
+	}
+
 	void Window::BeforeFrame()
 	{
 		Context::GetInstance().BindWindow(this);
@@ -225,7 +235,7 @@ namespace FishGUI
 		
 		nvgEndFrame(GetNVGContext());
 		OverlayDraw();
-		glfwSwapBuffers(m_glfwWindow);
+		//glfwSwapBuffers(m_glfwWindow);
 	}
 	
 	void Window::Draw()
@@ -496,8 +506,10 @@ void main()
 		OverlayDraw();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
-
+	void Dialog::AfterDraw()
+	{
 		int w = m_size.width;
 		int h = m_size.height;
 		glfwMakeContextCurrent(m_glfwWindow);

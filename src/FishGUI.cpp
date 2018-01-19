@@ -321,6 +321,8 @@ namespace FishGUI
 				glfwGetCursorPos(w->GetGLFWWindow(), &mx, &my);
 				input.m_mousePosition.x = int(mx);
 				input.m_mousePosition.y = int(my);
+
+				w->PreDraw();
 			}
 
 			BeforeFrame();
@@ -336,6 +338,7 @@ namespace FishGUI
 			
 			for (auto w : windows)
 			{
+				w->AfterDraw();
 				auto& input = w->GetInput();
 				input.Update();
 			}

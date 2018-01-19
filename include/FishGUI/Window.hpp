@@ -36,18 +36,20 @@ namespace FishGUI
 		void SetTitle(const char* title);
 		//void SetDecorated(bool decorated);
 		
+		virtual void PreDraw();
 		void BeforeFrame();
 		virtual void Draw();
 		void AfterFrame();
+		virtual void AfterDraw();
 		
 		void OnMouseEvent(MouseEvent* e);
 		void OnKeyEvent(KeyEvent* e);
 		
-		void PreDraw()
-		{
-			if (m_preDrawFunction != nullptr)
-				m_preDrawFunction();
-		}
+		//void PreDraw()
+		//{
+		//	if (m_preDrawFunction != nullptr)
+		//		m_preDrawFunction();
+		//}
 		
 		void OverlayDraw()
 		{
@@ -154,6 +156,8 @@ namespace FishGUI
 		~Dialog();
 
 		virtual void Draw() override;
+
+		virtual void AfterDraw() override;
 
 	protected:
 
