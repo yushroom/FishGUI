@@ -96,13 +96,19 @@ namespace FishGUI
 		input.m_scroll.y = static_cast<float>(yoffset*6);
 	}
 	
+	void glfwWindowResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		auto win = WindowManager::GetInstance().FindWindow(window);
+		win->OnResize(width, height);
+	}
+
 	void glfwBindWindowCallbacks(GLFWwindow* window)
 	{
 		glfwSetKeyCallback(window, glfwKeyCallback);
 		glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
 		glfwSetScrollCallback(window, glfwScrollCallback);
 		glfwSetCharCallback(window, glfwCharCallback);
-//		glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
+		glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
 //		glfwSetglfwWindowFocusCallback(window, glfwWindowFocusCallback);
 	}
 	
@@ -124,6 +130,7 @@ namespace FishGUI
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
+		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
 		
 		glfwBindWindowCallbacks(m_glfwWindow);
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
@@ -177,6 +184,7 @@ namespace FishGUI
 		glfwSwapBuffers(m_glfwWindow);
 	}
 
+
 	void Window::BeforeFrame()
 	{
 		Context::GetInstance().BindWindow(this);
@@ -184,35 +192,35 @@ namespace FishGUI
 		
 		m_isFocused = (glfwGetWindowAttrib(m_glfwWindow, GLFW_FOCUSED) == 1);
 		
-		int width = m_size.width;
-		int height = m_size.height;
-		int fbWidth = m_size.width;
-		int fbHeight = m_size.height;
-		glfwGetWindowSize(m_glfwWindow, &width, &height);
-		glfwGetFramebufferSize(m_glfwWindow, &fbWidth, &fbHeight);
+		//int width = m_size.width;
+		//int height = m_size.height;
+		//int fbWidth = m_size.width;
+		//int fbHeight = m_size.height;
+		//glfwGetWindowSize(m_glfwWindow, &width, &height);
+		//glfwGetFramebufferSize(m_glfwWindow, &fbWidth, &fbHeight);
 		
-		m_size.width = width;
-		m_size.height = height;
+		//m_size.width = width;
+		//m_size.height = height;
 		
 		m_widgets.clear();
 		
-		glViewport(0, 0, fbWidth, fbHeight);
+		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
 		float bck = 162 / 255.0f;
 		glClearColor(bck, bck, bck, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
-		float ratio = float(fbWidth) / width;
+		float ratio = float(m_framebufferSize.width) / m_size.width;
 		
 		PreDraw();
 //		glfwSwapBuffers(m_glfwWindow);
 		
-		glViewport(0, 0, fbWidth, fbHeight);
+		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
 		glClearColor(bck, bck, bck, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
 		Context::GetInstance().m_drawContext->vg = this->GetNVGContext();
 		Context::GetInstance().m_input = &m_input;
-		nvgBeginFrame(GetNVGContext(), width, height, ratio);
+		nvgBeginFrame(GetNVGContext(), m_size.width, m_size.height, ratio);
 //		Image(9, Rect{0, 0, 800, 600});
 	}
 	
@@ -265,6 +273,16 @@ namespace FishGUI
 			}
 		}
 		return nullptr;
+	}
+
+
+	void Window::OnResize(int w, int h)
+	{
+		if (m_size.width == w && m_size.height == h)
+			return;
+		m_size.width = w;
+		m_size.height = h;
+		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
 	}
 
 	void Window::OnMouseEvent(MouseEvent* e)
@@ -400,18 +418,22 @@ void main()
 		{
 			screenShader = new Shader(screenVS, screenFS);
 		}
+
+		int fbw = m_framebufferSize.width;
+		int fbh = m_framebufferSize.height;
+
 		glGenFramebuffers(1, &m_framebuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 		glGenTextures(1, &m_colorbuffer);
 		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbw, fbh, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorbuffer, 0);
 
 		glGenRenderbuffers(1, &m_renderbuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbw, fbh);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderbuffer);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -465,6 +487,20 @@ void main()
 	}
 
 
+	void Dialog::OnResize(int w, int h)
+	{
+		Window::OnResize(w, h);
+		int fbw = m_framebufferSize.width;
+		int fbh = m_framebufferSize.height;
+		
+		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbw, fbh, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbw, fbh);
+	}
+
 	void Dialog::BindMainContext()
 	{
 		auto w = WindowManager::GetInstance().GetMainWindow()->GetGLFWWindow();
@@ -510,11 +546,9 @@ void main()
 
 	void Dialog::AfterDraw()
 	{
-		int w = m_size.width;
-		int h = m_size.height;
 		glfwMakeContextCurrent(m_glfwWindow);
-		glViewport(0, 0, w, h);
-		glClearColor(1, 0, 0, 1);
+		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
+		glClearColor(1, 0, 0, 1);	// error color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		screenShader->Use();
 		screenShader->SetInt("screenTexture", 0);

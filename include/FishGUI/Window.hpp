@@ -23,7 +23,7 @@ namespace FishGUI
 		
 		virtual ~Window();
 		
-		float PixelRatio() const { return float(m_frameBufferSize.width) / m_size.width; }
+		float PixelRatio() const { return float(m_framebufferSize.width) / m_size.width; }
 		
 		GLFWwindow * GetGLFWWindow() { return m_glfwWindow; }
 		FishGUIContext* GetContext() { return m_context; }
@@ -42,6 +42,7 @@ namespace FishGUI
 		void AfterFrame();
 		virtual void AfterDraw();
 		
+		virtual void OnResize(int w, int h);
 		void OnMouseEvent(MouseEvent* e);
 		void OnKeyEvent(KeyEvent* e);
 		
@@ -91,7 +92,7 @@ namespace FishGUI
 		Size				m_minSize = {16, 16};
 		Size				m_maxSize = {4096, 4096};
 		Vector2i			m_position;
-		Size 				m_frameBufferSize;
+		Size 				m_framebufferSize;
 		GLFWwindow* 		m_glfwWindow;
 		Input				m_input;
 		FishGUIContext*		m_context;
@@ -155,8 +156,8 @@ namespace FishGUI
 
 		~Dialog();
 
+		virtual void OnResize(int w, int h);
 		virtual void Draw() override;
-
 		virtual void AfterDraw() override;
 
 	protected:
