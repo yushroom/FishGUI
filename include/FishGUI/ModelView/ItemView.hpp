@@ -6,6 +6,8 @@
 #include <FishGUI/Input.hpp>
 #include <GLFW/glfw3.h>
 
+#include "../Icon.hpp"
+
 namespace FishGUI
 {
 	template<class T>
@@ -16,6 +18,7 @@ namespace FishGUI
 		virtual T ChildAt(int index, T parent) const = 0;
 		virtual int ChildCount(T item) const = 0;
 		virtual std::string Text(T item) const = 0;
+		virtual const FishGUI::Icon* Icon(T item) const { return nullptr; }
 	};
 
 	

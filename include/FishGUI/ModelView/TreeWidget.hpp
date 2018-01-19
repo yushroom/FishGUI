@@ -114,13 +114,6 @@ namespace FishGUI
 				{
 					bool insidePreicon = PointInRect(e->pos(), preiconRect);
 					clickedPreicon = insidePreicon && e->type() == MouseEvent::Type::MouseButtonPress;
-//					bool inside = (!insidePreicon) && PointInRect(e->pos(), totalCellRect);
-//					bool clicked = inside && e->type() == MouseEvent::Type::MouseButtonPress;
-
-					//if (clicked)
-					//{
-					//	m_selectionModel.OnItemClicked(go, e);
-					//}
 				}
 
 				bool selected = m_selectionModel.IsSelected(go);
@@ -160,18 +153,13 @@ namespace FishGUI
 				}
 				rect.x += preiconWidth;
 
-				//auto icon = m_model.icon(go);
-				//if (icon != nullptr)
-				//{
-				//	x += iconWidth / 2 + 3;
-				//	nvgFontSize(ctx, (float)icon->fontSize);
-				//	nvgFontFace(ctx, icon->fontFace);
-				//	nvgFillColor(ctx, theme->textColor);
-				//	nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-				//	nvgText(ctx, (float)x, (float)y, icon->fontText.c_str(), nullptr);
-
-				//	rect.x += 14;
-				//}
+				auto icon = m_model->Icon(go);
+				if (icon != nullptr)
+				{
+					x += iconWidth / 2 + 3;
+					icon->Draw(Context::GetInstance().m_drawContext, Rect{x, y, 20, rect.height});
+					rect.x += 14;
+				}
 
 				// text
 //				rect.x += 2;

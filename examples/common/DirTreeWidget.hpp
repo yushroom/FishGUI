@@ -1,6 +1,7 @@
 #pragma once
 
 #include <FishGUI/ModelView/TreeWidget.hpp>
+#include <FishGUI/Icon.hpp>
 #include "FileNode.hpp"
 
 #include <iostream>
@@ -32,12 +33,12 @@ public:
 		return item->fileName;
 	}
 
-	//inline const FontIcon*	icon(FileNode* item) const
-	//{
-	//	static char icon[8];
-	//	static FontIcon folderIcon = { CodePointToUTF8(0xe930, icon), 12, "ui" };
-	//	return &folderIcon;
-	//}
+	inline const FishGUI::Icon*	Icon(FileNode* item) const override
+	{
+		static char icon[8];
+		static FishGUI::FontIcon folderIcon { CodePointToUTF8(0xe930, icon), 12.0f, "ui" };
+		return &folderIcon;
+	}
 };
 
 
