@@ -7,15 +7,6 @@ struct NVGcontext;
 
 namespace FishGUI
 {
-	enum class DockPosition
-	{
-		Left,
-		Right,
-		Top,
-		Bottom,
-		Center,
-	};
-
 	struct FishGUIContext
 	{
 		NVGcontext *	m_nvgContext = nullptr;
@@ -87,6 +78,3 @@ namespace FishGUI
 	// useful widgets
 	void Float3(const std::string & label, float& x, float& y, float& z);
 }
-
-void _checkOpenGLError(const char *file, int line);
-#define glCheckError() _checkOpenGLError(__FILE__,__LINE__);

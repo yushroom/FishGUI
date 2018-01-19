@@ -1,18 +1,7 @@
 #pragma warning(push)
 #pragma warning(disable : 4244)
 
-#ifdef _WIN32
-	#define GLEW_STATIC
-	#include <GL/glew.h>
-#elif defined(__APPLE__)
-	#include <OpenGL/gl3.h>
-	#include <OpenGL/gl3ext.h>
-	#define GLFW_INCLUDE_GLCOREARB
-#else
-	#define GLEW_STATIC
-	#include <GL/glew.h>
-#endif
-
+#include <FishGUI/GLEnvironment.hpp>
 #include <FishGUI/Draw.hpp>
 #include "nanovg.h"
 #define NANOVG_GL3_IMPLEMENTATION

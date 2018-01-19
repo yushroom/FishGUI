@@ -1,13 +1,4 @@
-#ifdef __APPLE__
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#define GLFW_INCLUDE_GLCOREARB
-#else
-#define GLEW_STATIC
-#include <GL/glew.h>
-#endif
-
-
+#include <FishGUI/GLEnvironment.hpp>
 #include <GLFW/glfw3.h>
 
 #include <FishGUI/Draw.hpp>
@@ -19,6 +10,7 @@
 #include <FishGUI/Input.hpp>
 #include <FishGUI/Window.hpp>
 #include <FishGUI/Widget.hpp>
+#include <FishGUI/Utils.hpp>
 
 #include <sstream>
 #include <vector>
@@ -26,38 +18,36 @@
 #include <chrono>
 #include <iostream>
 
-#include <FishGUI/Utils.hpp>
-
 using namespace std::chrono_literals;
 
-void _checkOpenGLError(const char *file, int line)
+namespace FishGUI
 {
-	GLenum err = glGetError();
-
-	while (err != GL_NO_ERROR)
+	void _checkOpenGLError(const char *file, int line)
 	{
-		const char* error;
+		GLenum err = glGetError();
 
-		switch (err)
+		while (err != GL_NO_ERROR)
 		{
+			const char* error;
+
+			switch (err)
+			{
 			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
 			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
 			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
 			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
 			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
 			default:                        error = "UNKNOWN_ERROR";
+			}
+
+			//		LogError(Format("GL_%1% - %2%:%3%", error, file, line));
+			printf("[%d] GL_%s\n", line, error);
+			err = glGetError();
 		}
-
-		//		LogError(Format("GL_%1% - %2%:%3%", error, file, line));
-		printf("[%d] GL_%s\n", line, error);
-		err = glGetError();
 	}
-}
 
-//#define glCheckError() _checkOpenGLError(__FILE__,__LINE__)
 
-namespace FishGUI
-{
+
 	Context::Context()
 	{
 		m_drawContext = new DrawContext();
