@@ -166,10 +166,10 @@ namespace FishGUI
 	//	glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
 	//}
 	
-	void Window::PreDraw()
-	{
+	//void Window::PreDraw()
+	//{
 
-	}
+	//}
 
 	void Window::AfterDraw()
 	{
@@ -184,16 +184,6 @@ namespace FishGUI
 		//glfwMakeContextCurrent(m_glfwWindow);
 		
 		m_isFocused = (glfwGetWindowAttrib(m_glfwWindow, GLFW_FOCUSED) == 1);
-		
-		//int width = m_size.width;
-		//int height = m_size.height;
-		//int fbWidth = m_size.width;
-		//int fbHeight = m_size.height;
-		//glfwGetWindowSize(m_glfwWindow, &width, &height);
-		//glfwGetFramebufferSize(m_glfwWindow, &fbWidth, &fbHeight);
-		
-		//m_size.width = width;
-		//m_size.height = height;
 		
 		m_widgets.clear();
 		
@@ -214,7 +204,6 @@ namespace FishGUI
 		Context::GetInstance().m_drawContext->vg = this->GetNVGContext();
 		Context::GetInstance().m_input = &m_input;
 		nvgBeginFrame(GetNVGContext(), m_size.width, m_size.height, ratio);
-//		Image(9, Rect{0, 0, 800, 600});
 	}
 	
 	void Window::AfterFrame()
@@ -436,7 +425,7 @@ void main()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glCheckError();
+		//glCheckError();
 
 		glfwMakeContextCurrent(m_glfwWindow);
 
@@ -464,7 +453,7 @@ void main()
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		glCheckError();
+		//glCheckError();
 	}
 
 	Dialog::~Dialog()
@@ -476,7 +465,7 @@ void main()
 		glfwMakeContextCurrent(m_glfwWindow);
 		glDeleteVertexArrays(1, &m_quadVAO);
 		glDeleteBuffers(1, &m_quadVBO);
-		glCheckError();
+		//glCheckError();
 	}
 
 
@@ -549,7 +538,7 @@ void main()
 		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);	// use the color attachment texture as the texture of the quad plane
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glfwSwapBuffers(m_glfwWindow);
-		glCheckError();
+		//glCheckError();
 	}
 
 }

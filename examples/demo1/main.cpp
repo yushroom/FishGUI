@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <FishGUI/GLEnvironment.hpp>
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
@@ -12,6 +13,8 @@
 #include "../common/HierarchyWidget.hpp"
 #include "../common/DirTreeWidget.hpp"
 #include "../common/FileListWidget.hpp"
+
+#include "../common/SceneViewWidget.hpp"
 
 using namespace FishGUI;
 
@@ -96,7 +99,7 @@ int main()
 	auto center = new TabWidget("center");
 	center->SetWidth(500);
 	center->SetMinSize(150, 150);
-	auto scene = new IMWidget2("Scene");
+	auto scene = new SceneViewWidget("Scene");
 	auto game = new IMWidget2("Game");
 	auto assetStore = new IMWidget2("Asset Store");
 	center->AddChild(scene);
@@ -184,16 +187,17 @@ int main()
 	
 
 	inspector->SetRenderFunction(f1);
-	scene->SetRenderFunction(f2);
 	game->SetRenderFunction(f1);
-	
 	scene->SetIsFocused(true);
+	win->SetPreDraw([scene]() {
+		scene->RenderScene();
+	});
 	
-#if 1
+#if 0
 	{
-		auto win2 = FishGUI::NewWindow("dialog");
+		auto win2 = FishGUI::NewWindow("Dialog");
 		auto t = new TabWidget("center");
-		auto d = new IMWidget2("dialog");
+		auto d = new IMWidget2("Dialog");
 		t->AddChild(d);
 		auto layout = new SimpleLayout();
 		layout->SetWidget(t);

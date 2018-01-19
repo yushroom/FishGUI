@@ -5,7 +5,9 @@
 #include <OpenGL/gl3ext.h>
 #define GLFW_INCLUDE_GLCOREARB
 #else
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 #endif
 

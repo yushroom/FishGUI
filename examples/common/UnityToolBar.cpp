@@ -1,3 +1,4 @@
+#include <FishGUI/GLEnvironment.hpp>
 #include "UnityToolBar.hpp"
 #include <FishGUI/FishGUI.hpp>
 

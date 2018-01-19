@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <glm/glm.hpp>
 
 namespace FishGUI
 {
@@ -21,7 +22,7 @@ namespace FishGUI
 		// ------------------------------------------------------------------------
 		void SetFloat(const std::string &name, float value) const;
 		// ------------------------------------------------------------------------
-#if 0
+#if 1
 		void setVec2(const std::string &name, const glm::vec2 &value) const;
 		void setVec2(const std::string &name, float x, float y) const;
 		// ------------------------------------------------------------------------

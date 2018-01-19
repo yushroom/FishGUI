@@ -67,7 +67,7 @@ namespace FishGUI
 		nvgBeginPath(ctx);
 		nvgFillColor(ctx, textColor);
 		nvgFontSize(ctx, theme->tabHeaderFontSize);
-		nvgFontFace(ctx, "sans");
+		nvgFontFace(ctx, "sans-bold");
 		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 		nvgText(ctx, textX, textY, text, nullptr);
 	}

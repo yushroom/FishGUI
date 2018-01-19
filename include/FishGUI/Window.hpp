@@ -36,7 +36,7 @@ namespace FishGUI
 		void SetTitle(const char* title);
 		//void SetDecorated(bool decorated);
 		
-		virtual void PreDraw();
+		//virtual void PreDraw() {};
 		void BeforeFrame();
 		virtual void Draw();
 		void AfterFrame();
@@ -46,11 +46,11 @@ namespace FishGUI
 		void OnMouseEvent(MouseEvent* e);
 		void OnKeyEvent(KeyEvent* e);
 		
-		//void PreDraw()
-		//{
-		//	if (m_preDrawFunction != nullptr)
-		//		m_preDrawFunction();
-		//}
+		void PreDraw()
+		{
+			if (m_preDrawFunction != nullptr)
+				m_preDrawFunction();
+		}
 		
 		void OverlayDraw()
 		{
