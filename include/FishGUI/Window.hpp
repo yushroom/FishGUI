@@ -142,7 +142,30 @@ namespace FishGUI
 		StatusBar* 	m_statusBar = nullptr;
 	};
 
-	
+	class Dialog : public Window
+	{
+	public:
+		Dialog(FishGUIContext* context, const char* title, int width, int height);
+		
+		// noncopyable
+		Dialog(const Dialog&) = delete;
+		Dialog& operator=(const Dialog&) = delete;
+
+		~Dialog();
+
+		virtual void Draw() override;
+
+	protected:
+
+		void BindMainContext();
+
+		unsigned int m_framebuffer;
+		unsigned int m_colorbuffer;
+		unsigned int m_renderbuffer;
+		unsigned int m_quadVAO;
+		unsigned int m_quadVBO;
+	};
+
 	class WindowManager
 	{
 	public:
@@ -152,9 +175,15 @@ namespace FishGUI
 			return mgr;
 		}
 
-		WindowManager() = default;
-		WindowManager(WindowManager&) = delete;
-		WindowManager& operator=(WindowManager&) = delete;
+		void Clear()
+		{
+			while (m_windows.size() > 1)
+			{
+				auto w = m_windows.back();
+				m_windows.pop_back();
+				delete w;
+			}
+		}
 		
 		std::list<Window*>& GetWindows()
 		{
@@ -195,5 +224,10 @@ namespace FishGUI
 		}
 		
 		std::list<Window*> m_windows;
+
+	private:
+		WindowManager() = default;
+		WindowManager(WindowManager&) = delete;
+		WindowManager& operator=(WindowManager&) = delete;
 	};
 }

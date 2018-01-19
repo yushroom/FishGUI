@@ -189,7 +189,7 @@ int main()
 	
 	scene->SetIsFocused(true);
 	
-#if 0
+#if 1
 	{
 		auto win2 = FishGUI::NewWindow("dialog");
 		auto t = new TabWidget("center");

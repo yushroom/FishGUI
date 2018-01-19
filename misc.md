@@ -4,6 +4,8 @@ TODO
 
 - [x] 鼠标事件在不同widget之间的分发
 
+- [ ] 把MainWindow变成单例？
+
 - [x] 提取TreeView，最好是模板
 
 - [ ] theme里面去掉NVGcolor
@@ -95,6 +97,10 @@ https://icomoon.io/app/#/select
 
    最终的方案：目前看来是[buffer object streaming](https://www.khronos.org/opengl/wiki/Buffer_Object_Streaming)，所以加了动态调整buffer大小（只变大，不变小）
 
+   2018/1/19更新：由于windows下opengl shared context不共享vao, 所以这个做法失效。新的方法是所有的buffer，texture，vao，fbo之类的全部在mainwindow的context下产生，其他window全部off  screen渲染到各自的framebuffer（注意这些framebuffer和attachment要在mainWindow的context下创建）。之后再把framebuffer的colorbuffer贴到窗口上，注意这一步中需要一个quad，这个quad的vao和vbo要在这个window的context下独立创建，讲道理vbo可以共享，但是为简单期间就这么做了。
+
+   ​
+
 2. 窗口不可见的时候，cpu突然升高
 
    https://stackoverflow.com/questions/23550423/high-cpu-usage-when-glfw-opengl-window-isnt-visible
@@ -104,3 +110,7 @@ https://icomoon.io/app/#/select
 3. resize tab 
 
 4. 处理鼠标事件时注意：触摸板的轻点的鼠标事件中press和release是一起触发的，button的click事件在release的时候触发
+
+5. OpenGL shared context的坑：
+
+   windows下不共享vao，fbo，跨context bind的时候会报INVALID_OPERATION

@@ -87,3 +87,6 @@ namespace FishGUI
 	// useful widgets
 	void Float3(const std::string & label, float& x, float& y, float& z);
 }
+
+void _checkOpenGLError(const char *file, int line);
+#define glCheckError() _checkOpenGLError(__FILE__,__LINE__);

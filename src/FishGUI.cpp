@@ -55,7 +55,7 @@ void _checkOpenGLError(const char *file, int line)
 	}
 }
 
-#define glCheckError() _checkOpenGLError(__FILE__,__LINE__)
+//#define glCheckError() _checkOpenGLError(__FILE__,__LINE__)
 
 namespace FishGUI
 {
@@ -218,7 +218,7 @@ namespace FishGUI
 	Window* NewWindow(const char* title)
 	{
 		auto context = WindowManager::GetInstance().GetMainWindow()->GetContext();
-		auto window = new Window(context, title, 400, 400);
+		auto window = new Dialog(context, title, 400, 400);
 		WindowManager::GetInstance().m_windows.push_back(window);
 		return window;
 	}
@@ -247,7 +247,9 @@ namespace FishGUI
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 #endif
+#ifdef __APPLE__
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 //		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
@@ -321,10 +323,11 @@ namespace FishGUI
 				input.m_mousePosition.x = int(mx);
 				input.m_mousePosition.y = int(my);
 			}
-			
+
 			BeforeFrame();
 			for (auto w : windows)
 			{
+				glfwMakeContextCurrent(mainWindow->GetGLFWWindow());
 				auto& input = w->GetInput();
 				Input::SetCurrent(&input);
 				w->Draw();
@@ -371,6 +374,8 @@ namespace FishGUI
 			//glCheckError();
 		}
 		
+		WindowManager::GetInstance().Clear();
+
 		glfwDestroyWindow(mainWindow->GetGLFWWindow());
 		glfwTerminate();
 	}
