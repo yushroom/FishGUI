@@ -34,7 +34,24 @@ namespace FishGUI
 		virtual void Render() override
 		{
 			assert(m_model != nullptr);
-			Cell(m_root);
+			
+			if (m_root == nullptr)
+			{
+				// null can also have children
+//				Indent(10);
+				if (m_model->ChildCount(nullptr) > 0)
+				{
+					for (int i = 0; i < m_model->ChildCount(nullptr); ++i)
+					{
+						Cell(m_model->ChildAt(i, nullptr));
+					}
+				}
+//				Unindent(10);
+			}
+			else
+			{
+				Cell(m_root);
+			}
 			
 			// handle aditional keyEvent
 			auto e = this->m_keyEvent;
