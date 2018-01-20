@@ -28,18 +28,17 @@ if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
 
+# glfw
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+ADD_SUBDIRECTORY(${CMAKE_CURRENT_LIST_DIR}/ThirdParty/glfw/)
+SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "ThirdParty")
 
-if (NOT WIN32)
-	# boost
-	set(Boost_USE_STATIC_LIBS       ON)
-	set(Boost_USE_MULTITHREADED     ON)
-	set(Boost_USE_STATIC_RUNTIME    OFF)
-	find_package(Boost 1.58 REQUIRED COMPONENTS system filesystem)
-	include_directories(${Boost_INCLUDE_DIRS})
-	MESSAGE("Found Boost: " ${Boost_INCLUDE_DIRS})
-endif()
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+include_directories( ${CMAKE_CURRENT_LIST_DIR}/include )
 # include_directories(./src)
 include_directories( ${CMAKE_CURRENT_LIST_DIR}/ThirdParty )
 include_directories( ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/nanovg )
@@ -66,49 +65,5 @@ add_library(FishGUI STATIC ${SRCS} ${HEADERS} ${NANO_VG_SRCS} ${NANO_VG_HEADERS}
 
 
 if (FISHGUI_BUILD_EXAMPLES)
-	# glfw
-	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-	ADD_SUBDIRECTORY(./ThirdParty/glfw/)
-	SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "ThirdParty")
-
-	if (APPLE)
-		file( GLOB FONTS ${CMAKE_CURRENT_LIST_DIR}/resources/fonts/*.ttf)
-		set( RESOURCES ${FONTS} )
-		# set_source_files_properties(Demo PROPERTIES MACOSX_PACKAGE_LOCATION fonts)
-	endif()
-
-	FILE(GLOB_RECURSE EXAMPLES_COMMON ${CMAKE_CURRENT_LIST_DIR}/examples/common/*.hpp ${CMAKE_CURRENT_LIST_DIR}/examples/common/*.cpp)
-	FILE(GLOB_RECURSE DEMO_SRC ${CMAKE_CURRENT_LIST_DIR}/examples/demo1/*)
-	add_executable(Demo MACOSX_BUNDLE ${DEMO_SRC} ${EXAMPLES_COMMON} ${RESOURCES})
-	set_target_properties(Demo PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_LIST_DIR}/cmake/MacOSXBundleInfo.plist.in)
-
-	source_group("common" FILES ${EXAMPLES_COMMON})
-	source_group("Resources" FILES ${RESOURCES})
-
-	target_link_libraries(Demo FishGUI glfw)
-	# target_link_libraries(Demo ${Boost_LIBRARIES})
-
-	if (WIN32)
-		target_link_libraries(Demo opengl32.lib)
-		target_link_libraries(Demo glew_s)
-	endif()
-	if (APPLE)
-		target_link_libraries(Demo ${Boost_LIBRARIES})
-		set_target_properties(Demo PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
-		# file( GLOB FONTS ${CMAKE_CURRENT_LIST_DIR}/resources/fonts/*.ttf)
-		set_source_files_properties(${RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
-	endif()
-	if (LINUX)
-		target_link_libraries(Demo ${Boost_LIBRARIES})
-		target_link_libraries(Demo glew_s)
-	endif()
-
-	if (NOT APPLE)
-		# copy fonts
-		add_custom_command(TARGET Demo POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/resources/fonts $<TARGET_FILE_DIR:Demo>/fonts)
-	endif()
+	add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/examples)
 endif() # FISHGUI_BUILD_EXAMPLES
