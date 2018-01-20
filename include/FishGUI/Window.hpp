@@ -156,7 +156,7 @@ namespace FishGUI
 
 		~Dialog();
 
-		virtual void OnResize(int w, int h);
+		virtual void OnResize(int w, int h) override;
 		virtual void Draw() override;
 		virtual void AfterDraw() override;
 
