@@ -8,10 +8,6 @@
 
 namespace FishGUI
 {
-	struct FishGUIContext;
-	struct Theme;
-	class Layout;
-
 	enum class Alignment : uint8_t
 	{
 		Minimum = 0,	// Take only as much space as is required.
@@ -26,6 +22,9 @@ namespace FishGUI
 		Vertical,
 	};
 
+	struct FishGUIContext;
+	struct Theme;
+	class Layout;
 	struct KeyEvent;
 	struct MouseEvent;
 	
@@ -36,11 +35,15 @@ namespace FishGUI
 		{
 		}
 
+		// non copyable
+		Widget(const Widget&) = delete;
+		const Widget& operator=(const Widget&) = delete;
+
 		virtual ~Widget() = default;
 
 		const std::string& GetName() const { return m_name; }
+		void SetName(const std::string& name) { m_name = name; }
 
-//		FishGUIContext* GetContext() const { return m_context; }
 		Theme* GetTheme() { return m_theme; }
 		void SetTheme(Theme* theme) { m_theme = theme; }
 		
@@ -54,10 +57,7 @@ namespace FishGUI
 		Layout* GetLayout() { return m_layout; }
 		void SetLayout(Layout* layout);
 
-		const Rect & GetRect() const
-		{
-			return m_rect;
-		}
+		const Rect & GetRect() const { return m_rect; }
 		void SetRect(int x, int y, int w, int h)
 		{
 			m_rect.x = x;
@@ -66,48 +66,25 @@ namespace FishGUI
 			m_rect.height = h;
 		}
 
-		//Alignment	GetAlignment() { return m_alignment; }
-		//void		SetAlignment(Alignment alignment) { m_alignment = alignment; }
+		bool IsFocused() const { return m_isFocused; }
+		void SetIsFocused(bool focused) { m_isFocused = focused; }
 
 		virtual void Draw();
+		void BindAndDraw();
 
-		//virtual void AddChild(int index, Widget * widget);
-		//void AddChild(Widget * child) { m_children.push_back(child); }
+		void OnKeyEvent(KeyEvent* e) { m_keyEvent = e; };
+		void OnMouseEvent(MouseEvent* e) { m_mouseEvent = e; };
 
-		virtual bool MouseButtonEvent(const Vector2i & p, int button, bool down, int modifiers)
-		{
-			return false;
-		}
-
-		virtual bool MouseMotionEvent(const Vector2i & p, const Vector2i & rel, int button, int modifiers)
-		{
-			return false;
-		}
+		//virtual bool MouseMotionEvent(const Vector2i & p, const Vector2i & rel, int button, int modifiers)
+		//{
+		//	return false;
+		//}
 
 		// virtual bool MouseDragEvent(const Vector2i & p, const Vector2i & rel, int button, int modifiers)
 		virtual bool MouseDragEvent(const Vector2i & mousePos)
 		{
 			return false;
 		}
-		
-		void BindAndDraw();
-		
-//		virtual void OverlayDraw()
-//		{
-//		}
-		
-		bool IsFocused() const
-		{
-			return m_isFocused;
-		}
-		
-		void SetIsFocused(bool focused)
-		{
-			m_isFocused = focused;
-		}
-		
-		void OnKeyEvent(KeyEvent* e) { m_keyEvent = e; };
-		void OnMouseEvent(MouseEvent* e) { m_mouseEvent = e; };
 
 	protected:
 		friend class Layout;
@@ -116,17 +93,13 @@ namespace FishGUI
 		friend class HLayout;
 		friend class VLayout;
 
-//		FishGUIContext* 	m_context = nullptr;
 		Theme*				m_theme = nullptr;
-		//Widget*				m_parent = nullptr;
 		Layout * 			m_layout = nullptr;
 		std::string 		m_name;
 		Rect 				m_rect = {0, 0, 1, 1};
 		Size				m_fixedSize = { -1, -1 };
 		Size				m_minSize = { 1, 1 };
 		Size				m_maxSize = { 4096, 4096 };
-		//Alignment			m_alignment = Alignment::Fill;
-		//std::vector<Widget *> m_children;
 		
 		// a focused widget is the first responder of keyboard event
 		bool				m_isFocused = false;
@@ -269,7 +242,7 @@ namespace FishGUI
 	typedef std::function<void(void)> RenderFunction;
 
 	
-	// abstract supter class for tool bar
+	// abstract super class for tool bar
 	class ToolBar : public Widget
 	{
 	public:
@@ -350,6 +323,7 @@ namespace FishGUI
 	protected:
 		IMGUIContext*	m_imContext;
 	};
+
 	
 	struct IMGUIContext
 	{
@@ -363,7 +337,7 @@ namespace FishGUI
 		int ymargin = 2;
 		static constexpr int Indent = 10;
 		
-		// scroll bar status depends on last farme status
+		// scroll bar status depends on last frame status
 		bool showScrollBar = false;
 		bool needScrollBar = false;
 		static constexpr int scrollBarWidth = 10;

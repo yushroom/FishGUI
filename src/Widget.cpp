@@ -7,6 +7,7 @@
 #include <FishGUI/Input.hpp>
 #include <FishGUI/FishGUI.hpp>
 #include <FishGUI/Draw.hpp>
+#include <FishGUI/Theme.hpp>
 
 namespace FishGUI
 {
@@ -32,8 +33,6 @@ namespace FishGUI
 		if (m_layout == nullptr)
 			return;
 		m_layout->PerformLayout(m_rect);
-		//for (auto child : m_children)
-		//	child->Draw();
 	}
 
 	void Widget::SetLayout(Layout* layout)
@@ -50,6 +49,7 @@ namespace FishGUI
 		m_widget->BindAndDraw();
 	}
 
+
 	bool Splitter::MouseDragEvent(const Vector2i & mousePos)
 	{
 //		auto input = Input::GetCurrent();
@@ -60,6 +60,14 @@ namespace FishGUI
 		m_dirty = true;
 		return true;
 	}
+
+
+	void Splitter::Draw3() const
+	{
+		auto ctx = Context::GetInstance().m_drawContext;
+		DrawRect(ctx, m_rect, Theme::GetDefaultTheme()->windowBackgroundColor);
+	}
+
 
 	void SplitLayout::PerformLayout(const Rect& rect)
 	{

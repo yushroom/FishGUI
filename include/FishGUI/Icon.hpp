@@ -35,7 +35,7 @@ namespace FishGUI
 			nvgFontFace(ctx, m_fontFace);
 			nvgFillColor(ctx, context->theme->textColor);
 			nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-			nvgText(ctx, (float)rect.x, (float)rect.y, m_text.c_str(), nullptr);
+			nvgText(ctx, (float)rect.x+rect.width/2, (float)rect.y+rect.height/2, m_text.c_str(), nullptr);
 		}
 
 	protected:

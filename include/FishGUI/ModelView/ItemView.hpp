@@ -321,14 +321,11 @@ namespace FishGUI
 					idx++;
 					if (PointInRect(p, r))
 					{
+						auto itemClicked = m_visibleItems[idx];
+						OnItemClicked(itemClicked, e);
+						__ScrollTo(idx);
 						break;
 					}
-				}
-				if (idx >= 0)
-				{
-					auto itemClicked = m_visibleItems[idx];
-					OnItemClicked(itemClicked, e);
-					__ScrollTo(idx);
 				}
 			}
 

@@ -74,14 +74,14 @@ int main()
 	auto dirs = new DirTreeWidget("Dirs", rootNode);
 	dirs->SetWidth(150);
 	dirs->SetMinSize(100, 100);
-	auto files = new FileListWidget("Files");
+	auto files = new UnityFileWidget("Files");
 	files->SetWidth(400);
 	files->SetMinSize(200, 100);
 //	dirs->SetRoot(rootNode);
-	files->SetRoot(rootNode);
+	files->GetFileListWidget()->SetRoot(rootNode);
 	dirs->GetSelectionModel()->SetSelectionChangedCallback([files](FileNode* node){
 		if (node != nullptr)
-			files->SetRoot(node);
+			files->GetFileListWidget()->SetRoot(node);
 	});
 
 	{

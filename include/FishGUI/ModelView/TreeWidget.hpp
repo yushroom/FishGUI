@@ -143,6 +143,7 @@ namespace FishGUI
 				// preicon
 				constexpr int preiconWidth = 20;
 				constexpr int iconWidth = 20;
+
 				int x = rect.x + preiconWidth / 2 + 2;
 				int y = rect.y + 16 / 2;
 				if (m_model->ChildCount(go) > 0)
@@ -173,8 +174,8 @@ namespace FishGUI
 				auto icon = m_model->Icon(go);
 				if (icon != nullptr)
 				{
-					x += iconWidth / 2 + 3;
-					icon->Draw(Context::GetInstance().m_drawContext, Rect{x, y, 20, rect.height});
+					x += 3;
+					icon->Draw(Context::GetInstance().m_drawContext, Rect{x, rect.y, 20, rect.height});
 					rect.x += 14;
 				}
 

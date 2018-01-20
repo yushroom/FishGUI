@@ -40,7 +40,7 @@ static char* cpToUTF8(int cp, char* str)
 }
 
 #define ctx context->vg
-#define theme context->theme
+#define theme (context->theme ? context->theme : Theme::GetDefaultTheme())
 
 
 namespace FishGUI
@@ -71,30 +71,6 @@ namespace FishGUI
 		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 		nvgText(ctx, textX, textY, text, nullptr);
 	}
-
-
-
-	//void DrawDock(NVGcontext* ctx, float x, float y, float w, float h)
-	//{
-	//	float cornerRadius = 3.0f;
-	////	NVGpaint shadowPaint;
-	//	NVGpaint headerPaint;
-	//
-	//	nvgSave(ctx);
-	////	nvgClearState(ctx);
-	//
-	//	nvgBeginPath(ctx);
-	//	nvgRect(ctx, x, y, w, h);
-	//	nvgFillColor(ctx, theme->windowBackgroundColor);
-	//	nvgFill(ctx);
-	//
-	//	nvgBeginPath(ctx);
-	//	nvgFillColor(ctx, theme->windowBackgroundColor);
-	//	nvgRect(ctx, x, y, w, theme->windowHeaderHeight);
-	//	nvgFill(ctx);
-	//
-	//	nvgRestore(ctx);
-	//}
 
 
 	void DrawSearchBox(DrawContext* context, const char* text, float x, float y, float w, float h)

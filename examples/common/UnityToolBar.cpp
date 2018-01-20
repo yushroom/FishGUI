@@ -195,18 +195,27 @@ void UnityToolBar::Draw()
 		
 		if (SegmentedButtons::Button(CodePointToUTF8(icon1, icon), color,  running))
 		{
+			if (running)
+				OnStop();
+			else
+				OnRun();
 			running = !running;
 			if (!running)
 				paused = false;
 		}
 		if (SegmentedButtons::Button(CodePointToUTF8(ICO_PAUSE, icon), color, paused))
 		{
+			if (!paused)
+				OnPause();
 			paused = !paused;
 		}
 		if (SegmentedButtons::Button(CodePointToUTF8(ICO_NEXT, icon), color, false))
 		{
 			if (running)
+			{
 				paused = true;
+				OnNextFrame();
+			}
 		}
 		SegmentedButtons::End();
 	}
