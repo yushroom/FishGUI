@@ -14,14 +14,21 @@ with [FishEngine](https://github.com/yushroom/FishEngine)
 
 ### Linux / macOS
 
-Tested on Ubuntu16.04 and macOS 10.13.2
-
-- If you don't have **Boost**(1.58 or above is required) installed:
+Tested on Ubuntu 17.10 and macOS 10.13.2
 
 ```shell
-# Ubuntu
-sudo apt-get install libboost-all-dev
+# ubuntu
+# if you do not have opengl dev environment
+sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev 
 
+# glfw requires xorg
+sudo apt-get xorg-dev
+
+# boost
+sudo apt-get install libboost-all-dev
+```
+
+```shell
 # macOS
 brew install boost
 ```
