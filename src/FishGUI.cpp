@@ -275,6 +275,7 @@ namespace FishGUI
 			auto& windows = WindowManager::GetInstance().GetWindows();
 			for (auto w : windows)
 			{
+				glfwMakeContextCurrent(mainWindow->GetGLFWWindow());
 				auto& input = w->GetInput();
 				glfwGetCursorPos(w->GetGLFWWindow(), &mx, &my);
 				input.m_mousePosition.x = int(mx);

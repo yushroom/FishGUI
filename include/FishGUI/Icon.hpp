@@ -1,11 +1,11 @@
 #pragma once
 
 #include <string>
-#include <FishGUI/Math.hpp>
-
-#include <FishGUI/Draw.hpp>
-#include <FishGUI/Theme.hpp>
 #include <nanovg.h>
+#include "Math.hpp"
+
+#include "Draw.hpp"
+#include "Theme.hpp"
 
 namespace FishGUI
 {

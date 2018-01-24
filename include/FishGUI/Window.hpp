@@ -8,6 +8,7 @@
 
 #include "Widget.hpp"
 #include "Input.hpp"
+#include "Render/FrameBuffer.hpp"
 
 struct GLFWwindow;
 
@@ -164,9 +165,7 @@ namespace FishGUI
 
 		void BindMainContext();
 
-		unsigned int m_framebuffer;
-		unsigned int m_colorbuffer;
-		unsigned int m_renderbuffer;
+		FrameBuffer m_framebuffer;
 		unsigned int m_quadVAO;
 		unsigned int m_quadVBO;
 	};

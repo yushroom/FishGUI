@@ -121,7 +121,8 @@ int main()
 	FishGUI::Vector3f rotation{0, 0, 0};
 	FishGUI::Vector3f scale{1, 1, 1};
 	
-	win->SetToolBar(new UnityToolBar());
+	auto toolBar = new UnityToolBar();
+	win->SetToolBar(toolBar);
 	auto statusBar = new StatusBar();
 	win->SetStatusBar(statusBar);
 	
@@ -192,8 +193,28 @@ int main()
 	win->SetPreDraw([scene]() {
 		scene->RenderScene();
 	});
+
+	toolBar->SetRunCallback([scene]() {
+		scene->Run();
+	});
+
+	toolBar->SetStopCallback([scene]() {
+		scene->Stop();
+	});
+
+	toolBar->SetPauseCallback([scene]() {
+		scene->Pause();
+	});
+
+	toolBar->SetResumeCallBack([scene]() {
+		scene->Resume();
+	});
+
+	toolBar->SetNextFrameCallback([scene]() {
+		scene->NextFrame();
+	});
 	
-#if 0
+#if 1
 	{
 		auto win2 = FishGUI::NewWindow("Dialog");
 		auto t = new TabWidget("center");

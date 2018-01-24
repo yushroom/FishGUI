@@ -393,39 +393,13 @@ void main()
 
 
 	Dialog::Dialog(FishGUIContext* context, const char* title, int width, int height)
-		: Window(context, title, width, height)
+		: Window(context, title, width, height), m_framebuffer(width, height)
 	{
 		BindMainContext();
 		if (screenShader == nullptr)
 		{
 			screenShader = new Shader(screenVS, screenFS);
 		}
-
-		int fbw = m_framebufferSize.width;
-		int fbh = m_framebufferSize.height;
-
-		glGenFramebuffers(1, &m_framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-		glGenTextures(1, &m_colorbuffer);
-		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbw, fbh, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorbuffer, 0);
-
-		glGenRenderbuffers(1, &m_renderbuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbw, fbh);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderbuffer);
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-			abort();
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//glCheckError();
 
 		glfwMakeContextCurrent(m_glfwWindow);
 
@@ -459,8 +433,6 @@ void main()
 	Dialog::~Dialog()
 	{
 		BindMainContext();
-		glDeleteFramebuffers(1, &m_framebuffer);
-		glDeleteTextures(1, &m_colorbuffer);
 
 		glfwMakeContextCurrent(m_glfwWindow);
 		glDeleteVertexArrays(1, &m_quadVAO);
@@ -474,13 +446,7 @@ void main()
 		Window::OnResize(w, h);
 		int fbw = m_framebufferSize.width;
 		int fbh = m_framebufferSize.height;
-		
-		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fbw, fbh, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, m_renderbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbw, fbh);
+		m_framebuffer.Resize(fbw, fbh);
 	}
 
 	void Dialog::BindMainContext()
@@ -495,7 +461,8 @@ void main()
 		if (iconified)
 			return;
 
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		//glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		m_framebuffer.Bind();
 		BeforeFrame();
 
 		if (m_layout != nullptr)
@@ -523,7 +490,8 @@ void main()
 		nvgEndFrame(GetNVGContext());
 		OverlayDraw();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		m_framebuffer.Unbind();
 	}
 
 	void Dialog::AfterDraw()
@@ -535,7 +503,7 @@ void main()
 		screenShader->Use();
 		screenShader->SetInt("screenTexture", 0);
 		glBindVertexArray(m_quadVAO);
-		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);	// use the color attachment texture as the texture of the quad plane
+		glBindTexture(GL_TEXTURE_2D, m_framebuffer.GetColorTexture());	// use the color attachment texture as the texture of the quad plane
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glfwSwapBuffers(m_glfwWindow);
 		//glCheckError();

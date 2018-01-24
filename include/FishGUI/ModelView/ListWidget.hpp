@@ -1,11 +1,11 @@
 #pragma once
 
 #include "ItemView.hpp"
-#include <FishGUI/FishGUI.hpp>
-#include <FishGUI/Input.hpp>
-#include <FishGUI/Draw.hpp>
-#include <FishGUI/Theme.hpp>
-#include <FishGUI/Utils.hpp>
+#include "../FishGUI.hpp"
+#include "../Input.hpp"
+#include "../Draw.hpp"
+#include "../Theme.hpp"
+#include "../Utils.hpp"
 
 namespace FishGUI
 {

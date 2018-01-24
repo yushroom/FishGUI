@@ -96,7 +96,7 @@ namespace FishGUI
 		Theme*				m_theme = nullptr;
 		Layout * 			m_layout = nullptr;
 		std::string 		m_name;
-		Rect 				m_rect = {0, 0, 1, 1};
+		Rect 				m_rect = {0, 0, 16, 16};
 		Size				m_fixedSize = { -1, -1 };
 		Size				m_minSize = { 1, 1 };
 		Size				m_maxSize = { 4096, 4096 };

@@ -2,10 +2,10 @@
 
 #include <list>
 #include <algorithm>
-#include <FishGUI/Widget.hpp>
-#include <FishGUI/Input.hpp>
 #include <GLFW/glfw3.h>
 
+#include "../Widget.hpp"
+#include "../Input.hpp"
 #include "../Icon.hpp"
 
 namespace FishGUI
