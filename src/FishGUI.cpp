@@ -172,12 +172,12 @@ namespace FishGUI
 		fputs(description, stderr);
 	}
 	
-	Window* NewWindow(const char* title)
+	Dialog* NewDialog(const char* title)
 	{
 		auto context = WindowManager::GetInstance().GetMainWindow()->GetContext();
-		auto window = new Dialog(context, title, 400, 400);
-		WindowManager::GetInstance().m_windows.push_back(window);
-		return window;
+		auto dialog = new Dialog(context, title, 400, 400);
+		WindowManager::GetInstance().m_windows.push_back(dialog);
+		return dialog;
 	}
 
 	void CreateFont(NVGcontext* ctx, const char* name, const std::string& path)

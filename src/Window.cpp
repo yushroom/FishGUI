@@ -95,7 +95,7 @@ namespace FishGUI
 		win->OnResize(width, height);
 	}
 
-	void glfwBindWindowCallbacks(GLFWwindow* window)
+	void BindGLFWWindowCallbacks(GLFWwindow* window)
 	{
 		glfwSetKeyCallback(window, glfwKeyCallback);
 		glfwSetMouseButtonCallback(window, glfwMouseButtonCallback);
@@ -115,7 +115,7 @@ namespace FishGUI
 		GLFWwindow* mainGLFWWindow = nullptr;
 		Window* mainWindow = WindowManager::GetInstance().GetMainWindow();
 		if (mainWindow != nullptr)
-			mainGLFWWindow = mainWindow->GetGLFWWindow();
+			mainGLFWWindow = mainWindow->m_glfwWindow;
 		
 		m_glfwWindow = glfwCreateWindow(width, height, title, nullptr, mainGLFWWindow);
 		if (!m_glfwWindow)
@@ -125,7 +125,7 @@ namespace FishGUI
 		}
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
 		
-		glfwBindWindowCallbacks(m_glfwWindow);
+		BindGLFWWindowCallbacks(m_glfwWindow);
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
 	}
 	
@@ -137,7 +137,7 @@ namespace FishGUI
 	
 	void Window::SetPosition(int x, int y)
 	{
-		assert(m_glfwWindow != nullptr);
+//		assert(m_glfwWindow != nullptr);
 		glfwSetWindowPos(m_glfwWindow, x, y);
 		m_position.x = x;
 		m_position.y = y;
@@ -145,7 +145,7 @@ namespace FishGUI
 	
 	void Window::SetSize(int width, int height)
 	{
-		assert(m_glfwWindow != nullptr);
+//		assert(m_glfwWindow != nullptr);
 		glfwSetWindowSize(m_glfwWindow, width, height);
 		m_size.width = width;
 		m_size.height = height;
@@ -153,7 +153,7 @@ namespace FishGUI
 	
 	void Window::SetTitle(const char* title)
 	{
-		assert(m_glfwWindow != nullptr);
+//		assert(m_glfwWindow != nullptr);
 		m_name = title;
 		glfwSetWindowTitle(m_glfwWindow, title);
 	}
@@ -342,22 +342,11 @@ namespace FishGUI
 			rect.height -= m_statusBar->GetHeight();
 		}
 		
-		//		Widget::Draw();
 		if (m_layout != nullptr)
 		{
 			m_layout->PerformLayout(rect);
 		}
-		
-		if (m_toolBar != nullptr)
-		{
-			rect.height += m_toolBar->GetHeight();
-			rect.y -= m_toolBar->GetHeight();
-		}
-		if (m_statusBar != nullptr)
-		{
-			rect.height += m_statusBar->GetHeight();
-		}
-		
+
 		AfterFrame();
 	}
 
@@ -393,7 +382,7 @@ void main()
 
 
 	Dialog::Dialog(FishGUIContext* context, const char* title, int width, int height)
-		: Window(context, title, width, height), m_framebuffer(width, height)
+		: Window(context, title, width, height), m_framebuffer(m_framebufferSize.width, m_framebufferSize.height)
 	{
 		BindMainContext();
 		if (screenShader == nullptr)

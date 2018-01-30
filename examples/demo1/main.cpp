@@ -216,7 +216,7 @@ int main()
 	
 #if 1
 	{
-		auto win2 = FishGUI::NewWindow("Dialog");
+		auto win2 = FishGUI::NewDialog("Dialog");
 		auto t = new TabWidget("center");
 		auto d = new IMWidget2("Dialog");
 		t->AddChild(d);

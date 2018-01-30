@@ -43,6 +43,17 @@ namespace FishGUI
 			os << "Size(" << s.width << ", " << s.height << ")\n";
 			return os;
 		}
+		
+		
+		bool operator==(const Size& b)
+		{
+			return width==b.width && height==b.height;
+		}
+		
+		bool operator!=(const Size& b)
+		{
+			return width!=b.width || height!=b.height;
+		}
 	};
 	
 	struct Rect
