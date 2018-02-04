@@ -38,16 +38,19 @@ namespace FishGUI
 		//void SetDecorated(bool decorated);
 		
 		//virtual void PreDraw() {};
-		void BeforeFrame();
+
+		void BindAndDraw();
+
+		void BeforeDraw();
 		virtual void Draw();
-		void AfterFrame();
-		virtual void AfterDraw();
+		virtual void AfterFrame();
+		void AfterDraw();
 		
 		virtual void OnResize(int w, int h);
 		void OnMouseEvent(MouseEvent* e);
 		void OnKeyEvent(KeyEvent* e);
 		
-		void PreDraw()
+		void BeforeFrame()
 		{
 			if (m_preDrawFunction != nullptr)
 				m_preDrawFunction();
@@ -159,7 +162,7 @@ namespace FishGUI
 
 		virtual void OnResize(int w, int h) override;
 		virtual void Draw() override;
-		virtual void AfterDraw() override;
+		virtual void AfterFrame() override;
 
 	protected:
 

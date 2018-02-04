@@ -263,20 +263,25 @@ namespace FishGUI
 				else
 					flag = SelectionFlag::Select;
 				m_selectionModel.SelectItem(item, flag);
+				m_rangeSelectionBegin = item;
 			}
 			else if (rangeMode)
 			{
-				auto rangeSelectionBegin = lastSelected;
+				//auto rangeSelectionBegin = lastSelected;
 				auto rangeSelectionEnd = item;
 
-				auto it1 = std::find(m_visibleItems.begin(), m_visibleItems.end(), rangeSelectionBegin);
+				auto it1 = std::find(m_visibleItems.begin(), m_visibleItems.end(), m_rangeSelectionBegin);
 				auto it2 = std::find(m_visibleItems.begin(), m_visibleItems.end(), rangeSelectionEnd);
 
 				if (it1 == m_visibleItems.end())
 				{
+					// TODO
+					abort();
 				}
 				else if (it2 == m_visibleItems.end())
 				{
+					// TODO
+					abort();
 				}
 				else
 				{
@@ -301,6 +306,7 @@ namespace FishGUI
 			else	// single selection
 			{
 				m_selectionModel.SelectItem(item, SelectionFlag::ClearAndSelect);
+				m_rangeSelectionBegin = item;
 			}
 
 			e->Accept();
@@ -370,5 +376,7 @@ namespace FishGUI
 		std::vector<Rect>		m_visibleItemRects;
 		
 		int m_columns = 1;	// items per row
+
+		T m_rangeSelectionBegin = nullptr;
 	};
 }

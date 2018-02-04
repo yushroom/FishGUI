@@ -143,6 +143,7 @@ namespace FishGUI
 		m_position.y = y;
 	}
 	
+
 	void Window::SetSize(int width, int height)
 	{
 //		assert(m_glfwWindow != nullptr);
@@ -151,6 +152,7 @@ namespace FishGUI
 		m_size.height = height;
 	}
 	
+
 	void Window::SetTitle(const char* title)
 	{
 //		assert(m_glfwWindow != nullptr);
@@ -168,17 +170,22 @@ namespace FishGUI
 	
 	//void Window::PreDraw()
 	//{
-
 	//}
 
-	void Window::AfterDraw()
+	void Window::BindAndDraw()
 	{
-		glfwMakeContextCurrent(m_glfwWindow);
-		glfwSwapBuffers(m_glfwWindow);
+		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
+		if (iconified)
+			return;
+		Input::SetCurrent(&m_input);
+		//BeforeDraw();
+		Draw();
+		//AfterDraw();
+		Input::SetCurrent(nullptr);
 	}
 
 
-	void Window::BeforeFrame()
+	void Window::BeforeDraw()
 	{
 		Context::GetInstance().BindWindow(this);
 		//glfwMakeContextCurrent(m_glfwWindow);
@@ -194,7 +201,7 @@ namespace FishGUI
 		
 		float ratio = float(m_framebufferSize.width) / m_size.width;
 		
-		PreDraw();
+		BeforeFrame();
 //		glfwSwapBuffers(m_glfwWindow);
 		
 		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
@@ -206,7 +213,20 @@ namespace FishGUI
 		nvgBeginFrame(GetNVGContext(), m_size.width, m_size.height, ratio);
 	}
 	
-	void Window::AfterFrame()
+
+	void Window::Draw()
+	{
+		BeforeDraw();
+		if (m_layout != nullptr)
+		{
+			Rect rect = {0, 0, m_size.width, m_size.height};
+			m_layout->PerformLayout(rect);
+		}
+		AfterDraw();
+	}
+
+
+	void Window::AfterDraw()
 	{
 		Context::GetInstance().UnbindWindow();
 
@@ -222,27 +242,19 @@ namespace FishGUI
 			if (m_focusedWidget != nullptr)
 				m_focusedWidget->SetIsFocused(true);
 		}
-		
+
 		nvgEndFrame(GetNVGContext());
 		OverlayDraw();
 		//glfwSwapBuffers(m_glfwWindow);
 	}
-	
-	void Window::Draw()
+
+
+	void Window::AfterFrame()
 	{
-		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
-		if (iconified)
-			return;
-		BeforeFrame();
-		if (m_layout != nullptr)
-		{
-			Rect rect = {0, 0, m_size.width, m_size.height};
-			m_layout->PerformLayout(rect);
-		}
-		
-		AfterFrame();
+		glfwMakeContextCurrent(m_glfwWindow);
+		glfwSwapBuffers(m_glfwWindow);
 	}
-	
+
 
 	Widget* FindVisableWidget(std::vector<Widget*>& widgets, int x, int y)
 	{
@@ -266,6 +278,7 @@ namespace FishGUI
 		m_size.height = h;
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
 	}
+
 
 	void Window::OnMouseEvent(MouseEvent* e)
 	{
@@ -294,6 +307,7 @@ namespace FishGUI
 		}
 	}
 
+
 	void Window::OnKeyEvent(KeyEvent* e)
 	{
 		if (m_focusedWidget != nullptr)
@@ -311,13 +325,10 @@ namespace FishGUI
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
 	}
 	
+
 	void MainWindow::Draw()
 	{
-		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
-		if (iconified)
-			return;
-		
-		BeforeFrame();
+		BeforeDraw();
 		
 		Rect rect = {0, 0, m_size.width, m_size.height};
 		
@@ -347,7 +358,7 @@ namespace FishGUI
 			m_layout->PerformLayout(rect);
 		}
 
-		AfterFrame();
+		AfterDraw();
 	}
 
 
@@ -419,6 +430,7 @@ void main()
 		//glCheckError();
 	}
 
+
 	Dialog::~Dialog()
 	{
 		BindMainContext();
@@ -438,21 +450,19 @@ void main()
 		m_framebuffer.Resize(fbw, fbh);
 	}
 
+
 	void Dialog::BindMainContext()
 	{
 		auto w = WindowManager::GetInstance().GetMainWindow()->GetGLFWWindow();
 		glfwMakeContextCurrent(w);
 	}
 
+
 	void Dialog::Draw()
 	{
-		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
-		if (iconified)
-			return;
-
 		//glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 		m_framebuffer.Bind();
-		BeforeFrame();
+		BeforeDraw();
 
 		if (m_layout != nullptr)
 		{
@@ -483,7 +493,8 @@ void main()
 		m_framebuffer.Unbind();
 	}
 
-	void Dialog::AfterDraw()
+
+	void Dialog::AfterFrame()
 	{
 		glfwMakeContextCurrent(m_glfwWindow);
 		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
@@ -497,5 +508,4 @@ void main()
 		glfwSwapBuffers(m_glfwWindow);
 		//glCheckError();
 	}
-
 }

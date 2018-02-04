@@ -257,6 +257,7 @@ vec2 map( in vec3 pos )
 {
     vec2 res = opU( vec2( sdPlane(     pos), 1.0 ),
 	                vec2( sdSphere(    pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9 ) );
+#if 0
     res = opU( res, vec2( sdBox(       pos-vec3( 1.0,0.25, 0.0), vec3(0.25) ), 3.0 ) );
     res = opU( res, vec2( udRoundBox(  pos-vec3( 1.0,0.25, 1.0), vec3(0.15), 0.1 ), 41.0 ) );
 	res = opU( res, vec2( sdTorus(     pos-vec3( 0.0,0.25, 1.0), vec2(0.20,0.05) ), 25.0 ) );
@@ -277,7 +278,7 @@ vec2 map( in vec3 pos )
 	res = opU( res, vec2( 0.5*sdTorus( opTwist(pos-vec3(-2.0,0.25, 2.0)),vec2(0.20,0.05)), 46.7 ) );
     res = opU( res, vec2( sdConeSection( pos-vec3( 0.0,0.35,-2.0), 0.15, 0.2, 0.1 ), 13.67 ) );
     res = opU( res, vec2( sdEllipsoid( pos-vec3( 1.0,0.35,-2.0), vec3(0.15, 0.2, 0.05) ), 43.17 ) );
-        
+#endif
     return res;
 }
 
@@ -512,7 +513,15 @@ SceneViewWidget::SceneViewWidget(const char* name)
 
 void SceneViewWidget::RenderScene()
 {
-	if (!m_isFirstFrame)
+	auto r = m_rect;
+	auto frameBufferSize = m_frameBuffer.GetSize();
+	if (r.width != frameBufferSize.width || r.height != frameBufferSize.height)
+	{
+		m_frameBuffer.Resize(r.width, r.height);
+		m_forceUpdate = true;
+	}
+
+	if (!m_forceUpdate)
 	{
 		if (!m_running)
 			return;
@@ -526,12 +535,8 @@ void SceneViewWidget::RenderScene()
 	}
 
 	printf("RenderScene: %f\n", m_timer);
-	m_isFirstFrame = false;
+	m_forceUpdate = false;
 
-	auto r = m_rect;
-	auto frameBufferSize = m_frameBuffer.GetSize();
-	if (r.width != frameBufferSize.width || r.height != frameBufferSize.height)
-		m_frameBuffer.Resize(r.width, r.height);
 
 	m_frameBuffer.Bind();
 	glViewport(0, 0, r.width, r.height);
@@ -569,6 +574,6 @@ void SceneViewWidget::Run()
 void SceneViewWidget::Stop()
 {
 	m_running = false;
-	m_isFirstFrame = true;
+	m_forceUpdate = true;
 	m_timer = 0.0f;
 }

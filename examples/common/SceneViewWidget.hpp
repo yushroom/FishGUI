@@ -50,5 +50,5 @@ protected:
 	float m_timePerFrame = 1.0f / 30.0f;
 	float m_timer = 0.0f;
 
-	bool m_isFirstFrame = true;
+	bool m_forceUpdate = true;
 };

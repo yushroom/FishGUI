@@ -281,23 +281,23 @@ namespace FishGUI
 				input.m_mousePosition.x = int(mx);
 				input.m_mousePosition.y = int(my);
 
-				w->PreDraw();
+				w->BeforeFrame();
 			}
 
 			BeforeFrame();
 			for (auto w : windows)
 			{
 				glfwMakeContextCurrent(mainWindow->GetGLFWWindow());
-				auto& input = w->GetInput();
-				Input::SetCurrent(&input);
-				w->Draw();
-				Input::SetCurrent(nullptr);
+				//auto& input = w->GetInput();
+				//Input::SetCurrent(&input);
+				w->BindAndDraw();
+				//Input::SetCurrent(nullptr);
 			}
 			AfterFrame();
 			
 			for (auto w : windows)
 			{
-				w->AfterDraw();
+				w->AfterFrame();
 				auto& input = w->GetInput();
 				input.Update();
 			}
