@@ -232,7 +232,7 @@ namespace FishGUI
 		context.m_nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 
 		auto resourcesRoot = ApplicationFilePath();
-		auto fontsRoot = resourcesRoot + "/fonts/";
+		auto fontsRoot = resourcesRoot + "/";
 		CreateFont(context.m_nvgContext, "icons", 		fontsRoot+"entypo.ttf");
 		CreateFont(context.m_nvgContext, "sans", 		fontsRoot+"Roboto-Regular.ttf");
 		CreateFont(context.m_nvgContext, "sans-bold", 	fontsRoot+"Roboto-Bold.ttf");
