@@ -13,12 +13,11 @@
 #include "../common/HierarchyWidget.hpp"
 #include "../common/DirTreeWidget.hpp"
 #include "../common/FileListWidget.hpp"
-
 #include "../common/SceneViewWidget.hpp"
 
+//#include "../common/StringListWidget.hpp"
+
 using namespace FishGUI;
-
-
 
 class IMWidget2 : public IMWidget
 {
@@ -46,12 +45,13 @@ protected:
 	RenderFunction	m_renderFunction;
 };
 
+
 int main()
 {
-//	Theme theme;
 	FishGUI::Init();
 	
-	auto win = dynamic_cast<MainWindow*>( WindowManager::GetInstance().GetMainWindow() );
+//	auto dialog1 = FishGUI::NewDialog("Open Dialog");
+	auto win = NewDialog("Fish GUI", 950, 600);
 
 	auto right = new TabWidget("right");
 	right->SetWidth(270);
@@ -79,7 +79,7 @@ int main()
 	files->SetMinSize(200, 100);
 //	dirs->SetRoot(rootNode);
 	files->GetFileListWidget()->SetRoot(rootNode);
-	dirs->GetSelectionModel()->SetSelectionChangedCallback([files](FileNode* node){
+	dirs->GetSelectionModel()->selectionChanged.connect([files](FileNode* node){
 		if (node != nullptr)
 			files->GetFileListWidget()->SetRoot(node);
 	});
@@ -122,9 +122,11 @@ int main()
 	FishGUI::Vector3f scale{1, 1, 1};
 	
 	auto toolBar = new UnityToolBar();
-	win->SetToolBar(toolBar);
+//	win->SetToolBar(toolBar);
 	auto statusBar = new StatusBar();
-	win->SetStatusBar(statusBar);
+//	win->SetStatusBar(statusBar);
+	
+
 	
 	float fov = 60;
 //	float near = 0.3f;
@@ -147,8 +149,8 @@ int main()
 		FishGUI::Slider("Field of View", fov, 1, 179);
 		if (FishGUI::CheckBox("Allow HDR", allowHDR))
 		{
-			//printf("value of [Allow HDR] is changed\n");
-			statusBar->SetText("value of[Allow HDR] is changed");
+			printf("value of [Allow HDR] is changed\n");
+//			statusBar->SetText("value of[Allow HDR] is changed");
 		}
 		FishGUI::CheckBox("Allow MSAA", allowMSAA);
 		FishGUI::CheckBox("Allow Dynamic Resolution", allowDynamicResolution);
@@ -162,30 +164,14 @@ int main()
 		for (int i = 0; i < 20; ++i) {
 			std::string text = "button " + std::to_string(i);
 			if (FishGUI::Button(text)) {
-			//	printf("%s clicked\n", text.c_str());
-				std::ostringstream sout;
-				sout << "button " << i << " clicked";
-				statusBar->SetText(sout.str());
+				printf("%s clicked\n", text.c_str());
+//				std::ostringstream sout;
+//				sout << "button " << i << " clicked";
+//				statusBar->SetText(sout.str());
 			}
 			
 		}
 	};
-	
-	auto f2 = [&]() {
-		FishGUI::CheckBox("CheckBox", enabled);
-		FishGUI::Label("Login");
-		FishGUI::InputText("Email", email);
-		FishGUI::Label("AaBbCcDdEeFfGg");
-		if (FishGUI::Button("button 1")) {
-			//printf("button 1 clicked\n");
-			statusBar->SetText("button 1 clicked");
-		}
-		if (FishGUI::Button("button 2")) {
-			//printf("button 2 clicked\n");
-			statusBar->SetText("button 2 clicked");
-		}
-	};
-	
 
 	inspector->SetRenderFunction(f1);
 	game->SetRenderFunction(f1);
@@ -213,10 +199,11 @@ int main()
 	toolBar->SetNextFrameCallback([scene]() {
 		scene->NextFrame();
 	});
+
 	
 #if 1
 	{
-		auto win2 = FishGUI::NewDialog("Dialog");
+		auto win2 = FishGUI::NewDialog("Dialog", 400, 400);
 		auto t = new TabWidget("center");
 		auto d = new IMWidget2("Dialog");
 		t->AddChild(d);
@@ -224,6 +211,55 @@ int main()
 		layout->SetWidget(t);
 		win2->SetLayout(layout);
 		d->SetRenderFunction(f1);
+	}
+	{
+		auto win2 = FishGUI::NewDialog("Dialog2", 400, 400);
+		auto t = new TabWidget("center");
+		auto d = new IMWidget2("Dialog");
+		t->AddChild(d);
+		auto layout = new SimpleLayout();
+		layout->SetWidget(t);
+		win2->SetLayout(layout);
+		d->SetRenderFunction(f1);
+	}
+#else
+	
+	std::string name = "New Project";
+	std::string path = "/Users/yushroom/program/FishEngine/Example";
+	
+	
+	auto f2 = [&]() {
+//		FishGUI::Label("Project name*");
+		FishGUI::InputText("Project name*", name);
+//		FishGUI::Label("Location*");
+		FishGUI::InputText("Location*", path);
+		if (FishGUI::Button("Open an existing project")) {
+		}
+		if (FishGUI::Button("Cancel")) {
+		}
+		if (FishGUI::Button("Create project")) {
+		}
+	};
+	
+	{
+//		auto slw = new StringListWidget("Projects");
+//		std::vector<std::string> projects = {"Empty", "Illustrative-Rendering", "PBR"};
+//		for (auto& p : projects)
+//		{
+//			slw->AddItem(p);
+//		}
+		
+		auto win2 = FishGUI::NewDialog("Create Project");
+		win2->SetSize(400, 300);
+		auto tw = new TabWidget("center");
+//		auto tab1 = new IMWidget2("Projects");
+		auto tab2 = new IMWidget2("Open New");
+//		tw->AddChild(slw);
+		tw->AddChild(tab2);
+		auto layout = new SimpleLayout();
+		layout->SetWidget(tw);
+		win2->SetLayout(layout);
+		tab2->SetRenderFunction(f2);
 	}
 #endif
 

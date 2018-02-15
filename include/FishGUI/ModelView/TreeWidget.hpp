@@ -39,12 +39,10 @@ namespace FishGUI
 			{
 				// null can also have children
 //				Indent(10);
-				if (m_model->ChildCount(nullptr) > 0)
+				const int count = m_model->ChildCount(nullptr);
+				for (int i = 0; i < count; ++i)
 				{
-					for (int i = 0; i < m_model->ChildCount(nullptr); ++i)
-					{
-						Cell(m_model->ChildAt(i, nullptr));
-					}
+					Cell(m_model->ChildAt(i, nullptr));
 				}
 //				Unindent(10);
 			}
@@ -55,7 +53,7 @@ namespace FishGUI
 			
 			// handle aditional keyEvent
 			auto e = this->m_keyEvent;
-			auto item = m_selectionModel.CurrentSelected();
+			auto item = m_selectionModel.SelectedItem();
 			if (e != nullptr && !e->isAccepted() && item != nullptr && e->type()==KeyEvent::Type::KeyPress)
 			{
 				int key = e->key();

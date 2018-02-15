@@ -51,7 +51,7 @@ public:
 	FileListWidget(const char* name) : Super(name)
 	{
 		m_model = new FileListModel();
-		m_selectionModel.SetSelectionChangedCallback([](FileNode* selected) {
+		m_selectionModel.selectionChanged.connect([](FileNode* selected) {
 			if (selected != nullptr)
 				std::cout << selected->path << std::endl;
 		});
@@ -64,7 +64,7 @@ class UnityFileWidget : public FishGUI::Widget
 public:
 	UnityFileWidget(const char* name) : Widget(name), m_listWidget("")
 	{
-		m_listWidget.GetSelectionModel()->SetSelectionChangedCallback([this](FileNode* selected) {
+		m_listWidget.GetSelectionModel()->selectionChanged.connect([this](FileNode* selected) {
 			m_selectedFile = selected;
 		});
 	}

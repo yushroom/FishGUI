@@ -1,4 +1,4 @@
-﻿#include <FishGUI/GLEnvironment.hpp>
+#include <FishGUI/GLEnvironment.hpp>
 #include "SceneViewWidget.hpp"
 
 #include <glm/glm.hpp>
@@ -544,7 +544,7 @@ void SceneViewWidget::RenderScene()
 
 	// make sure we clear the framebuffer's content
 	glClearColor(1.0f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	auto s = m_frameBuffer.GetSize();
 	m_shader.Use();

@@ -114,6 +114,7 @@ namespace FishGUI
 		std::function<void(void)> m_preDrawFunction;
 	};
 
+	
 	class MainWindow : public Window
 	{
 	public:
@@ -149,6 +150,7 @@ namespace FishGUI
 		StatusBar* 	m_statusBar = nullptr;
 	};
 
+	
 	class Dialog : public Window
 	{
 	public:
@@ -173,6 +175,7 @@ namespace FishGUI
 		unsigned int m_quadVBO;
 	};
 
+	
 	class WindowManager
 	{
 	public:
@@ -197,12 +200,12 @@ namespace FishGUI
 			return m_windows;
 		}
 		
-		Window* GetMainWindow()
-		{
-			if (m_windows.empty())
-				return nullptr;
-			return m_windows.front();
-		}
+//		Window* GetMainWindow()
+//		{
+//			if (m_windows.empty())
+//				return nullptr;
+//			return m_windows.front();
+//		}
 		
 		Window* GetFocusedWindow()
 		{

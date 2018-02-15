@@ -8,8 +8,24 @@
 #include "../Input.hpp"
 #include "../Icon.hpp"
 
+#include <boost/signals2/signal.hpp>
+
 namespace FishGUI
 {
+//	template<class T>
+//	struct IsNullable : std::integral_constant<bool,
+//												std::is_pointer<T>::value ||
+//	std::is_integral<T>::value> {};
+//	
+//	template<class T>
+//	constexpr T NullOf();
+//	
+//	template<>
+//	constexpr nullptr_t Nullof<T*>()
+//	{
+//		
+//	}
+	
 	template<class T>
 	class TItemModel
 	{
@@ -50,9 +66,14 @@ namespace FishGUI
 
 		inline const std::list<T>& GetSelections() const { return m_selection; }
 
-		T CurrentSelected() const
+		T SelectedItem() const
 		{
 			return m_lastSelected;
+		}
+		
+		const std::list<T>& SelectedItems() const
+		{
+			return m_selection;
 		}
 		
 		void ClearSelections()
@@ -103,12 +124,14 @@ namespace FishGUI
 		void SetMode(SelectionMode mode) { m_mode = mode; }
 		SelectionMode GetMode() const { return m_mode; }
 
-		typedef std::function<void(T)> SelectionChangedCallback;
+//		typedef std::function<void(T)> SelectionChangedCallback;
 
-		void SetSelectionChangedCallback(SelectionChangedCallback callback)
-		{
-			m_onSelectionChanged = callback;
-		}
+//		void SetSelectionChangedCallback(SelectionChangedCallback callback)
+//		{
+//			m_onSelectionChanged = callback;
+//		}
+		
+		boost::signals2::signal<void(T)> selectionChanged;
 
 		void BlockSignals(bool block)
 		{
@@ -122,16 +145,13 @@ namespace FishGUI
 		{
 			if (m_signalBlocked)
 				return;
-			if (m_onSelectionChanged)
-			{
-				m_onSelectionChanged(m_lastSelected);
-			}
+			selectionChanged(m_lastSelected);
 		}
 
 
 		std::list<T> m_selection;
 		SelectionMode m_mode = SelectionMode::Extended;
-		SelectionChangedCallback m_onSelectionChanged;
+//		SelectionChangedCallback m_onSelectionChanged;
 
 		
 		T m_lastSelected = nullptr;
@@ -250,7 +270,7 @@ namespace FishGUI
 #else
 			constexpr int MODIFIER = int(Modifier::Ctrl);
 #endif
-			auto lastSelected = m_selectionModel.CurrentSelected();
+			auto lastSelected = m_selectionModel.SelectedItem();
 
 			bool appendMode = isMulti && (e->modifiers() & MODIFIER) != 0;
 			bool rangeMode = isMulti && (e->modifiers() & int(Modifier::Shift)) != 0 && lastSelected != nullptr;
@@ -299,6 +319,7 @@ namespace FishGUI
 						m_selectionModel.SelectItem(*it, SelectionFlag::Select);
 					}
 					m_selectionModel.BlockSignals(false);
+					m_selectionModel.selectionChanged(item);
 					//m_lastSelected = m_rangeSelectionBegin = *it1;
 				}
 				//rangeSelectionEnd = nullptr;

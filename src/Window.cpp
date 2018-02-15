@@ -112,12 +112,7 @@ namespace FishGUI
 		m_minSize.width = 200;
 		m_minSize.height = 200;
 		
-		GLFWwindow* mainGLFWWindow = nullptr;
-		Window* mainWindow = WindowManager::GetInstance().GetMainWindow();
-		if (mainWindow != nullptr)
-			mainGLFWWindow = mainWindow->m_glfwWindow;
-		
-		m_glfwWindow = glfwCreateWindow(width, height, title, nullptr, mainGLFWWindow);
+		m_glfwWindow = glfwCreateWindow(width, height, title, nullptr, context->m_contextWindow);
 		if (!m_glfwWindow)
 		{
 			glfwTerminate();
@@ -127,6 +122,8 @@ namespace FishGUI
 		
 		BindGLFWWindowCallbacks(m_glfwWindow);
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
+		
+		WindowManager::GetInstance().m_windows.push_back(this);
 	}
 	
 	Window::~Window()
@@ -188,23 +185,15 @@ namespace FishGUI
 	void Window::BeforeDraw()
 	{
 		Context::GetInstance().BindWindow(this);
-		//glfwMakeContextCurrent(m_glfwWindow);
 		
 		m_isFocused = (glfwGetWindowAttrib(m_glfwWindow, GLFW_FOCUSED) == 1);
 		
 		m_widgets.clear();
-		
-		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
-		float bck = 162 / 255.0f;
-		glClearColor(bck, bck, bck, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
 		float ratio = float(m_framebufferSize.width) / m_size.width;
 		
-		BeforeFrame();
-//		glfwSwapBuffers(m_glfwWindow);
-		
 		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
+//		glClearColor(0, 1.0f, 0, 1.0f);
+		float bck = 162 / 255.0f;
 		glClearColor(bck, bck, bck, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
@@ -253,6 +242,7 @@ namespace FishGUI
 	{
 		glfwMakeContextCurrent(m_glfwWindow);
 		glfwSwapBuffers(m_glfwWindow);
+		glfwMakeContextCurrent(m_context->m_contextWindow);
 	}
 
 
@@ -395,12 +385,6 @@ void main()
 	Dialog::Dialog(FishGUIContext* context, const char* title, int width, int height)
 		: Window(context, title, width, height), m_framebuffer(m_framebufferSize.width, m_framebufferSize.height)
 	{
-		BindMainContext();
-		if (screenShader == nullptr)
-		{
-			screenShader = new Shader(screenVS, screenFS);
-		}
-
 		glfwMakeContextCurrent(m_glfwWindow);
 
 		static float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -428,17 +412,23 @@ void main()
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 		//glCheckError();
+		
+		BindMainContext();
+		if (screenShader == nullptr)
+		{
+			screenShader = new Shader(screenVS, screenFS);
+		}
 	}
 
 
 	Dialog::~Dialog()
 	{
-		BindMainContext();
-
 		glfwMakeContextCurrent(m_glfwWindow);
 		glDeleteVertexArrays(1, &m_quadVAO);
 		glDeleteBuffers(1, &m_quadVBO);
 		//glCheckError();
+		
+		BindMainContext();
 	}
 
 
@@ -453,10 +443,8 @@ void main()
 
 	void Dialog::BindMainContext()
 	{
-		auto w = WindowManager::GetInstance().GetMainWindow()->GetGLFWWindow();
-		glfwMakeContextCurrent(w);
+		glfwMakeContextCurrent(m_context->m_contextWindow);
 	}
-
 
 	void Dialog::Draw()
 	{
@@ -506,6 +494,8 @@ void main()
 		glBindTexture(GL_TEXTURE_2D, m_framebuffer.GetColorTexture());	// use the color attachment texture as the texture of the quad plane
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glfwSwapBuffers(m_glfwWindow);
-		//glCheckError();
+		glCheckError();
+//		glfwMakeContextCurrent(nullptr);
+		BindMainContext();
 	}
 }
