@@ -14,8 +14,39 @@
 #include <nanovg.h>
 
 
+static const char* screenVS = R"(
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+	TexCoords = aTexCoords;
+	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+}
+)";
+static const char* screenFS = R"(
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D screenTexture;
+
+void main()
+{
+	vec3 col = texture(screenTexture, TexCoords).rgb;
+	FragColor = vec4(col, 1.0);
+}
+)";
+
+
 namespace FishGUI
 {
+	static Shader* screenShader;
+	
 	void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		//printf("[glfwKeyCallback] key: %d, scancode: %d, actions: %d, mods: %d\n", key, scancode, action, mods);
@@ -119,16 +150,58 @@ namespace FishGUI
 			exit(EXIT_FAILURE);
 		}
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
+		m_framebuffer.Init(m_framebufferSize.width, m_framebufferSize.height);
 		
 		BindGLFWWindowCallbacks(m_glfwWindow);
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
 		
 		WindowManager::GetInstance().m_windows.push_back(this);
+		
+		
+		glfwMakeContextCurrent(m_glfwWindow);
+		
+		static float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+			// positions   // texCoords
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			1.0f, -1.0f,  1.0f, 0.0f,
+			
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			1.0f, -1.0f,  1.0f, 0.0f,
+			1.0f,  1.0f,  1.0f, 1.0f
+		};
+		
+		// screen quad VAO
+		//unsigned int quadVAO, quadVBO;
+		auto& quadVAO = m_quadVAO;
+		auto& quadVBO = m_quadVBO;
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+		//glCheckError();
+		
+		BindMainContext();
+		if (screenShader == nullptr)
+		{
+			screenShader = new Shader(screenVS, screenFS);
+		}
+		
 	}
 	
 	Window::~Window()
 	{
+		glfwMakeContextCurrent(m_glfwWindow);
+		glDeleteVertexArrays(1, &m_quadVAO);
+		glDeleteBuffers(1, &m_quadVBO);
 		glfwDestroyWindow(m_glfwWindow);
+		
+		BindMainContext();
 	}
 	
 	
@@ -171,6 +244,7 @@ namespace FishGUI
 
 	void Window::BindAndDraw()
 	{
+//		puts("Window::BindAndDraw");
 		int iconified = glfwGetWindowAttrib(m_glfwWindow, GLFW_ICONIFIED);
 		if (iconified)
 			return;
@@ -184,6 +258,7 @@ namespace FishGUI
 
 	void Window::BeforeDraw()
 	{
+//		puts("Window::BeforeDraw");
 		Context::GetInstance().BindWindow(this);
 		
 		m_isFocused = (glfwGetWindowAttrib(m_glfwWindow, GLFW_FOCUSED) == 1);
@@ -192,10 +267,13 @@ namespace FishGUI
 		float ratio = float(m_framebufferSize.width) / m_size.width;
 		
 		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
-//		glClearColor(0, 1.0f, 0, 1.0f);
+//		glClearColor(0, 1, 0, 1);
 		float bck = 162 / 255.0f;
-		glClearColor(bck, bck, bck, 1.0f);
+		glClearColor(bck, bck, bck, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
+//		glClearColor(1, 0, 0, 1);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
 		Context::GetInstance().m_drawContext->vg = this->GetNVGContext();
 		Context::GetInstance().m_input = &m_input;
@@ -203,22 +281,33 @@ namespace FishGUI
 	}
 	
 
+//	void Window::Draw()
+//	{
+//		BeforeDraw();
+//		if (m_layout != nullptr)
+//		{
+//			Rect rect = {0, 0, m_size.width, m_size.height};
+//			m_layout->PerformLayout(rect);
+//		}
+//		AfterDraw();
+//	}
+	
 	void Window::Draw()
 	{
+//		puts("Window::Draw");
+		//glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		m_framebuffer.Bind();
 		BeforeDraw();
+		
 		if (m_layout != nullptr)
 		{
-			Rect rect = {0, 0, m_size.width, m_size.height};
+			Rect rect = { 0, 0, m_size.width, m_size.height };
 			m_layout->PerformLayout(rect);
 		}
-		AfterDraw();
-	}
-
-
-	void Window::AfterDraw()
-	{
+		
+		//AfterFrame();
 		Context::GetInstance().UnbindWindow();
-
+		
 		if (!m_isFocused)
 		{
 			for (auto w : m_widgets)
@@ -231,18 +320,64 @@ namespace FishGUI
 			if (m_focusedWidget != nullptr)
 				m_focusedWidget->SetIsFocused(true);
 		}
-
+		
 		nvgEndFrame(GetNVGContext());
 		OverlayDraw();
-		//glfwSwapBuffers(m_glfwWindow);
+		
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		m_framebuffer.Unbind();
 	}
 
 
+//	void Window::AfterDraw()
+//	{
+//		puts("Window::AfterDraw");
+//		Context::GetInstance().UnbindWindow();
+//
+//		if (!m_isFocused)
+//		{
+//			for (auto w : m_widgets)
+//			{
+//				w->SetIsFocused(false);
+//			}
+//		}
+//		else
+//		{
+//			if (m_focusedWidget != nullptr)
+//				m_focusedWidget->SetIsFocused(true);
+//		}
+//
+//		nvgEndFrame(GetNVGContext());
+//		OverlayDraw();
+//		//glfwSwapBuffers(m_glfwWindow);
+//	}
+
+
+//	void Window::AfterFrame()
+//	{
+//		glfwMakeContextCurrent(m_glfwWindow);
+//		glfwSwapBuffers(m_glfwWindow);
+//		glfwMakeContextCurrent(m_context->m_contextWindow);
+//	}
+	
+	
 	void Window::AfterFrame()
 	{
+//		puts("Window::AfterFrame");
 		glfwMakeContextCurrent(m_glfwWindow);
+		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
+		glClearColor(1, 0, 0, 0);	// error color
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		screenShader->Use();
+		screenShader->SetInt("screenTexture", 0);
+		glBindVertexArray(m_quadVAO);
+		glBindTexture(GL_TEXTURE_2D, m_framebuffer.GetColorTexture());	// use the color attachment texture as the texture of the quad plane
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glfwSwapBuffers(m_glfwWindow);
-		glfwMakeContextCurrent(m_context->m_contextWindow);
+		glCheckError();
+		
+//		glfwMakeContextCurrent(nullptr);
+		BindMainContext();
 	}
 
 
@@ -267,6 +402,10 @@ namespace FishGUI
 		m_size.width = w;
 		m_size.height = h;
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
+		
+		int fbw = m_framebufferSize.width;
+		int fbh = m_framebufferSize.height;
+		m_framebuffer.Resize(fbw, fbh);
 	}
 
 
@@ -305,197 +444,10 @@ namespace FishGUI
 			m_focusedWidget->OnKeyEvent(e);
 		}
 	}
-
 	
-	MainWindow::MainWindow(FishGUIContext* context, const char* title, int width, int height)
-	: Window(context, title, width, height)
-	{
-		m_minSize.width = 950;
-		m_minSize.height = 600;
-		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
-	}
 	
-
-	void MainWindow::Draw()
-	{
-		BeforeDraw();
-		
-		Rect rect = {0, 0, m_size.width, m_size.height};
-		
-		if (m_toolBar != nullptr)
-		{
-			m_toolBar->SetRect(0, 0, rect.width, m_toolBar->GetHeight());
-			m_toolBar->BindAndDraw();
-		}
-		
-		if (m_statusBar != nullptr)
-		{
-			m_statusBar->SetRect(0, rect.height - m_statusBar->GetHeight(), rect.width, m_statusBar->GetHeight());
-			m_statusBar->BindAndDraw();
-		}
-		if (m_toolBar != nullptr)
-		{
-			rect.height -= m_toolBar->GetHeight();
-			rect.y += m_toolBar->GetHeight();
-		}
-		if (m_statusBar != nullptr)
-		{
-			rect.height -= m_statusBar->GetHeight();
-		}
-		
-		if (m_layout != nullptr)
-		{
-			m_layout->PerformLayout(rect);
-		}
-
-		AfterDraw();
-	}
-
-
-	static const char* screenVS = R"(
-#version 330 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoords;
-
-out vec2 TexCoords;
-
-void main()
-{
-    TexCoords = aTexCoords;
-    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0); 
-}  
-)";
-	static const char* screenFS = R"(
-#version 330 core
-out vec4 FragColor;
-
-in vec2 TexCoords;
-
-uniform sampler2D screenTexture;
-
-void main()
-{
-    vec3 col = texture(screenTexture, TexCoords).rgb;
-    FragColor = vec4(col, 1.0);
-} 
-)";
-	static Shader* screenShader;
-
-
-	Dialog::Dialog(FishGUIContext* context, const char* title, int width, int height)
-		: Window(context, title, width, height), m_framebuffer(m_framebufferSize.width, m_framebufferSize.height)
-	{
-		glfwMakeContextCurrent(m_glfwWindow);
-
-		static float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-								 // positions   // texCoords
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			-1.0f, -1.0f,  0.0f, 0.0f,
-			1.0f, -1.0f,  1.0f, 0.0f,
-
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			1.0f, -1.0f,  1.0f, 0.0f,
-			1.0f,  1.0f,  1.0f, 1.0f
-		};
-
-		// screen quad VAO
-		//unsigned int quadVAO, quadVBO;
-		auto& quadVAO = m_quadVAO;
-		auto& quadVBO = m_quadVBO;
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		//glCheckError();
-		
-		BindMainContext();
-		if (screenShader == nullptr)
-		{
-			screenShader = new Shader(screenVS, screenFS);
-		}
-	}
-
-
-	Dialog::~Dialog()
-	{
-		glfwMakeContextCurrent(m_glfwWindow);
-		glDeleteVertexArrays(1, &m_quadVAO);
-		glDeleteBuffers(1, &m_quadVBO);
-		//glCheckError();
-		
-		BindMainContext();
-	}
-
-
-	void Dialog::OnResize(int w, int h)
-	{
-		Window::OnResize(w, h);
-		int fbw = m_framebufferSize.width;
-		int fbh = m_framebufferSize.height;
-		m_framebuffer.Resize(fbw, fbh);
-	}
-
-
-	void Dialog::BindMainContext()
+	void Window::BindMainContext()
 	{
 		glfwMakeContextCurrent(m_context->m_contextWindow);
-	}
-
-	void Dialog::Draw()
-	{
-		//glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-		m_framebuffer.Bind();
-		BeforeDraw();
-
-		if (m_layout != nullptr)
-		{
-			Rect rect = { 0, 0, m_size.width, m_size.height };
-			m_layout->PerformLayout(rect);
-		}
-
-		//AfterFrame();
-		Context::GetInstance().UnbindWindow();
-
-		if (!m_isFocused)
-		{
-			for (auto w : m_widgets)
-			{
-				w->SetIsFocused(false);
-			}
-		}
-		else
-		{
-			if (m_focusedWidget != nullptr)
-				m_focusedWidget->SetIsFocused(true);
-		}
-
-		nvgEndFrame(GetNVGContext());
-		OverlayDraw();
-
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		m_framebuffer.Unbind();
-	}
-
-
-	void Dialog::AfterFrame()
-	{
-		glfwMakeContextCurrent(m_glfwWindow);
-		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
-		glClearColor(1, 0, 0, 1);	// error color
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		screenShader->Use();
-		screenShader->SetInt("screenTexture", 0);
-		glBindVertexArray(m_quadVAO);
-		glBindTexture(GL_TEXTURE_2D, m_framebuffer.GetColorTexture());	// use the color attachment texture as the texture of the quad plane
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glfwSwapBuffers(m_glfwWindow);
-		glCheckError();
-//		glfwMakeContextCurrent(nullptr);
-		BindMainContext();
 	}
 }

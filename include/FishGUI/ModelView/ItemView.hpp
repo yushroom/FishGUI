@@ -17,14 +17,29 @@ namespace FishGUI
 //												std::is_pointer<T>::value ||
 //	std::is_integral<T>::value> {};
 //	
+	template<class T>
+	constexpr int NullOf()
+	{
+		return NULL;
+	}
+	
 //	template<class T>
-//	constexpr T NullOf();
-//	
-//	template<>
-//	constexpr nullptr_t Nullof<T*>()
+//	constexpr nullptr_t NullOf<T*>()
 //	{
-//		
+//		return nullptr;
 //	}
+//
+//	template<class T>
+//	constexpr nullptr_t NullOf<std::shared_ptr<T>>()
+//	{
+//		return nullptr;
+//	}
+	
+	template<>
+	constexpr int NullOf<int>()
+	{
+		return -1;
+	}
 	
 	template<class T>
 	class TItemModel

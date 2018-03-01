@@ -16,8 +16,6 @@ namespace FishGUI
 	
 	struct DrawContext;
 	class Window;
-	class MainWindow;
-	class Dialog;
 	class Widget;
 	class Input;
 	
@@ -48,8 +46,7 @@ namespace FishGUI
 		Widget*			m_widget = nullptr; // current widget;
 	};
 	
-	Dialog* NewDialog(const char* title, int w, int h);
-	MainWindow* NewMainWindow(const char* title, int w, int h);
+	Window* NewWindow(const char* title, int w, int h);
 
 	void Init();
 	void Run();

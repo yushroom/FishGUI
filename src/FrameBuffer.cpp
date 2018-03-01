@@ -2,11 +2,15 @@
 #include <FishGUI/GLEnvironment.hpp>
 #include <iostream>
 
+#include <cassert>
+
 namespace FishGUI
 {
 
-	FrameBuffer::FrameBuffer(int width, int height) : m_size{ width, height }
+	void FrameBuffer::Init(int width, int height)
 	{
+		m_size.width = width;
+		m_size.height = height;
 		// framebuffer configuration
 		// -------------------------
 		//unsigned int framebuffer;
@@ -16,7 +20,7 @@ namespace FishGUI
 		//unsigned int textureColorbuffer;
 		glGenTextures(1, &m_colorbuffer);
 		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_size.width, m_size.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_size.width, m_size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorbuffer, 0);
@@ -26,13 +30,17 @@ namespace FishGUI
 		glBindRenderbuffer(GL_RENDERBUFFER, m_depthbuffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_size.width, m_size.height); // use a single renderbuffer object for both a depth AND stencil buffer.
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthbuffer); // now actually attach it
-																									  // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		glCheckError();
+		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 			abort();
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		m_initialized = true;
 	}
 
 	FrameBuffer::~FrameBuffer()
@@ -56,6 +64,14 @@ namespace FishGUI
 
 	void FrameBuffer::Bind()
 	{
+//		GLint defaultFBO;
+//		GLint defaultRBO;
+//		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO);
+//		glGetIntegerv(GL_RENDERBUFFER_BINDING, &defaultRBO);
+//		assert(defaultFBO == 0);
+//		assert(defaultRBO == 0);
+		
+		assert(m_initialized);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 	}
 

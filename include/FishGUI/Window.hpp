@@ -43,8 +43,8 @@ namespace FishGUI
 
 		void BeforeDraw();
 		virtual void Draw();
-		virtual void AfterFrame();
-		void AfterDraw();
+		void AfterFrame();
+//		void AfterDraw();
 		
 		virtual void OnResize(int w, int h);
 		void OnMouseEvent(MouseEvent* e);
@@ -52,6 +52,7 @@ namespace FishGUI
 		
 		void BeforeFrame()
 		{
+//			puts("Window::BeforeFrame");
 			if (m_preDrawFunction != nullptr)
 				m_preDrawFunction();
 		}
@@ -112,69 +113,16 @@ namespace FishGUI
 		
 		std::function<void(void)> m_overlayDrawFunction;
 		std::function<void(void)> m_preDrawFunction;
-	};
-
-	
-	class MainWindow : public Window
-	{
-	public:
-		MainWindow(FishGUIContext* context, const char* title, int width, int height);
-
-		MainWindow(MainWindow&) = delete;
-		MainWindow& operator=(MainWindow&) = delete;
-
-		virtual void Draw() override;
 		
-		void SetToolBar(ToolBar* toolBar)
-		{
-			m_toolBar = toolBar;
-		}
-		
-		void SetStatusBar(StatusBar* statusBar)
-		{
-			m_statusBar = statusBar;
-		}
-		
-		ToolBar* GetToolBar()
-		{
-			return m_toolBar;
-		}
-		
-		StatusBar* GetStatusBar()
-		{
-			return m_statusBar;
-		}
-
 	protected:
-		ToolBar* 	m_toolBar 	= nullptr;
-		StatusBar* 	m_statusBar = nullptr;
-	};
-
-	
-	class Dialog : public Window
-	{
-	public:
-		Dialog(FishGUIContext* context, const char* title, int width, int height);
 		
-		// noncopyable
-		Dialog(const Dialog&) = delete;
-		Dialog& operator=(const Dialog&) = delete;
-
-		~Dialog();
-
-		virtual void OnResize(int w, int h) override;
-		virtual void Draw() override;
-		virtual void AfterFrame() override;
-
-	protected:
-
 		void BindMainContext();
-
+		
 		FrameBuffer m_framebuffer;
 		unsigned int m_quadVAO;
 		unsigned int m_quadVBO;
 	};
-
+	
 	
 	class WindowManager
 	{

@@ -184,17 +184,11 @@ namespace FishGUI
 	
 	static FishGUIContext context;
 	
-	Dialog* NewDialog(const char* title, int w, int h)
+	Window* NewWindow(const char* title, int w, int h)
 	{
-		auto dialog = new Dialog(&context, title, w, h);
+		auto dialog = new Window(&context, title, w, h);
 //		WindowManager::GetInstance().m_windows.push_back(dialog);
 		return dialog;
-	}
-	
-	MainWindow* NewMainWindow(const char* title, int w, int h)
-	{
-		auto window = new MainWindow(&context, title, w, h);
-		return window;
 	}
 	
 
@@ -251,8 +245,6 @@ namespace FishGUI
 		CreateFont(context.m_nvgContext, "ui", 			fontsRoot+"icomoon.ttf");
 
 		Cursor::GetInstance().Init();
-		
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
 	void Cursor::Draw()
@@ -303,6 +295,9 @@ namespace FishGUI
 			}
 			AfterFrame();
 			
+//			glfwSwapBuffers(context.m_contextWindow);
+			glFlush();
+			
 			for (auto w : windows)
 			{
 				w->AfterFrame();
@@ -345,7 +340,7 @@ namespace FishGUI
 		
 		WindowManager::GetInstance().Clear();
 
-//		glfwDestroyWindow(mainWindow->GetGLFWWindow());
+		glfwDestroyWindow(context.m_contextWindow);
 		glfwTerminate();
 	}
 }

@@ -495,8 +495,10 @@ constexpr float quadVertices[] = {
 
 
 SceneViewWidget::SceneViewWidget(const char* name)
-	: Widget(name), m_shader(shadertoyVS, shadertoyFS.c_str()), m_frameBuffer(m_rect.width, m_rect.height)
+	: Widget(name), m_shader(shadertoyVS, shadertoyFS.c_str())
 {
+	m_frameBuffer.Init(m_rect.width, m_rect.height);
+	
 	// plane VAO
 	glGenVertexArrays(1, &quadVAO);
 	glGenBuffers(1, &quadVBO);

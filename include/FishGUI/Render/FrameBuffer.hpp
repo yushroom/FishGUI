@@ -8,8 +8,10 @@ namespace FishGUI
 	class FrameBuffer
 	{
 	public:
-		FrameBuffer(int width, int height);
+		FrameBuffer() = default;
 		~FrameBuffer();
+		
+		void Init(int width, int height);
 
 		void Resize(int width, int height);
 
@@ -28,6 +30,7 @@ namespace FishGUI
 		}
 
 	protected:
+		bool m_initialized = false;
 		FishGUI::Size m_size;
 		unsigned int m_framebuffer;
 		unsigned int m_colorbuffer;
