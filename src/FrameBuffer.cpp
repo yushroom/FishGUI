@@ -52,6 +52,8 @@ namespace FishGUI
 
 	void FrameBuffer::Resize(int width, int height)
 	{
+		if (m_size.width == width && m_size.height == height)
+			return;
 		m_size.width = width;
 		m_size.height = height;
 		glBindTexture(GL_TEXTURE_2D, m_colorbuffer);

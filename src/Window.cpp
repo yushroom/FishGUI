@@ -125,6 +125,14 @@ namespace FishGUI
 		auto win = WindowManager::GetInstance().FindWindow(window);
 		win->OnResize(width, height);
 	}
+	
+	void glfwFrameBufferResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		auto win = WindowManager::GetInstance().FindWindow(window);
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		win->OnResize(w, h);
+	}
 
 	void BindGLFWWindowCallbacks(GLFWwindow* window)
 	{
@@ -133,6 +141,7 @@ namespace FishGUI
 		glfwSetScrollCallback(window, glfwScrollCallback);
 		glfwSetCharCallback(window, glfwCharCallback);
 		glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
+		glfwSetFramebufferSizeCallback(window, glfwFrameBufferResizeCallback);
 //		glfwSetglfwWindowFocusCallback(window, glfwWindowFocusCallback);
 	}
 	
@@ -397,8 +406,8 @@ namespace FishGUI
 
 	void Window::OnResize(int w, int h)
 	{
-		if (m_size.width == w && m_size.height == h)
-			return;
+//		if (m_size.width == w && m_size.height == h)
+//			return;
 		m_size.width = w;
 		m_size.height = h;
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);

@@ -133,7 +133,7 @@ Window* GetMainWindow()
 	auto statusBar = new StatusBar();
 	mainLayout->SetStatusBar(statusBar);
 	
-	auto f1 = [&](){
+	auto f1 = [statusBar](){
 		FishGUI::Group("Transform");
 		FishGUI::Float3("Position", position.x, position.y, position.z);
 		FishGUI::Float3("Rotation", rotation.x, rotation.y, rotation.z);
@@ -233,7 +233,7 @@ int main()
 	std::string path = "/Users/yushroom/program/FishEngine/Example";
 	
 	
-	auto f2 = [&]() {
+	auto f2 = [&name, &path]() {
 //		FishGUI::Label("Project name*");
 		FishGUI::InputText("Project name*", name);
 //		FishGUI::Label("Location*");

@@ -112,6 +112,10 @@ namespace FishGUI
 	class Layout
 	{
 	public:
+		Layout() = default;
+		Layout(Layout&) = delete;
+		Layout& operator=(Layout&) = delete;
+		
 		virtual void PerformLayout(const Rect& rect) = 0;
 		virtual ~Layout() = default;
 	};
