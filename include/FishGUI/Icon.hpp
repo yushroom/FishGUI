@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <nanovg.h>
+#include <nanovg/nanovg.h>
 #include "Math.hpp"
 
 #include "Draw.hpp"

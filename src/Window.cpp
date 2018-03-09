@@ -11,7 +11,7 @@
 #include <sstream>
 #include <GLFW/glfw3.h>
 
-#include <nanovg.h>
+#include <nanovg/nanovg.h>
 
 
 static const char* screenVS = R"(
@@ -331,10 +331,13 @@ namespace FishGUI
 		}
 		
 		nvgEndFrame(GetNVGContext());
-		OverlayDraw();
 		
+
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_framebuffer.Unbind();
+
+
+		OverlayDraw();
 	}
 
 

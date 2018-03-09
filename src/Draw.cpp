@@ -3,9 +3,9 @@
 
 #include <FishGUI/GLEnvironment.hpp>
 #include <FishGUI/Draw.hpp>
-#include "nanovg.h"
+#include <nanovg/nanovg.h>
 #define NANOVG_GL3_IMPLEMENTATION
-#include "nanovg_gl.h"
+#include <nanovg/nanovg_gl.h>
 #include <FishGUI/Theme.hpp>
 
 

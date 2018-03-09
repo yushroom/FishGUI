@@ -322,6 +322,19 @@ namespace FishGUI
 		DrawCheckBox(ctx, r2, inoutValue);
 		return ret;
 	}
+
+	void Text(const char* label, const std::string& text)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = GetDrawContext();
+		Rect r1, r2;
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange);
+		if (outOfRange)
+			return;
+		DrawLabel(ctx, label, r1);
+		DrawEditBox(ctx, text.c_str(), r2);
+	}
 	
 	void InputText(const std::string & label, std::string& inoutValue)
 	{
@@ -373,6 +386,22 @@ namespace FishGUI
 		
 		DrawDropDown(ctx, inoutValue.c_str(), r2);
 	}
+
+	bool Float(const std::string & label, float& value)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = GetDrawContext();
+		Rect r1, r2;
+		bool outOfRange;
+		g_IMContext->NextCell2(r1, r2, outOfRange);
+		if (outOfRange)
+			return false;
+
+		DrawLabel(ctx, label.c_str(), r1);
+		auto fstr = ToString(value);
+		DrawEditBox(ctx, fstr.c_str(), r2);
+	}
+
 	
 	void Image(unsigned int image, int width, int height, bool flip)
 	{

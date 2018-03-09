@@ -64,9 +64,11 @@ namespace FishGUI
 	bool Button(const std::string & text);
 	void Label(const std::string & text);
 	bool CheckBox(const std::string & label, bool& inoutValue);
+	void Text(const char* label, const std::string& text);		// constant
 	void InputText(const std::string & label, std::string& inoutValue);
 	bool Slider(const std::string & label, float& inoutValue, float minValue, float maxValue);
 	void Combox(const std::string & label, const std::string& inoutValue);
+	bool Float(const std::string & label, float& value);
 	
 	void Image(unsigned int image, int width, int height, bool flip = false);
 	

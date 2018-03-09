@@ -3,7 +3,7 @@
 #pragma warning(push)
 #pragma warning(disable : 4244)
 
-#include "nanovg.h"
+#include <nanovg/nanovg.h>
 #include "Math.hpp"
 #include "FishGUI.hpp"
 

@@ -4,7 +4,7 @@
 
 #include <FishGUI/Draw.hpp>
 #include <FishGUI/Theme.hpp>
-#include "nanovg_gl.h"
+#include <nanovg/nanovg_gl.h>
 #include <FishGUI/Utils.hpp>
 #include <FishGUI/Input.hpp>
 

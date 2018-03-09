@@ -2,6 +2,7 @@
 
 #include <FishGUI/Widget.hpp>
 #include <functional>
+#include <boost/signals2/signal.hpp>
 
 class UnityToolBar : public FishGUI::ToolBar
 {
@@ -15,24 +16,19 @@ public:
 	
 	typedef std::function<void(void)> Callback;
 
-	void SetRunCallback(Callback func) { m_runCallback = func; }
-	void SetStopCallback(Callback func) { m_stopCallback = func; }
-	void SetPauseCallback(Callback func) { m_puaseCallback = func; }
-	void SetResumeCallBack(Callback func) { m_resumeCallback = func; }
-	void SetNextFrameCallback(Callback func) { m_nextFrameCallback = func; }
 	void SetTransformType();
+
+	boost::signals2::signal<void(void)> OnRun;
+	boost::signals2::signal<void(void)> OnStop;
+	boost::signals2::signal<void(void)> OnPause;
+	boost::signals2::signal<void(void)> OnResume;
+	boost::signals2::signal<void(void)> OnNextFrame;
 
 protected:
 
-	void Run() { if (m_runCallback) m_runCallback(); }
-	void Stop() { if (m_stopCallback) m_stopCallback(); }
-	void Pause() { if (m_puaseCallback) m_puaseCallback(); }
-	void Resume() { if (m_resumeCallback) m_resumeCallback(); }
-	void NextFrame() { if (m_nextFrameCallback) m_nextFrameCallback(); }
-
-	Callback m_runCallback;
-	Callback m_stopCallback;
-	Callback m_puaseCallback;
-	Callback m_resumeCallback;
-	Callback m_nextFrameCallback;
+	void Run() { OnRun(); }
+	void Stop() { OnStop(); }
+	void Pause() { OnPause(); }
+	void Resume() { OnResume(); }
+	void NextFrame() { OnNextFrame(); }
 };

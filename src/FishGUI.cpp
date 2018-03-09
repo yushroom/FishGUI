@@ -3,7 +3,7 @@
 
 #include <FishGUI/Draw.hpp>
 #define NANOVG_GL3 1
-#include "nanovg_gl.h"
+#include <nanovg/nanovg_gl.h>
 #include <FishGUI/Theme.hpp>
 
 #include <FishGUI/FishGUI.hpp>
@@ -157,9 +157,12 @@ namespace FishGUI
 //		nvgStroke(vg);
 
 //		Widget::Draw();
-		auto content = m_children[m_activeTabId];
-		content->SetRect(r.x, r.y, r.width, r.height);
-		content->BindAndDraw();
+		if (!m_children.empty())
+		{
+			auto content = m_children[m_activeTabId];
+			content->SetRect(r.x, r.y, r.width, r.height);
+			content->BindAndDraw();
+		}
 		
 		nvgRestore(vg);
 	}

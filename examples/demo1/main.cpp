@@ -177,23 +177,23 @@ Window* GetMainWindow()
 		scene->RenderScene();
 	});
 	
-	toolBar->SetRunCallback([scene]() {
+	toolBar->OnRun.connect([scene]() {
 		scene->Run();
 	});
 	
-	toolBar->SetStopCallback([scene]() {
+	toolBar->OnStop.connect([scene]() {
 		scene->Stop();
 	});
 	
-	toolBar->SetPauseCallback([scene]() {
+	toolBar->OnPause.connect([scene]() {
 		scene->Pause();
 	});
 	
-	toolBar->SetResumeCallBack([scene]() {
+	toolBar->OnResume.connect([scene]() {
 		scene->Resume();
 	});
 	
-	toolBar->SetNextFrameCallback([scene]() {
+	toolBar->OnNextFrame.connect([scene]() {
 		scene->NextFrame();
 	});
 	
