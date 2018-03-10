@@ -4,7 +4,6 @@
 
 namespace FishGUI
 {
-
 	class FrameBuffer
 	{
 	public:

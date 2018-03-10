@@ -10,7 +10,7 @@
 #include <FishGUI/Window.hpp>
 
 #include "../common/UnityToolBar.hpp"
-#include "../common/HierarchyWidget.hpp"
+#include "../common/HierarchyView.hpp"
 #include "../common/DirTreeWidget.hpp"
 #include "../common/FileListWidget.hpp"
 #include "../common/SceneViewWidget.hpp"
@@ -106,7 +106,7 @@ Window* GetMainWindow()
 	auto left = new TabWidget("left");
 	left->SetWidth(200);
 	left->SetMinSize(200, 150);
-	auto hierarchy = new HierarchyWidget("Hierarchy");
+	auto hierarchy = new HierarchyView("Hierarchy");
 	left->AddChild(hierarchy);
 	
 	auto center = new TabWidget("center");

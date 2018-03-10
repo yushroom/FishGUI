@@ -44,10 +44,10 @@ public:
 	}
 };
 
-class HierarchyWidget : public FishGUI::TreeWidget<GameObject*>
+class HierarchyView : public FishGUI::TreeWidget<GameObject*>
 {
 public:
 	typedef FishGUI::TreeWidget<GameObject*> Super;
 
-	HierarchyWidget(const char* name);
+	HierarchyView(const char* name);
 };

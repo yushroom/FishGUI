@@ -302,6 +302,12 @@ namespace FishGUI
 		}
 
 		virtual void Draw() override;
+		
+		void SetActiveTab(int index)
+		{
+			assert(index >= 0 && index < m_children.size());
+			m_activeTabId = index;
+		}
 
 	protected:
 		std::vector<Widget*> m_children;

@@ -1,4 +1,4 @@
-#include "HierarchyWidget.hpp"
+#include "HierarchyView.hpp"
 #include <FishGUI/Draw.hpp>
 #include <FishGUI/FishGUI.hpp>
 #include <FishGUI/Theme.hpp>
@@ -8,7 +8,7 @@
 
 using namespace FishGUI;
 
-HierarchyWidget::HierarchyWidget(const char* name) : Super(name)
+HierarchyView::HierarchyView(const char* name) : Super(name)
 {
 	m_model = new HierarchyModel();
 	m_imContext->ymargin = 0;
