@@ -428,7 +428,7 @@ namespace FishGUI
 		bool outOfRange;
 		g_IMContext->NextCell2(r1, r2, outOfRange, 1, 3);
 		if (outOfRange)
-			return;
+			return false;
 		
 		DrawLabel(ctx, label.c_str(), r1);
 		
