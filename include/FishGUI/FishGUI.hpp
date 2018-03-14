@@ -80,5 +80,5 @@ namespace FishGUI
 	void Image(unsigned int image, const Rect& r, bool flip = false);
 	
 	// useful widgets
-	void Float3(const std::string & label, float& x, float& y, float& z);
+	bool Float3(const std::string & label, float& x, float& y, float& z);
 }

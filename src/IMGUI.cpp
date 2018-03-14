@@ -400,6 +400,7 @@ namespace FishGUI
 		DrawLabel(ctx, label.c_str(), r1);
 		auto fstr = ToString(value);
 		DrawEditBox(ctx, fstr.c_str(), r2);
+		return false;
 	}
 
 	
@@ -419,7 +420,7 @@ namespace FishGUI
 		DrawImage(ctx, image, r, flip);
 	}
 	
-	void Float3(const std::string & label, float& x, float& y, float& z)
+	bool Float3(const std::string & label, float& x, float& y, float& z)
 	{
 		assert(g_IMContext->widget != nullptr);
 		auto ctx = GetDrawContext();
@@ -454,5 +455,7 @@ namespace FishGUI
 		HSplitRect2(r23, l, r, label_len, -1, pad);
 		DrawLabel(ctx, "Z", l, align);
 		DrawEditBox(ctx, z_str.c_str(), r);
+		
+		return false;
 	}
 }
