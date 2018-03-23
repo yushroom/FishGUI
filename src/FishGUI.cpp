@@ -215,6 +215,7 @@ namespace FishGUI
 #endif
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+		glfwWindowHint(GLFW_SAMPLES, 4);
 //		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 		
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -236,6 +237,7 @@ namespace FishGUI
 		}
 		//fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
+		glEnable(GL_MULTISAMPLE);
 
 		context.m_nvgContext = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 
