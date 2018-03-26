@@ -106,8 +106,8 @@ namespace FishGUI
 						imageRect.y += pad;
 						imageRect.width = imageSize;
 						imageRect.height = imageSize;
-						FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 255, 255));
-						//icon->Draw(Context::GetInstance().m_drawContext, imageRect);
+//						FishGUI::DrawRect(ctx, imageRect, nvgRGB(255, 255, 255));
+						icon->Draw(Context::GetInstance().m_drawContext, imageRect);
 
 						const auto& text = m_model->Text(node);
 						auto textRect = r;

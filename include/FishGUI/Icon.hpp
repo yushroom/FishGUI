@@ -7,6 +7,8 @@
 #include "Draw.hpp"
 #include "Theme.hpp"
 
+#include "FishGUI.hpp"
+
 namespace FishGUI
 {
 	struct DrawContext;
@@ -45,13 +47,34 @@ namespace FishGUI
 		const char* m_fontFace;
 	};
 
-	/*
+	
 	class ImageIcon : public Icon
 	{
 	public:
-		virtual void Draw(const Rect& rect) override;
+		static ImageIcon* FromFile(const std::string& path)
+		{
+			auto icon = new ImageIcon();
+//			m_texture = nvgCreateImage(context->vg, path.c_str(), 0);
+			icon->m_path = path;
+			return icon;
+		}
+		
+		virtual void Draw(DrawContext* context, const Rect& r) const override
+		{
+			auto ctx = context->vg;
+			if (m_texture == -1)
+				m_texture = nvgCreateImage(context->vg, m_path.c_str(), 0);
+//			FishGUI::Image(5, rect);
+			auto imgPaint = nvgImagePattern(ctx, r.x, r.y, r.width, r.height, 0, m_texture, 1);
+			nvgBeginPath(ctx);
+			nvgRect(ctx, r.x, r.y, r.width, r.height);
+			nvgFillPaint(ctx, imgPaint);
+			nvgFill(ctx);
+		}
+		
 	protected:
-		unsigned int m_texture = 0;	// opengl texture
+		ImageIcon() = default;
+		mutable int m_texture = -1;	// opengl texture
+		std::string m_path;
 	};
-	*/
 }
