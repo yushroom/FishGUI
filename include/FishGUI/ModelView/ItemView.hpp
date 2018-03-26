@@ -146,7 +146,7 @@ namespace FishGUI
 //			m_onSelectionChanged = callback;
 //		}
 		
-		boost::signals2::signal<void(T)> selectionChanged;
+		boost::signals2::signal<void(T)> OnSelectionChanged;
 
 		void BlockSignals(bool block)
 		{
@@ -160,7 +160,7 @@ namespace FishGUI
 		{
 			if (m_signalBlocked)
 				return;
-			selectionChanged(m_lastSelected);
+			OnSelectionChanged(m_lastSelected);
 		}
 
 
@@ -334,7 +334,7 @@ namespace FishGUI
 						m_selectionModel.SelectItem(*it, SelectionFlag::Select);
 					}
 					m_selectionModel.BlockSignals(false);
-					m_selectionModel.selectionChanged(item);
+					m_selectionModel.OnSelectionChanged(item);
 					//m_lastSelected = m_rangeSelectionBegin = *it1;
 				}
 				//rangeSelectionEnd = nullptr;

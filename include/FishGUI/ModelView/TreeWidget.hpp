@@ -51,7 +51,7 @@ namespace FishGUI
 				Cell(m_root);
 			}
 			
-			// handle aditional keyEvent
+			// handle additional keyEvent
 			auto e = this->m_keyEvent;
 			auto item = m_selectionModel.SelectedItem();
 			if (e != nullptr && !e->isAccepted() && item != nullptr && e->type()==KeyEvent::Type::KeyPress)
@@ -61,6 +61,7 @@ namespace FishGUI
 				{
 					auto child = m_model->ChildAt(0, item);
 					m_selectionModel.SelectItem(child, SelectionFlag::ClearAndSelect);
+					//ScrollTo(child);	// child is not in visible items
 					m_unfolded.insert(item);
 					e->Accept();
 				}
@@ -79,6 +80,7 @@ namespace FishGUI
 						if (parent != nullptr)
 						{
 							m_selectionModel.SelectItem(parent, SelectionFlag::ClearAndSelect);
+							ScrollTo(parent);
 							e->Accept();
 						}
 					}
