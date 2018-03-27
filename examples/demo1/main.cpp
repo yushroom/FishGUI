@@ -92,7 +92,7 @@ Window* GetMainWindow()
 	files->SetWidth(400);
 	files->SetMinSize(200, 100);
 	files->GetFileListWidget()->SetRoot(rootNode);
-	dirs->GetSelectionModel()->selectionChanged.connect([files](FileNode* node){
+	dirs->GetSelectionModel()->OnSelectionChanged.connect([files](FileNode* node){
 		if (node != nullptr)
 			files->GetFileListWidget()->SetRoot(node);
 	});
@@ -264,7 +264,7 @@ int main()
 	layout->SetWidget(tw);
 	dialog1->SetLayout(layout);
 	tab2->SetRenderFunction(f2);
-	dirs->GetSelectionModel()->selectionChanged.connect([dialog1](FileNode* node){
+	dirs->GetSelectionModel()->OnSelectionChanged.connect([dialog1](FileNode* node){
 		if (node != nullptr)
 		{
 			glfwSetWindowShouldClose(dialog1->GetGLFWWindow(), GLFW_TRUE);
