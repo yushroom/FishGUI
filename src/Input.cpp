@@ -1,7 +1,9 @@
 #include <FishGUI/Input.hpp>
 
 #include <iostream>
-
+#if FISHENGINE_PLATFORM_APPLE
+#	define GLFW_INCLUDE_GLCOREARB
+#endif
 #include <GLFW/glfw3.h>
 
 #include <FishGUI/Widget.hpp>

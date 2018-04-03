@@ -9,6 +9,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#if FISHENGINE_PLATFORM_APPLE
+#	define GLFW_INCLUDE_GLCOREARB
+#endif
 #include <GLFW/glfw3.h>
 
 #include <nanovg/nanovg.h>

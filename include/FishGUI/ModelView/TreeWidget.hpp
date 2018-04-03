@@ -80,7 +80,7 @@ namespace FishGUI
 						if (parent != nullptr)
 						{
 							m_selectionModel.SelectItem(parent, SelectionFlag::ClearAndSelect);
-							ScrollTo(parent);
+							this->ScrollTo(parent);
 							e->Accept();
 						}
 					}
@@ -142,7 +142,7 @@ namespace FishGUI
 
 				// preicon
 				constexpr int preiconWidth = 20;
-				constexpr int iconWidth = 20;
+//				constexpr int iconWidth = 20;
 
 				int x = rect.x + preiconWidth / 2 + 2;
 				int y = rect.y + 16 / 2;
@@ -182,7 +182,11 @@ namespace FishGUI
 				// text
 //				rect.x += 2;
 				rect.width -= 20 + 2;
+				auto texColor = m_model->TextColor(go);
+				auto old = theme->textColor;
+				theme->textColor = texColor;
 				Label(m_model->Text(go), rect);
+				theme->textColor = old;
 			}
 
 			Indent(10);

@@ -2,6 +2,9 @@
 
 #include <list>
 #include <algorithm>
+#if FISHENGINE_PLATFORM_APPLE
+#	define GLFW_INCLUDE_GLCOREARB
+#endif
 #include <GLFW/glfw3.h>
 
 #include "../Widget.hpp"
@@ -12,35 +15,6 @@
 
 namespace FishGUI
 {
-//	template<class T>
-//	struct IsNullable : std::integral_constant<bool,
-//												std::is_pointer<T>::value ||
-//	std::is_integral<T>::value> {};
-//	
-	template<class T>
-	constexpr int NullOf()
-	{
-		return NULL;
-	}
-	
-//	template<class T>
-//	constexpr nullptr_t NullOf<T*>()
-//	{
-//		return nullptr;
-//	}
-//
-//	template<class T>
-//	constexpr nullptr_t NullOf<std::shared_ptr<T>>()
-//	{
-//		return nullptr;
-//	}
-	
-	template<>
-	constexpr int NullOf<int>()
-	{
-		return -1;
-	}
-	
 	template<class T>
 	class TItemModel
 	{
@@ -50,6 +24,7 @@ namespace FishGUI
 		virtual int ChildCount(T item) const = 0;
 		virtual std::string Text(T item) const = 0;
 		virtual const FishGUI::Icon* Icon(T item) const { return nullptr; }
+		virtual NVGcolor TextColor(T item) const { return NVGcolor{{0, 0, 0, 1}}; }
 	};
 
 	
