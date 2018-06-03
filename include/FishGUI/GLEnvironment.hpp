@@ -34,7 +34,7 @@ namespace FishGUI
 			}
 
 	//		LogError(Format("GL_%1% - %2%:%3%", error, file, line));
-			printf("[%d] GL_%s\n", line, error);
+			printf("[%s:%d] GL_%s\n", file, line, error);
 			err = glGetError();
 		}
 	}

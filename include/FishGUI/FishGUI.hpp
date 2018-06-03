@@ -81,4 +81,5 @@ namespace FishGUI
 	
 	// useful widgets
 	bool Float3(const std::string & label, float& x, float& y, float& z);
+	bool Float4(const std::string & label, float& x, float& y, float& z, float w);
 }

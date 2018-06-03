@@ -90,9 +90,29 @@ namespace FishGUI
 		r3.x = r2.x + w2 + interval;
 	}
 	
+	// horizontally divide rect into 4 rects
+	void HSplitRect4(const Rect& r, Rect& r1, Rect& r2, Rect& r3, Rect& r4, float size1, float size2, float size3, float size4, int interval)
+	{
+		r1 = r2 = r3 = r4 = r;
+		float s = (r.width - interval*3) / (size1+size2+size3+size4);
+		int w1 = static_cast<int>(s * size1);
+		int w2 = static_cast<int>(s * size2);
+		int w3 = static_cast<int>(s * size3);
+		int w4 = r.width - interval*2 - w1 - w2 - w3;
+		r1.width = w1;
+		r2.width = w2;
+		r3.width = w3;
+		r4.width = w4;
+		r2.x = r1.x + w1 + interval;
+		r3.x = r2.x + w2 + interval;
+		r4.x = r3.x + w3 + interval;
+	}
+	
 	// slower than std:to_string but the result is more elegant
 	std::string ToString(float x)
 	{
+		if (x < 1e-7 && x > -1e-7)
+			return "0";
 		std::ostringstream sout;
 		sout << x;
 		return sout.str();
@@ -458,4 +478,56 @@ namespace FishGUI
 		
 		return false;
 	}
+	
+	bool Float4(const std::string & label, float& x, float& y, float& z, float w)
+	{
+		assert(g_IMContext->widget != nullptr);
+		auto ctx = GetDrawContext();
+		
+		bool outOfRange;
+		Rect labelRect = g_IMContext->NextCell(IMGUIContext::cellHeight, outOfRange);
+		if (outOfRange)
+			return false;
+		
+		DrawLabel(ctx, label.c_str(), labelRect);
+		
+		Rect rect = g_IMContext->NextCell(IMGUIContext::cellHeight, outOfRange);
+		if (outOfRange)
+			return false;
+		
+		constexpr int leftPad = 12;
+		rect.x += leftPad;
+		
+		constexpr int pad = 2;
+//		constexpr int label_len = 8;
+		
+		auto x_str = ToString(x);
+		auto y_str = ToString(y);
+		auto z_str = ToString(z);
+		auto w_str = ToString(w);
+		
+		Rect r21, r22, r23, r24;
+		HSplitRect4(rect, r21, r22, r23, r24, 1, 1, 1, 1, pad);
+//		constexpr int align = NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE;
+//		Rect l, r;
+		
+//		HSplitRect2(r21, l, r, label_len, -1, pad);
+//		DrawLabel(ctx, "X", l, align);
+		DrawEditBox(ctx, x_str.c_str(), r21);
+		
+//		HSplitRect2(r22, l, r, label_len, -1, pad);
+//		DrawLabel(ctx, "Y", l, align);
+		DrawEditBox(ctx, y_str.c_str(), r22);
+		
+//		HSplitRect2(r23, l, r, label_len, -1, pad);
+//		DrawLabel(ctx, "Z", l, align);
+		DrawEditBox(ctx, z_str.c_str(), r23);
+		
+//		HSplitRect2(r24, l, r, label_len, -1, pad);
+//		DrawLabel(ctx, "Z", l, align);
+		DrawEditBox(ctx, w_str.c_str(), r24);
+		
+		return false;
+	}
+
 }
