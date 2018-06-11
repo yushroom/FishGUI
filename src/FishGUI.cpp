@@ -61,6 +61,14 @@ namespace FishGUI
 		return &Context::GetInstance();
 	}
 	
+	float Context::GetPixelRatioOfCurrentWindow()
+	{
+		if (m_window != nullptr)
+			return m_window->PixelRatio();
+		return 0.0f;
+	}
+	
+	
 	inline Input* CurrentInput()
 	{
 		return Context::GetInstance().m_input;

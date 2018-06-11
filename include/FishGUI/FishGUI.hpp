@@ -35,6 +35,8 @@ namespace FishGUI
 		void UnbindWindow();
 		void UnbindWidget();
 		
+		float GetPixelRatioOfCurrentWindow();
+		
 	private:
 		// make it singleton
 		Context();
