@@ -27,7 +27,7 @@ namespace FishGUI
 		virtual NVGcolor TextColor(T item) const { return NVGcolor{{0, 0, 0, 1}}; }
 	};
 
-	
+
 	enum class SelectionMode
 	{
 		//NoSelection,
@@ -60,12 +60,12 @@ namespace FishGUI
 		{
 			return m_lastSelected;
 		}
-		
+
 		const std::list<T>& SelectedItems() const
 		{
 			return m_selection;
 		}
-		
+
 		void ClearSelections()
 		{
 			m_selection.clear();
@@ -120,7 +120,7 @@ namespace FishGUI
 //		{
 //			m_onSelectionChanged = callback;
 //		}
-		
+
 		boost::signals2::signal<void(T)> OnSelectionChanged;
 
 		void BlockSignals(bool block)
@@ -143,7 +143,7 @@ namespace FishGUI
 		SelectionMode m_mode = SelectionMode::Extended;
 //		SelectionChangedCallback m_onSelectionChanged;
 
-		
+
 		T m_lastSelected = nullptr;
 	};
 
@@ -194,7 +194,7 @@ namespace FishGUI
 			{
 				return;
 			}
-			
+
 			if (m_selectionModel.GetSelections().empty())
 			{
 				return;
@@ -264,7 +264,7 @@ namespace FishGUI
 
 			bool appendMode = isMulti && (e->modifiers() & MODIFIER) != 0;
 			bool rangeMode = isMulti && (e->modifiers() & int(Modifier::Shift)) != 0 && lastSelected != nullptr;
-			
+
 			if (appendMode)
 			{
 				SelectionFlag flag;
@@ -328,7 +328,7 @@ namespace FishGUI
 			auto e = m_mouseEvent;
 			if (e == nullptr || e->isAccepted())
 				return;
-			
+
 			if (e->type() == MouseEvent::Type::MouseButtonPress)
 			{
 				auto p = e->pos();
@@ -385,7 +385,7 @@ namespace FishGUI
 		TItemSelectionModel<T> 	m_selectionModel;
 		std::vector<T> 			m_visibleItems;
 		std::vector<Rect>		m_visibleItemRects;
-		
+
 		int m_columns = 1;	// items per row
 
 		T m_rangeSelectionBegin = nullptr;

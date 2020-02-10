@@ -20,7 +20,7 @@ namespace FishGUI
 		using IMWidget::m_imContext;
 		using Widget::m_rect;
 		using Widget::m_isFocused;
-		
+
 	public:
 		ListWidget(const char* name) : Super(name) { }
 

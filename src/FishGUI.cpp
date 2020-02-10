@@ -29,67 +29,67 @@ namespace FishGUI
 	{
 		m_drawContext = new DrawContext();
 	}
-	
+
 	Context::~Context()
 	{
 		delete m_drawContext;
 	}
-	
+
 	void Context::BindWindow(Window* window)
 	{
 		m_window = window;
 	}
-	
+
 	void Context::BindWidget(Widget* widget)
 	{
 		m_widget = widget;
 		m_window->m_widgets.push_back(m_widget);
 	}
-	
+
 	void Context::UnbindWindow()
 	{
 		m_window = nullptr;
 	}
-	
+
 	void Context::UnbindWidget()
 	{
 		m_widget = nullptr;
 	}
-	
+
 	inline Context* CurrentContext()
 	{
 		return &Context::GetInstance();
 	}
-	
+
 	float Context::GetPixelRatioOfCurrentWindow()
 	{
 		if (m_window != nullptr)
 			return m_window->PixelRatio();
 		return 0.0f;
 	}
-	
-	
+
+
 	inline Input* CurrentInput()
 	{
 		return Context::GetInstance().m_input;
 	}
-	
+
 	inline Theme* CurrentTheme()
 	{
 		return Context::GetInstance().m_drawContext->theme;
 	}
-	
+
 	inline NVGcontext* GetNVGContext()
 	{
 		return Context::GetInstance().m_drawContext->vg;
 	}
-	
+
 	inline DrawContext* GetDrawContext()
 	{
 		return Context::GetInstance().m_drawContext;
 	}
-	
-	
+
+
 	int DrawTabHeader(DrawContext* context, int x, int y, int w, int h, const std::vector<std::string>& tabNames, int activeHeaderId)
 	{
 		int newActivateId = activeHeaderId;
@@ -123,13 +123,13 @@ namespace FishGUI
 			GetDrawContext()->theme = m_theme;
 		else
 			GetDrawContext()->theme = Theme::GetDefaultTheme();
-		
+
 		Draw();
-		
+
 		// unbind
 		GetDrawContext()->theme = nullptr;
 		Context::GetInstance().UnbindWidget();
-		
+
 		// clear events
 		m_keyEvent = nullptr;
 		m_mouseEvent = nullptr;
@@ -161,7 +161,7 @@ namespace FishGUI
 		nvgFillColor(vg, theme->tabContentBackgroundColor);
 		nvgRect(vg, (float)r.x, (float)r.y, (float)r.width, (float)r.height);
 		nvgFill(vg);
-		
+
 //		nvgBeginPath(vg);
 //		nvgRect(vg, r.x + 0.5f, r.y + 0.5f, r.width - 1, r.height - 1);
 //		nvgStrokeColor(vg, nvgRGB(0, 0, 0));
@@ -174,17 +174,17 @@ namespace FishGUI
 			content->SetRect(r.x, r.y, r.width, r.height);
 			content->BindAndDraw();
 		}
-		
+
 		nvgRestore(vg);
 	}
-	
-	
-	
+
+
+
 	static void GlfwErrorCallback(int error, const char* description)
 	{
 		fputs(description, stderr);
 	}
-	
+
 
 
 	void CreateFont(NVGcontext* ctx, const char* name, const std::string& path)
@@ -195,16 +195,16 @@ namespace FishGUI
 			printf("[ERROR] font not found: %s\n", path.c_str());
 		}
 	}
-	
+
 	static FishGUIContext context;
-	
+
 	Window* NewWindow(const char* title, int w, int h)
 	{
 		auto dialog = new Window(&context, title, w, h);
 //		WindowManager::GetInstance().m_windows.push_back(dialog);
 		return dialog;
 	}
-	
+
 
 	void Init()
 	{
@@ -228,14 +228,14 @@ namespace FishGUI
 		glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 		glfwWindowHint(GLFW_SAMPLES, 4);
 //		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-		
+
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		auto contextWindow = glfwCreateWindow(1, 1, "context", nullptr, nullptr);
 		glfwMakeContextCurrent(contextWindow);
 		glfwSwapInterval(1);
 		context.m_contextWindow = contextWindow;
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-		
+
 #if ! __APPLE__
 		// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 		glewExperimental = GL_TRUE;
@@ -280,13 +280,13 @@ namespace FishGUI
 	{
 		Cursor::GetInstance().Draw();
 	}
-	
+
 	void Run()
 	{
 //		auto mainWindow = WindowManager::GetInstance().GetMainWindow();
-		
+
 		double lastTime = glfwGetTime();
-		
+
 		while (true)
 		{
 			// get mouse position
@@ -310,10 +310,10 @@ namespace FishGUI
 				w->BindAndDraw();
 			}
 			AfterFrame();
-			
+
 //			glfwSwapBuffers(context.m_contextWindow);
 			glFlush();
-			
+
 			for (auto w : windows)
 			{
 				w->AfterFrame();
@@ -321,7 +321,7 @@ namespace FishGUI
 				input.Update();
 			}
 			glfwPollEvents();
-			
+
 			Window* remove = nullptr;
 			for (auto win : windows)
 			{
@@ -337,7 +337,7 @@ namespace FishGUI
 				windows.remove(remove);
 				delete remove;
 			}
-			
+
 			double now = glfwGetTime();
 			double interval = now - lastTime;
 			//printf("time: %lf ms\n", interval*1000);
@@ -349,11 +349,11 @@ namespace FishGUI
 			}
 			lastTime = now;
 			//glCheckError();
-			
+
 			if (windows.empty())
 				break;
 		}
-		
+
 		WindowManager::GetInstance().Clear();
 
 		glfwDestroyWindow(context.m_contextWindow);

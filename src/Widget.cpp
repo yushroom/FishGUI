@@ -12,18 +12,18 @@
 namespace FishGUI
 {
 	//void CalcSplitRect(
-	//	Orientation orientation, 
-	//	Alignment alignment1, 
-	//	Alignment alignment2, 
-	//	const Rect & rect, 
-	//	int middleInterval, 
+	//	Orientation orientation,
+	//	Alignment alignment1,
+	//	Alignment alignment2,
+	//	const Rect & rect,
+	//	int middleInterval,
 	//	Rect& out1, Rect& out2)
 	//{
 	//	if (orientation == Orientation::Horizontal)	// left and right
 	//	{
 	//		if (alignment1 == Alignment::Maximum)
 	//		{
-	//			
+	//
 	//		}
 	//	}
 	//}
@@ -40,7 +40,7 @@ namespace FishGUI
 		m_layout = layout;
 		//m_layout->m_widget = this;
 	}
-	
+
 	void SimpleLayout::PerformLayout(const Rect& rect)
 	{
 		if (m_widget == nullptr)
@@ -191,7 +191,7 @@ namespace FishGUI
 		{
 			part2.l->PerformLayout(r2);
 		}
-		
+
 		m_splitter.m_rect = rect;
 		if (m_orientation == Orientation::Horizontal)
 		{

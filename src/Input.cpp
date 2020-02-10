@@ -12,7 +12,7 @@
 namespace FishGUI
 {
 	Input* 	Input::s_current = nullptr;
-	
+
 	void Input::Update()
 	{
 		if (m_firstMouseEvent != nullptr)
@@ -63,13 +63,13 @@ namespace FishGUI
 		{
 			m_dragWidget = nullptr;
 		}
-		
+
 		// scroll
 		m_scrolling = false;
 		m_scroll.x = 0;
 		m_scroll.y = 0;
 	}
-	
+
 	void Cursor::Init()
 	{
 		for (int i = 0; i < static_cast<int>(CursorType::CursorCount); ++i) {

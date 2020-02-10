@@ -30,9 +30,9 @@ namespace FishGUI
 		int tabControlWidth                  = 20;
 		int tabButtonHorizontalPadding       = 10;
 		int tabButtonVerticalPadding         = 2;
-		
+
 		int buttonHeight = 20;
-		
+
 		NVGcolor dropShadow                       = Color(0, 128);
 		NVGcolor transparent                      = Color(0, 0);
 		NVGcolor borderDark                       = Color(29, 255);
@@ -43,7 +43,7 @@ namespace FishGUI
 		NVGcolor disabledTextColor                = Color(255, 80);
 		NVGcolor textColorShadow                  = Color(0, 160);
 		NVGcolor iconColor                        = textColor;
-		
+
 	//	NVGcolor buttonGradientTopFocused         = Color(64, 255);
 	//	NVGcolor buttonGradientBotFocused         = Color(48, 255);
 	//	NVGcolor buttonGradientTopUnfocused       = Color(74, 255);
@@ -57,35 +57,35 @@ namespace FishGUI
 		NVGcolor buttonGradientBotUnfocused       = Color(190, 255);
 		NVGcolor buttonGradientTopPushed          = Color(41, 255);
 		NVGcolor buttonGradientBotPushed          = Color(29, 255);
-		
+
 		/* Window-related */
 		NVGcolor windowBackgroundColor = Color(162, 255);
 	//	NVGcolor windowFocusedHeaderColor = Color(230, 255);
 		NVGcolor tabContentBackgroundColor = Color(194, 255);
-		
+
 		float tabHeaderFontSize = 16.0f;
 		int tabHeaderCellWidth = 80;
 		NVGcolor tabHeaderActiveColor = tabContentBackgroundColor;
-		
+
 		NVGcolor windowFillUnfocused              = Color(43, 230);
 		NVGcolor windowFillFocused                = Color(45, 230);
 		NVGcolor windowTitleUnfocused             = Color(220, 160);
 		NVGcolor windowTitleFocused               = Color(255, 190);
-		
+
 		NVGcolor windowHeaderGradientTop          = buttonGradientTopUnfocused;
 		NVGcolor windowHeaderGradientBot          = buttonGradientBotUnfocused;
 		NVGcolor windowHeaderSepTop               = borderLight;
 		NVGcolor windowHeaderSepBot               = borderDark;
-		
+
 		NVGcolor windowPopup                      = Color(50, 255);
 		NVGcolor windowPopupTransparent           = Color(50, 0);
-		
+
 		NVGcolor scrollBarColor					= Color(119, 137, 163, 255);
 		NVGcolor scrollBarBackColor				= Color(230, 255);
-		
+
 		NVGcolor selectionHighlightColor 		= Color(62, 125, 231, 255);
 		NVGcolor selectionColor 				= Color(143, 255);
-		
+
 		static Theme* GetDefaultTheme()
 		{
 			static Theme theme;
