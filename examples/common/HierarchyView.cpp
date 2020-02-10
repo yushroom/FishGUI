@@ -23,12 +23,12 @@ HierarchyView::HierarchyView(const char* name) : Super(name)
 	}
 	m_unfolded.insert(m_root);
 	m_unfolded.insert(go);
-	
+
 	for (int i = 0; i < 10; ++i)
 	{
 		go = go->children[0];
 		go->AddChild(new GameObject("Child" + std::to_string(i)));
 	}
-	
+
 	m_selectionModel.SelectItem(m_root);
 }

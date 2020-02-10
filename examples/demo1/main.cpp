@@ -26,7 +26,7 @@ public:
 	IMWidget2(const char* name) : IMWidget(name)
 	{
 	}
-	
+
 	virtual void DrawImpl() override
 	{
 		if (m_renderFunction != nullptr)
@@ -34,14 +34,14 @@ public:
 			m_renderFunction();
 		}
 	}
-	
+
 	typedef std::function<void(void)> RenderFunction;
 
 	void SetRenderFunction(RenderFunction func)
 	{
 		m_renderFunction = func;
 	}
-	
+
 protected:
 	RenderFunction	m_renderFunction;
 };
@@ -66,13 +66,13 @@ Window* GetMainWindow()
 	auto win = NewWindow("Fish GUI", 950, 600);
 	auto mainLayout = new UnityLayout();
 	win->SetLayout(mainLayout);
-	
+
 	auto right = new TabWidget("right");
 	right->SetWidth(270);
 	right->SetMinSize(250, 150);
 	auto inspector = new IMWidget2("Inspector");
 	right->AddChild(inspector);
-	
+
 	auto bottom = new TabWidget("bottom");
 	bottom->SetHeight(180);
 	bottom->SetMinSize(150, 150);
@@ -80,7 +80,7 @@ Window* GetMainWindow()
 	auto console = new IMWidget2("Console");
 	bottom->AddChild(project);
 	bottom->AddChild(console);
-	
+
 //	auto rootNode = new FileNode("/Users/yushroom/program/FishEngine/Example/UnityChan-crs/Assets");
 	auto rootNode = new FileNode(ApplicationFilePath());
 //	auto rootNode = new FileNode(R"(D:\program\FishGUI)");
@@ -96,19 +96,19 @@ Window* GetMainWindow()
 		if (node != nullptr)
 			files->GetFileListWidget()->SetRoot(node);
 	});
-	
+
 	{
 		auto layout = new SplitLayout(Orientation::Horizontal);
 		project->SetLayout(layout);
 		layout->Split(dirs, files);
 	}
-	
+
 	auto left = new TabWidget("left");
 	left->SetWidth(200);
 	left->SetMinSize(200, 150);
 	auto hierarchy = new HierarchyView("Hierarchy");
 	left->AddChild(hierarchy);
-	
+
 	auto center = new TabWidget("center");
 	center->SetWidth(500);
 	center->SetMinSize(150, 150);
@@ -118,28 +118,28 @@ Window* GetMainWindow()
 	center->AddChild(scene);
 	center->AddChild(game);
 	center->AddChild(assetStore);
-	
+
 	auto layout1 = new SplitLayout(Orientation::Horizontal);
 	auto layout2 = new SplitLayout(Orientation::Vertical);
 	auto layout3 = new SplitLayout(Orientation::Horizontal);
-	
+
 	mainLayout->SetCenterLayout(layout1);
 	layout1->Split(layout2, right);
 	layout2->Split(layout3, bottom);
 	layout3->Split(left, center);
-	
+
 	auto toolBar = new UnityToolBar();
 	mainLayout->SetToolBar(toolBar);
 	auto statusBar = new StatusBar();
 	mainLayout->SetStatusBar(statusBar);
-	
+
 	auto f1 = [statusBar](){
 		FishGUI::Group("Transform");
 		FishGUI::Float3("Position", position.x, position.y, position.z);
 		FishGUI::Float3("Rotation", rotation.x, rotation.y, rotation.z);
 		FishGUI::Float3("Scale", scale.x, scale.y, scale.z);
 		FishGUI::EndGroup();
-		
+
 		FishGUI::Group("Camera");
 		FishGUI::Combox("Clear Flags", "Skybox");
 		FishGUI::Combox("Culling Mask", "Everything");
@@ -153,7 +153,7 @@ Window* GetMainWindow()
 		FishGUI::CheckBox("Allow MSAA", allowMSAA);
 		FishGUI::CheckBox("Allow Dynamic Resolution", allowDynamicResolution);
 		FishGUI::EndGroup();
-		
+
 		FishGUI::Group("Test");
 		FishGUI::InputText("Email", email);
 		//float value = 0.4f;
@@ -169,34 +169,34 @@ Window* GetMainWindow()
 			}
 		}
 	};
-	
+
 	inspector->SetRenderFunction(f1);
 	game->SetRenderFunction(f1);
 	scene->SetIsFocused(true);
 	win->SetPreDraw([scene]() {
 		scene->RenderScene();
 	});
-	
+
 	toolBar->OnRun.connect([scene]() {
 		scene->Run();
 	});
-	
+
 	toolBar->OnStop.connect([scene]() {
 		scene->Stop();
 	});
-	
+
 	toolBar->OnPause.connect([scene]() {
 		scene->Pause();
 	});
-	
+
 	toolBar->OnResume.connect([scene]() {
 		scene->Resume();
 	});
-	
+
 	toolBar->OnNextFrame.connect([scene]() {
 		scene->NextFrame();
 	});
-	
+
 	return win;
 }
 
@@ -205,7 +205,7 @@ int main()
 {
 	FishGUI::Init();
 	auto dialog1 = NewWindow("Open Dialog", 600, 400);
-	
+
 #if 0
 	{
 //		auto win2 = FishGUI::NewWindow("Dialog", 400, 400);
@@ -228,11 +228,11 @@ int main()
 		d->SetRenderFunction(f1);
 	}
 #else
-	
+
 	std::string name = "New Project";
 	std::string path = "/Users/yushroom/program/FishEngine/Example";
-	
-	
+
+
 	auto f2 = [&name, &path]() {
 //		FishGUI::Label("Project name*");
 		FishGUI::InputText("Project name*", name);
@@ -245,7 +245,7 @@ int main()
 		if (FishGUI::Button("Create project")) {
 		}
 	};
-	
+
 //		auto slw = new StringListWidget("Projects");
 //		std::vector<std::string> projects = {"Empty", "Illustrative-Rendering", "PBR"};
 //		for (auto& p : projects)

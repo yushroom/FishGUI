@@ -8,12 +8,12 @@ class UnityToolBar : public FishGUI::ToolBar
 {
 public:
 	UnityToolBar() : ToolBar() {}
-	
+
 	UnityToolBar(UnityToolBar&) = delete;
 	UnityToolBar& operator=(UnityToolBar&) = delete;
-	
+
 	virtual void Draw() override;
-	
+
 	typedef std::function<void(void)> Callback;
 
 	void SetTransformType();
