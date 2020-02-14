@@ -27,7 +27,7 @@ namespace FishGUI
 	class Layout;
 	struct KeyEvent;
 	struct MouseEvent;
-	
+
 	class Widget
 	{
 	public:
@@ -46,7 +46,7 @@ namespace FishGUI
 
 		Theme* GetTheme() { return m_theme; }
 		void SetTheme(Theme* theme) { m_theme = theme; }
-		
+
 		int	GetWidth() const { return m_rect.width; }
 		int	GetHeight() const { return m_rect.height; }
 		void SetWidth(int w) { m_rect.width = w; }
@@ -100,39 +100,39 @@ namespace FishGUI
 		Size				m_fixedSize = { -1, -1 };
 		Size				m_minSize = { 1, 1 };
 		Size				m_maxSize = { 4096, 4096 };
-		
+
 		// a focused widget is the first responder of keyboard event
 		bool				m_isFocused = false;
-		
+
 		KeyEvent*	m_keyEvent = nullptr;
 		MouseEvent* m_mouseEvent = nullptr;
 	};
 
-	
+
 	class Layout
 	{
 	public:
 		Layout() = default;
 		Layout(Layout&) = delete;
 		Layout& operator=(Layout&) = delete;
-		
+
 		virtual void PerformLayout(const Rect& rect) = 0;
 		virtual ~Layout() = default;
 	};
-	
-	
+
+
 	class SimpleLayout : public Layout
 	{
 	public:
 		virtual void PerformLayout(const Rect& rect) override;
 		void SetWidget(Widget* widget) { m_widget = widget; }
 		Widget* GetWidget() { return m_widget; }
-		
+
 	protected:
 		Widget* m_widget;
 	};
 
-	
+
 	class Splitter : public Widget
 	{
 	public:
@@ -144,7 +144,7 @@ namespace FishGUI
 		}
 
 		virtual bool MouseDragEvent(const Vector2i & mousePos) override;
-		
+
 		void Draw3() const;
 
 	private:
@@ -242,10 +242,10 @@ namespace FishGUI
 		Part part1;
 		Part part2;
 	};
-	
+
 	typedef std::function<void(void)> RenderFunction;
 
-	
+
 	// abstract super class for tool bar
 	class ToolBar : public Widget
 	{
@@ -254,12 +254,12 @@ namespace FishGUI
 		{
 			m_rect.height = 32;
 		}
-		
+
 		ToolBar(ToolBar&) = delete;
 		ToolBar& operator=(ToolBar&) = delete;
 	};
 
-	
+
 	class StatusBar : public Widget
 	{
 	public:
@@ -267,7 +267,7 @@ namespace FishGUI
 		{
 			m_rect.height = 20;
 		}
-		
+
 		StatusBar(StatusBar&) = delete;
 		StatusBar& operator=(StatusBar&) = delete;
 
@@ -291,18 +291,18 @@ namespace FishGUI
 		TabWidget(const char* name) : Widget(name)
 		{
 		}
-		
+
 		TabWidget(TabWidget&) = delete;
 		TabWidget& operator=(TabWidget&) = delete;
 
-		
+
 		void AddChild(Widget* w)
 		{
 			m_children.push_back(w);
 		}
 
 		virtual void Draw() override;
-		
+
 		void SetActiveTab(int index)
 		{
 			assert(index >= 0 && index < m_children.size());
@@ -312,8 +312,8 @@ namespace FishGUI
 	protected:
 		std::vector<Widget*> m_children;
 	};
-	
-	
+
+
 	struct IMGUIContext;
 
 	// IMGUI widget with auto layout
@@ -322,19 +322,19 @@ namespace FishGUI
 	public:
 		IMWidget(const char* name);
 		virtual ~IMWidget();
-		
+
 		IMWidget(IMWidget&) = delete;
 		IMWidget& operator=(IMWidget&) = delete;
-		
+
 		virtual void Draw() override;
-		
+
 		virtual void DrawImpl() = 0;
-		
+
 	protected:
 		IMGUIContext*	m_imContext;
 	};
 
-	
+
 	struct IMGUIContext
 	{
 		IMWidget* 		widget = nullptr;
@@ -346,14 +346,14 @@ namespace FishGUI
 		static constexpr int xmargin = 2;
 		int ymargin = 2;
 		static constexpr int Indent = 10;
-		
+
 		// scroll bar status depends on last frame status
 		bool showScrollBar = false;
 		bool needScrollBar = false;
 		static constexpr int scrollBarWidth = 10;
-		
+
 		int indent = 0;
-		
+
 		void Reset()
 		{
 			yStart = 0;
@@ -361,14 +361,14 @@ namespace FishGUI
 			pos.y = rect.y;
 			indent = 0;
 		}
-		
+
 		void BeginFrame()
 		{
 			if (rect.height - totalHeight > 0)
 			{
 				yStart = 0;
 			}
-			
+
 			indent = 0;
 			rect = widget->GetRect();
 			pos.x = rect.x;
@@ -376,7 +376,7 @@ namespace FishGUI
 			showScrollBar = needScrollBar;	// set by last frame
 			needScrollBar = false;			// clear for this frame
 		}
-		
+
 		int Right()
 		{
 			int r = rect.x + rect.width;
@@ -384,7 +384,7 @@ namespace FishGUI
 				r -= scrollBarWidth;
 			return r;
 		}
-		
+
 		void EndFrame();
 		Rect NextCell(int height, bool& outOfRange);
 		// label + ...

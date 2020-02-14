@@ -7,7 +7,7 @@ namespace FishGUI
 {
 	class Shader
 	{
-	public:	
+	public:
 		Shader(const char* vShaderCode, const char* fShaderCode, const char* gShaderCode = nullptr);
 		~Shader();
 

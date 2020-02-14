@@ -19,13 +19,13 @@ namespace FishGUI
 
 		T m_root = nullptr;
 		std::set<T> m_unfolded;
-		
+
 		using Super::m_model;
 		using Super::m_selectionModel;
 		using Super::AppendVisibleItem;
 		using IMWidget::m_imContext;
 		using Widget::m_rect;
-		
+
 	public:
 
 		TreeWidget(const char* name) : Super(name) {
@@ -34,7 +34,7 @@ namespace FishGUI
 		virtual void Render() override
 		{
 			assert(m_model != nullptr);
-			
+
 			if (m_root == nullptr)
 			{
 				// null can also have children
@@ -50,7 +50,7 @@ namespace FishGUI
 			{
 				Cell(m_root);
 			}
-			
+
 			// handle additional keyEvent
 			auto e = this->m_keyEvent;
 			auto item = m_selectionModel.SelectedItem();

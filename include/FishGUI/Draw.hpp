@@ -17,7 +17,7 @@ namespace FishGUI
 	{
 		Theme* 			theme = nullptr;
 		NVGcontext* 	vg = nullptr;
-		
+
 		DrawContext() = default;
 		DrawContext(DrawContext&) = delete;
 		DrawContext& operator=(DrawContext&) = delete;
@@ -87,5 +87,5 @@ namespace FishGUI
 	void DrawRoundedRect(DrawContext* ctx, float x, float y, float w, float h, float r, const NVGcolor & color);
 }
 
-	
+
 #pragma warning(pop)

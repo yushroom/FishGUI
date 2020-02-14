@@ -15,7 +15,7 @@ public:
 	{
 		return child->parent;
 	}
-	
+
 	inline FileNode* ChildAt(int index, FileNode* parent) const override
 	{
 		return parent->subdirs[index];
@@ -46,7 +46,7 @@ class DirTreeWidget : public FishGUI::TreeWidget<FileNode*>
 {
 public:
 	typedef FishGUI::TreeWidget<FileNode*> Super;
-	
+
 	DirTreeWidget(const char* name, FileNode* root) : Super(name)
 	{
 		m_model = new DirTreeModel();

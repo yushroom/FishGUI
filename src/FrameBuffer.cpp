@@ -43,7 +43,7 @@ namespace FishGUI
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, m_colorbuffer, 0);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthbuffer); // now actually attach it
-		
+
 		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -71,7 +71,7 @@ namespace FishGUI
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-		
+
 		m_initialized = true;
 	}
 
@@ -120,7 +120,7 @@ namespace FishGUI
 //		glGetIntegerv(GL_RENDERBUFFER_BINDING, &defaultRBO);
 //		assert(defaultFBO == 0);
 //		assert(defaultRBO == 0);
-		
+
 		assert(m_initialized);
 		glCheckError();
 		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);

@@ -47,7 +47,7 @@ namespace FishGUI
 		const char* m_fontFace;
 	};
 
-	
+
 	class ImageIcon : public Icon
 	{
 	public:
@@ -58,7 +58,7 @@ namespace FishGUI
 			icon->m_path = path;
 			return icon;
 		}
-		
+
 		virtual void Draw(DrawContext* context, const Rect& r) const override
 		{
 			auto ctx = context->vg;
@@ -71,7 +71,7 @@ namespace FishGUI
 			nvgFillPaint(ctx, imgPaint);
 			nvgFill(ctx);
 		}
-		
+
 	protected:
 		ImageIcon() = default;
 		mutable int m_texture = -1;	// opengl texture

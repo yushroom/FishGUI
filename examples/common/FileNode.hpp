@@ -22,7 +22,7 @@ struct FileNode
 	bool isDir;
 	std::vector<FileNode*> subdirs;
 	std::vector<FileNode*> files;
-	
+
 	FileNode(const Path& rootDir) : path(rootDir)
 	{
 		fileName = path.stem().string();
@@ -30,7 +30,7 @@ struct FileNode
 		{
 			return;
 		}
-		
+
 		fs::directory_iterator end;
 		for (fs::directory_iterator it(path); it != end; ++it)
 		{
@@ -56,7 +56,7 @@ struct FileNode
 			}
 		}
 	}
-	
+
 	// FileNode* Find(const Path& p)
 	// {
 	// 	auto r = fs::relative(p, path);

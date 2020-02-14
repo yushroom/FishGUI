@@ -49,7 +49,7 @@ namespace FishGUI
 	{
 		nvgSave(ctx);
 		nvgIntersectScissor(ctx, x, y, w, h);
-		
+
 		if (active)
 		{
 			nvgBeginPath(ctx);
@@ -59,7 +59,7 @@ namespace FishGUI
 		}
 		nvgResetScissor(ctx);
 		nvgRestore(ctx);
-		
+
 		// Draw the text with some padding
 		int textX = x + theme->tabButtonHorizontalPadding;
 		int textY = y + theme->tabButtonVerticalPadding;
@@ -78,32 +78,32 @@ namespace FishGUI
 		NVGpaint bg;
 		char icon[8];
 		float cornerRadius = h / 2 - 1;
-		
+
 		// Edit
 		bg = nvgBoxGradient(ctx, x, y + 1.5f, w, h, h / 2, 5, nvgRGBA(0, 0, 0, 16), nvgRGBA(0, 0, 0, 92));
 		nvgBeginPath(ctx);
 		nvgRoundedRect(ctx, x, y, w, h, cornerRadius);
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
-		
+
 		/*	nvgBeginPath(ctx);
 		 nvgRoundedRect(ctx, x+0.5f,y+0.5f, w-1,h-1, cornerRadius-0.5f);
 		 nvgStrokeColor(ctx, nvgRGBA(0,0,0,48));
 		 nvgStroke(ctx);*/
-		
+
 		nvgFontSize(ctx, h*1.3f);
 		nvgFontFace(ctx, "icons");
 		nvgFillColor(ctx, nvgRGBA(255, 255, 255, 64));
 		nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 		nvgText(ctx, x + h * 0.55f, y + h * 0.55f, cpToUTF8(ICON_SEARCH, icon), NULL);
-		
+
 		nvgFontSize(ctx, 20.0f);
 		nvgFontFace(ctx, "sans");
 		nvgFillColor(ctx, nvgRGBA(255, 255, 255, 32));
-		
+
 		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		nvgText(ctx, x + h * 1.05f, y + h * 0.5f, text, NULL);
-		
+
 		nvgFontSize(ctx, h*1.3f);
 		nvgFontFace(ctx, "icons");
 		nvgFillColor(ctx, nvgRGBA(255, 255, 255, 32));
@@ -117,24 +117,24 @@ namespace FishGUI
 		NVGpaint bg;
 		char icon[8];
 		float cornerRadius = 2.0f;
-		
+
 		bg = nvgLinearGradient(ctx, x, y, x, y + h, nvgRGBA(255, 255, 255, 16), nvgRGBA(0, 0, 0, 16));
 		nvgBeginPath(ctx);
 		nvgRoundedRect(ctx, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
-		
+
 		nvgBeginPath(ctx);
 		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
 		nvgStrokeColor(ctx, nvgRGBA(0, 0, 0, 48));
 		nvgStroke(ctx);
-		
+
 		nvgFontSize(ctx, theme->standardFontSize);
 		nvgFontFace(ctx, "sans");
 		nvgFillColor(ctx, theme->textColor);
 		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		nvgText(ctx, x + h * 0.3f, y + h * 0.5f, text, NULL);
-		
+
 		nvgFontSize(ctx, h);
 		nvgFontFace(ctx, "ui");
 		nvgFillColor(ctx, theme->textColor);
@@ -145,17 +145,17 @@ namespace FishGUI
 	void DrawLabel(DrawContext* context, const char* text, float x, float y, float w, float h, int alignment /*= NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE*/)
 	{
 		NVG_NOTUSED(w);
-		
+
 		nvgFontSize(ctx, theme->standardFontSize);
 		nvgFontFace(ctx, "sans");
 		nvgFillColor(ctx, theme->textColor);
-		
+
 		// debug
 	//	nvgBeginPath(ctx);
 	//	nvgRect(ctx, x, y, w, h);
 	//	nvgStrokeColor(ctx, nvgRGBA(0, 0, 0, 255));
 	//	nvgStroke(ctx);
-		
+
 		nvgTextAlign(ctx, alignment);
 		nvgSave(ctx);
 		nvgIntersectScissor(ctx, x, y, w, h);
@@ -173,7 +173,7 @@ namespace FishGUI
 		nvgRect(ctx, x + 1, y + 1, w - 2, h - 2);
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
-		
+
 		nvgBeginPath(ctx);
 	//	nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, 4 - 0.5f);
 		nvgRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1);
@@ -184,17 +184,17 @@ namespace FishGUI
 	void DrawEditBox(DrawContext* context, const char* text, float x, float y, float w, float h)
 	{
 		DrawEditBoxBase(context, x, y, w, h);
-		
+
 		nvgSave(ctx);
 		nvgIntersectScissor(ctx, x, y, w, h);
-		
+
 		nvgFontSize(ctx, theme->standardFontSize);
 		nvgFontFace(ctx, "sans");
 	//	nvgFillColor(ctx, nvgRGBA(255, 255, 255, 64));
 		nvgFillColor(ctx, theme->textColor);
 		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		nvgText(ctx, x + h * 0.3f, y + h * 0.5f, text, NULL);
-		
+
 		nvgRestore(ctx);
 	}
 
@@ -203,20 +203,20 @@ namespace FishGUI
 		NVGpaint bg;
 		char icon[8];
 		NVG_NOTUSED(w);
-		
+
 	//	nvgFontSize(ctx, 18.0f);
 	//	nvgFontFace(ctx, "sans");
 	//	nvgFillColor(ctx, nvgRGBA(255, 255, 255, 160));
 	//	nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 	//	nvgText(ctx, x + 28, y + h * 0.5f, text, NULL);
-		
+
 		constexpr int size = 14;
 		bg = nvgBoxGradient(ctx, x + 1, y + (int)(h*0.5f) - size/2 + 1, size, size, 3, 3, nvgRGBA(251, 251, 251, 255), nvgRGBA(188, 188, 188, 255));
 		nvgBeginPath(ctx);
 		nvgRoundedRect(ctx, x + 1, y + (int)(h*0.5f) - size/2, size, size, 3);
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
-		
+
 		if (checked)
 		{
 			nvgFontSize(ctx, 30);
@@ -226,7 +226,7 @@ namespace FishGUI
 			nvgText(ctx, x + size/2 + 2, y + h * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
 		}
 	}
-	
+
 
 	void DrawButton(DrawContext* context, const char* text, float x, float y, float w, float h, NVGcolor colorTop, NVGcolor colorBot)
 	{
@@ -234,7 +234,7 @@ namespace FishGUI
 //		char icon[8];
 		float cornerRadius = 4.0f;
 		float tw = 0, iw = 0;
-		
+
 		//	bg = nvgLinearGradient(ctx, x,y,x,y+h, nvgRGBA(255,255,255,isBlack(col)?16:32), nvgRGBA(0,0,0,isBlack(col)?16:32));
 //		NVGcolor colorTop = theme->buttonGradientTopUnfocused;
 //		NVGcolor colorBot = theme->buttonGradientBotUnfocused;
@@ -247,12 +247,12 @@ namespace FishGUI
 		//	}
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
-		
+
 		nvgBeginPath(ctx);
 		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
 		nvgStrokeColor(ctx, nvgRGBA(0, 0, 0, 255));
 		nvgStroke(ctx);
-		
+
 		nvgFontSize(ctx, theme->standardFontSize);
 		nvgFontFace(ctx, "sans");
 		tw = nvgTextBounds(ctx, 0, 0, text, NULL, NULL);
@@ -262,7 +262,7 @@ namespace FishGUI
 //			iw = nvgTextBounds(ctx, 0, 0, cpToUTF8(preicon, icon), NULL, NULL);
 //			iw += h * 0.15f;
 //		}
-		
+
 //		if (preicon != 0) {
 //			nvgFontSize(ctx, h*1.3f);
 //			nvgFontFace(ctx, "icons");
@@ -270,10 +270,10 @@ namespace FishGUI
 //			nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 //			nvgText(ctx, x + w * 0.5f - tw * 0.5f - iw * 0.75f, y + h * 0.5f, cpToUTF8(preicon, icon), NULL);
 //		}
-		
+
 		nvgSave(ctx);
 		nvgIntersectScissor(ctx, x, y, w, h);
-		
+
 		nvgFontSize(ctx, theme->standardFontSize);
 		nvgFontFace(ctx, "sans");
 		nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
@@ -281,10 +281,10 @@ namespace FishGUI
 	//	nvgText(ctx, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f - 1, text, NULL);
 		nvgFillColor(ctx, theme->textColor);
 		nvgText(ctx, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f, text, NULL);
-		
+
 		nvgRestore(ctx);
 	}
-	
+
 	void DrawButton(DrawContext* context, const char* text, float x, float y, float w, float h)
 	{
 		DrawButton(context, text, x, y, w, h, theme->buttonGradientTopUnfocused, theme->buttonGradientBotUnfocused);
@@ -295,17 +295,17 @@ namespace FishGUI
 		NVGpaint bg, knob;
 		float cy = y + (int)(h*0.5f);
 		float kr = (int)(h*0.25f);
-		
+
 		nvgSave(ctx);
 		//	nvgClearState(ctx);
-		
+
 		// Slot
 		bg = nvgBoxGradient(ctx, x, cy - 2 + 1, w, 4, 2, 2, nvgRGBA(0, 0, 0, 32), nvgRGBA(0, 0, 0, 128));
 		nvgBeginPath(ctx);
 		nvgRoundedRect(ctx, x, cy - 2, w, 4, 2);
 		nvgFillPaint(ctx, bg);
 		nvgFill(ctx);
-		
+
 		// Knob Shadow
 	//	bg = nvgRadialGradient(ctx, x + (int)(pos*w), cy + 1, kr - 3, kr + 3, nvgRGBA(0, 0, 0, 64), nvgRGBA(0, 0, 0, 0));
 	//	nvgBeginPath(ctx);
@@ -314,7 +314,7 @@ namespace FishGUI
 	//	nvgPathWinding(ctx, NVG_HOLE);
 	//	nvgFillPaint(ctx, bg);
 	//	nvgFill(ctx);
-		
+
 		// Knob
 		knob = nvgLinearGradient(ctx, x, cy - kr, x, cy + kr, nvgRGBA(255, 255, 255, 16), nvgRGBA(0, 0, 0, 16));
 		nvgBeginPath(ctx);
@@ -323,12 +323,12 @@ namespace FishGUI
 		nvgFill(ctx);
 		nvgFillPaint(ctx, knob);
 		nvgFill(ctx);
-		
+
 		nvgBeginPath(ctx);
 		nvgCircle(ctx, x + (int)(pos*w), cy, kr - 0.5f);
 		nvgStrokeColor(ctx, nvgRGBA(0, 0, 0, 92));
 		nvgStroke(ctx);
-		
+
 		nvgRestore(ctx);
 	}
 
@@ -343,7 +343,7 @@ namespace FishGUI
 //		nvgRoundedRect(ctx, x + 1, y + 1, w - 2, h - 2, cornerRadius - 1);
 //		nvgFillPaint(ctx, bg);
 //		nvgFill(ctx);
-//		
+//
 //		// active segment
 //		for (int i = 0; i < count; ++i)
 //		{
@@ -358,19 +358,19 @@ namespace FishGUI
 //			nvgFill(ctx);
 //			nvgResetScissor(ctx);
 //		}
-//		
+//
 //		auto black = nvgRGB(0, 0, 0);
 //		nvgBeginPath(ctx);
 //		nvgRoundedRect(ctx, x + 0.5f, y + 0.5f, w - 1, h - 1, cornerRadius - 0.5f);
 //		nvgStrokeColor(ctx, black);
 //		nvgStroke(ctx);
-//		
+//
 //		for (int i = 1; i < count; ++i)
 //		{
 //			int xx = x + width*i;
 //			DrawLine(context, xx, y, xx, y+h, black);
 //		}
-//		
+//
 ////		nvgFontSize(ctx, theme->standardFontSize);
 ////		nvgFontFace(ctx, "ui");
 //		nvgFillColor(ctx, theme->textColor);
@@ -387,7 +387,7 @@ namespace FishGUI
 //			x += width;
 //		}
 //	}
-	
+
 	void DrawImage(DrawContext* context, unsigned int image, const Rect& r, bool flip)
 	{
 		auto ctx2 = (GLNVGcontext*)nvgInternalParams(ctx)->userPtr;

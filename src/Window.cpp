@@ -49,7 +49,7 @@ void main()
 namespace FishGUI
 {
 	static Shader* screenShader;
-	
+
 	void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		//printf("[glfwKeyCallback] key: %d, scancode: %d, actions: %d, mods: %d\n", key, scancode, action, mods);
@@ -57,7 +57,7 @@ namespace FishGUI
 		auto& input = win->GetInput();
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
-		
+
 		KeyEvent::Type type = KeyEvent::Type::KeyPress;	// GLFW_PRESS, GLFW_REPEAT
 		if (action == GLFW_RELEASE)
 			type = KeyEvent::Type::KeyRelease;
@@ -65,7 +65,7 @@ namespace FishGUI
 		auto e = new KeyEvent(type, key, mods);
 		input.m_keyEvents.push_back(e);
 	}
-	
+
 	void glfwCharCallback(GLFWwindow *window, unsigned int codepoint)
 	{
 		std::cout << codepoint << std::endl;
@@ -76,7 +76,7 @@ namespace FishGUI
 		//std::cout << u8str << std::endl;
 		//g.input.m_stringBuffer += u8str;
 	}
-	
+
 	void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		//printf("[glfwMouseButtonCallback] button: %d, actions: %d, mods: %d\n", button, action, mods);
@@ -104,16 +104,16 @@ namespace FishGUI
 			//printf("GLFW_RELEASE\n");
 			state = MouseButtonState::Up;
 		}
-		
+
 		input.m_mouseButtonStates[button] = state;
 		input.m_mouseEventModifiers[button] = mods;
-		
+
 		auto type = action==GLFW_PRESS ? MouseEvent::Type::MouseButtonPress : MouseEvent::Type::MouseButtonRelease;
 		auto btn = static_cast<MouseButton>(button);
 		auto e = new MouseEvent(type, input.GetMousePosition(), btn, mods);
 		input.m_mouseEvents.push_back(e);
 	}
-	
+
 	void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 //		printf("xoffset: %le yoffset: %le\n", xoffset, yoffset);
@@ -122,13 +122,13 @@ namespace FishGUI
 		input.m_scroll.x = static_cast<float>(xoffset*6);
 		input.m_scroll.y = static_cast<float>(yoffset*6);
 	}
-	
+
 	void glfwWindowResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		auto win = WindowManager::GetInstance().FindWindow(window);
 		win->OnResize(width, height);
 	}
-	
+
 	void glfwFrameBufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		auto win = WindowManager::GetInstance().FindWindow(window);
@@ -147,14 +147,14 @@ namespace FishGUI
 		glfwSetFramebufferSizeCallback(window, glfwFrameBufferResizeCallback);
 //		glfwSetglfwWindowFocusCallback(window, glfwWindowFocusCallback);
 	}
-	
+
 	Window::Window(FishGUIContext* context, const char* title,  int width, int height)
 		: m_name(title), m_size{ width, height }, m_context(context)
 	{
 		m_input.m_window = this;
 		m_minSize.width = 200;
 		m_minSize.height = 200;
-		
+
 		m_glfwWindow = glfwCreateWindow(width, height, title, nullptr, context->m_contextWindow);
 		if (!m_glfwWindow)
 		{
@@ -163,26 +163,26 @@ namespace FishGUI
 		}
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
 		m_framebuffer.Init(m_framebufferSize.width, m_framebufferSize.height);
-		
+
 		BindGLFWWindowCallbacks(m_glfwWindow);
 		glfwSetWindowSizeLimits(m_glfwWindow, m_minSize.width, m_minSize.height, m_maxSize.width, m_maxSize.height);
-		
+
 		WindowManager::GetInstance().m_windows.push_back(this);
-		
-		
+
+
 		glfwMakeContextCurrent(m_glfwWindow);
-		
+
 		static float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 			// positions   // texCoords
 			-1.0f,  1.0f,  0.0f, 1.0f,
 			-1.0f, -1.0f,  0.0f, 0.0f,
 			1.0f, -1.0f,  1.0f, 0.0f,
-			
+
 			-1.0f,  1.0f,  0.0f, 1.0f,
 			1.0f, -1.0f,  1.0f, 0.0f,
 			1.0f,  1.0f,  1.0f, 1.0f
 		};
-		
+
 		// screen quad VAO
 		//unsigned int quadVAO, quadVBO;
 		auto& quadVAO = m_quadVAO;
@@ -197,26 +197,26 @@ namespace FishGUI
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 		//glCheckError();
-		
+
 		BindMainContext();
 		if (screenShader == nullptr)
 		{
 			screenShader = new Shader(screenVS, screenFS);
 		}
-		
+
 	}
-	
+
 	Window::~Window()
 	{
 		glfwMakeContextCurrent(m_glfwWindow);
 		glDeleteVertexArrays(1, &m_quadVAO);
 		glDeleteBuffers(1, &m_quadVBO);
 		glfwDestroyWindow(m_glfwWindow);
-		
+
 		BindMainContext();
 	}
-	
-	
+
+
 	void Window::SetPosition(int x, int y)
 	{
 //		assert(m_glfwWindow != nullptr);
@@ -224,7 +224,7 @@ namespace FishGUI
 		m_position.x = x;
 		m_position.y = y;
 	}
-	
+
 
 	void Window::SetSize(int width, int height)
 	{
@@ -233,7 +233,7 @@ namespace FishGUI
 		m_size.width = width;
 		m_size.height = height;
 	}
-	
+
 
 	void Window::SetTitle(const char* title)
 	{
@@ -241,15 +241,15 @@ namespace FishGUI
 		m_name = title;
 		glfwSetWindowTitle(m_glfwWindow, title);
 	}
-	
-	
+
+
 	//void Window::SetDecorated(bool decorated)
 	//{
 	//	assert(m_glfwWindow != nullptr);
 	//	int v = decorated ? GLFW_TRUE : GLFW_FALSE;
 	//	glfwSetWindowAttrib(m_glfwWindow, GLFW_DECORATED, v);
 	//}
-	
+
 	//void Window::PreDraw()
 	//{
 	//}
@@ -272,26 +272,26 @@ namespace FishGUI
 	{
 //		puts("Window::BeforeDraw");
 		Context::GetInstance().BindWindow(this);
-		
+
 		m_isFocused = (glfwGetWindowAttrib(m_glfwWindow, GLFW_FOCUSED) == 1);
-		
+
 		m_widgets.clear();
 		float ratio = float(m_framebufferSize.width) / m_size.width;
-		
+
 		glViewport(0, 0, m_framebufferSize.width, m_framebufferSize.height);
 //		glClearColor(0, 1, 0, 1);
 		float bck = 162 / 255.0f;
 		glClearColor(bck, bck, bck, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
+
 //		glClearColor(1, 0, 0, 1);
 //		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
+
 		Context::GetInstance().m_drawContext->vg = this->GetNVGContext();
 		Context::GetInstance().m_input = &m_input;
 		nvgBeginFrame(GetNVGContext(), m_size.width, m_size.height, ratio);
 	}
-	
+
 
 //	void Window::Draw()
 //	{
@@ -303,23 +303,23 @@ namespace FishGUI
 //		}
 //		AfterDraw();
 //	}
-	
+
 	void Window::Draw()
 	{
 //		puts("Window::Draw");
 		//glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 		m_framebuffer.Bind();
 		BeforeDraw();
-		
+
 		if (m_layout != nullptr)
 		{
 			Rect rect = { 0, 0, m_size.width, m_size.height };
 			m_layout->PerformLayout(rect);
 		}
-		
+
 		//AfterFrame();
 		Context::GetInstance().UnbindWindow();
-		
+
 		if (!m_isFocused)
 		{
 			for (auto w : m_widgets)
@@ -332,9 +332,9 @@ namespace FishGUI
 			if (m_focusedWidget != nullptr)
 				m_focusedWidget->SetIsFocused(true);
 		}
-		
+
 		nvgEndFrame(GetNVGContext());
-		
+
 
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_framebuffer.Unbind();
@@ -374,8 +374,8 @@ namespace FishGUI
 //		glfwSwapBuffers(m_glfwWindow);
 //		glfwMakeContextCurrent(m_context->m_contextWindow);
 //	}
-	
-	
+
+
 	void Window::AfterFrame()
 	{
 //		puts("Window::AfterFrame");
@@ -390,7 +390,7 @@ namespace FishGUI
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glfwSwapBuffers(m_glfwWindow);
 		glCheckError();
-		
+
 //		glfwMakeContextCurrent(nullptr);
 		BindMainContext();
 	}
@@ -417,7 +417,7 @@ namespace FishGUI
 		m_size.width = w;
 		m_size.height = h;
 		glfwGetFramebufferSize(m_glfwWindow, &m_framebufferSize.width, &m_framebufferSize.height);
-		
+
 		int fbw = m_framebufferSize.width;
 		int fbh = m_framebufferSize.height;
 		m_framebuffer.Resize(fbw, fbh);
@@ -459,8 +459,8 @@ namespace FishGUI
 			m_focusedWidget->OnKeyEvent(e);
 		}
 	}
-	
-	
+
+
 	void Window::BindMainContext()
 	{
 		glfwMakeContextCurrent(m_context->m_contextWindow);
